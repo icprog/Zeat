@@ -29,7 +29,7 @@ void BoardInitMcu( void )
 		__HAL_RCC_GPIOH_CLK_ENABLE();
 		__HAL_RCC_GPIOB_CLK_ENABLE();
 		__HAL_RCC_GPIOA_CLK_ENABLE(); ///开启时钟
-								
+										
 		McuInitialized = true;
 	} 
 	else
@@ -47,23 +47,19 @@ void BoardInitMcu( void )
 	MX_USART1_UART_Init(  );  
 					
 	MX_USART2_UART_Init(  );
-    
-	/*****************I2C初始化********************/
-//	MX_I2C2_Init(  );
 	
 	/****************ADC初始化*******************/
-	MX_ADC_Init(  );
+//	MX_ADC_Init(  );
 	
 	/*****************电源管理********************/
 //	InitPower(  );
-
 	RTC_Init(  );
-			
-	/*******************开启RTC中断*******************/
-	HAL_NVIC_SetPriority(RTC_IRQn, 1, 0);
-	HAL_NVIC_EnableIRQ(RTC_IRQn);
 	
-	UserSetaInit(  );
+	/*******************开启RTC中断*******************/
+	HAL_NVIC_SetPriority(RTC_IRQn, 3, 0);
+	HAL_NVIC_EnableIRQ(RTC_IRQn);
+			
+	UserZetaInit(  );
 }
 
 /*
@@ -87,11 +83,11 @@ void BoardDeInitMcu( void )
     /* Disable the Peripheral */	
 	HAL_ADC_MspInit(&hadc);  ///OK
 	hadc.State = HAL_ADC_STATE_RESET;
-	
-	 /* Disable the selected I2C peripheral */
-  HAL_I2C_DeInit(&hi2c2);
-	hi2c2.State = HAL_I2C_STATE_RESET;
-	
+//	
+//	 /* Disable the selected I2C peripheral */
+//  HAL_I2C_DeInit(&hi2c2);
+//	hi2c2.State = HAL_I2C_STATE_RESET;
+//	
 	///关闭UART1时钟
   HAL_UART_DeInit(&huart1);
 	huart1.gState = HAL_UART_STATE_RESET;
@@ -100,7 +96,7 @@ void BoardDeInitMcu( void )
 	HAL_UART_DeInit(&huart2);
 	huart2.gState = HAL_UART_STATE_RESET;
 	
-	///关闭UART2时钟
+	///关闭UART5时钟
 	HAL_UART_DeInit(&huart5);
 	huart5.gState = HAL_UART_STATE_RESET;
 	

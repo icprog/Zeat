@@ -41,27 +41,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "rtc-board.h"
 #include "Zeta.h"
 
-#if defined( USE_USB_CDC )
-#include "uart-usb-board.h"
-#endif
-
-/*!
- * Define indicating if an external IO expander is to be used
- */
-#define BOARD_IOE_EXT
-
-/*!
- * Generic definition
- */
-#ifndef SUCCESS
-#define SUCCESS                                     1
-#endif
-
-#ifndef FAIL
-#define FAIL                                        0
-#endif
-
-
 /*!
  * Unique Devices IDs register set ( STM32F1xxx )
  */
@@ -79,6 +58,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /**************记录系统时间作为休眠时间校准*****************/
 extern volatile uint32_t system_time;
+
+extern bool McuInitialized;
 
 enum BoardPowerSource
 {

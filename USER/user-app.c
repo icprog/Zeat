@@ -18,11 +18,11 @@ UserZeta_t UserZetaCheck[] = {
 	{0x13, 1000, Payload}, ///查询网络质量
 };
 
-/*UserSetaInit：用户调用Zeta初始化
+/*UserZetaInit：用户调用Zeta初始化
 *参数：					无
 *返回值：   		无
 */
-void UserSetaInit(void)
+void UserZetaInit(void)
 {
 	ZetaHandle.Init = ZetaInit;
 	ZetaHandle.WakeupEnable = WakeupZetaEnable;
@@ -250,4 +250,28 @@ void UserCloseTimer(ZetaTimer_t Timer)
 	memset(ZetaSendBuf.Buf, 0, ZetaSendBuf.Len);
 	memset(ZetaRecviceBuf.Buf, 0, ZetaRecviceBuf.Len);
 	free(ZetaSendBuf.Buf);
+}
+
+/*
+ *	UserIntoLowPower:	进入低功耗模式：停机
+ *	返回值: 					无
+ */
+void UserIntoLowPower(void)
+{	       
+    BoardDeInitMcu( ); ///关闭时钟线
+    
+    // Disable the Power Voltage Detector
+    HAL_PWR_DisablePVD( );
+    
+    SET_BIT( PWR->CR, PWR_CR_CWUF );
+    /* Set MCU in ULP (Ultra Low Power) */
+    HAL_PWREx_EnableUltraLowPower( );
+    
+    /* Enable the fast wake up from Ultra low power mode */
+    HAL_PWREx_EnableFastWakeUp( );
+
+    /*****************进入停机模式*********************/
+    /* Enter Stop Mode */
+    __HAL_PWR_CLEAR_FLAG( PWR_FLAG_WU );
+    HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
 }

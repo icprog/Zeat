@@ -43,48 +43,52 @@ RTC_HandleTypeDef RtcHandle;
 /***********************************以下为RTC底层代码部分***************************************/
 /* RTC init function */
 void RTC_Init(void)
-{
-	RTC_TimeTypeDef RTC_TimeStruct;
-	RTC_DateTypeDef RTC_DateStruct;
-	
-	/**Initialize RTC Only 
-	*/
-	RtcHandle.Instance = RTC;
-	RtcHandle.Init.HourFormat = RTC_HOURFORMAT_24;
-	RtcHandle.Init.AsynchPrediv = 127; 
-	RtcHandle.Init.SynchPrediv = 255; 
-	
-	RtcHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
-	RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-	RtcHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
-	if (HAL_RTC_Init(&RtcHandle) != HAL_OK)
+{	
+  RTC_TimeTypeDef sTime;
+  RTC_DateTypeDef sDate;
+
+	if(HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR0) != 0x32F2)
 	{
-		printf("HAL_RTC_Init error \r\n");
-		Error_Handler();
+    /**Initialize RTC Only 
+    */
+		RtcHandle.Instance = RTC;
+		RtcHandle.Init.HourFormat = RTC_HOURFORMAT_24;
+		RtcHandle.Init.AsynchPrediv = 127;
+		RtcHandle.Init.SynchPrediv = 255;
+		RtcHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
+		RtcHandle.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
+		RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+		RtcHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+		if (HAL_RTC_Init(&RtcHandle) != HAL_OK)
+		{
+			Error_Handler( );
+		}
+
+			/**Initialize RTC and set the Time and Date 
+			*/
+		sTime.Hours = 0;
+		sTime.Minutes = 0;
+		sTime.Seconds = 0;
+		sTime.TimeFormat = RTC_HOURFORMAT12_AM;    
+		sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+		sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+		if (HAL_RTC_SetTime(&RtcHandle, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+		{
+			Error_Handler( );
+		}
+
+		sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+		sDate.Month = RTC_MONTH_JANUARY;
+		sDate.Date = 1;
+		sDate.Year = 0;
+
+		if (HAL_RTC_SetDate(&RtcHandle, &sDate, RTC_FORMAT_BIN) != HAL_OK)
+		{
+			Error_Handler( );
+		}
+
+		HAL_RTCEx_BKUPWrite(&RtcHandle,RTC_BKP_DR0,0x32F2);
 	}
-
-	/**Initialize RTC and set the Time and Date 
-	*/
-	RTC_TimeStruct.TimeFormat = RTC_HOURFORMAT12_AM;	
-	RTC_TimeStruct.Hours = 0;
-	RTC_TimeStruct.Minutes = 0;
-	RTC_TimeStruct.Seconds = 0;
-	RTC_TimeStruct.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-	RTC_TimeStruct.StoreOperation = RTC_STOREOPERATION_RESET;
-	if (HAL_RTC_SetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN) != HAL_OK)
-	{
-		Error_Handler();
-	}
-
-	RTC_DateStruct.WeekDay = RTC_WEEKDAY_MONDAY;
-	RTC_DateStruct.Month = RTC_MONTH_JANUARY;
-	RTC_DateStruct.Date = 1;
-	RTC_DateStruct.Year = 17;
-
-	if (HAL_RTC_SetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN) != HAL_OK)
-	{
-		Error_Handler();
-	}	
 }
 
 void HAL_RTC_MspInit(RTC_HandleTypeDef* rtcHandle)
@@ -128,37 +132,44 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 /*******************************以上为RTC底层代码部分****************************************/
 
 /*SetRtcAlarm：设置RTC闹钟休眠唤醒
-*注意：RTC闹钟事件：HAL_RTC_SetAlarm_IT( &RtcHandle, &RTC_AlarmStructure, RTC_FORMAT_BIN )
-*      必须设置为：RTC_FORMAT_BIN 否则唤醒失败
 */
 void SetRtcAlarm(uint16_t time)
 {
-	RTC_AlarmTypeDef sAlarm;
-	RTC_TimeTypeDef RTC_TimeStruct;
-	uint8_t Hours,Minutes,Seconds = 0;
+	RTC_AlarmTypeDef RTC_AlarmStructure;
+	RTC_TimeTypeDef  RTC_TimeStruct;
+	RTC_DateTypeDef  RTC_DateStruct;
+ 
+	HAL_RTC_WaitForSynchro(&RtcHandle);
+	
+	HAL_RTC_DeactivateAlarm( &RtcHandle, RTC_ALARM_A );
+	HAL_RTCEx_DeactivateWakeUpTimer( &RtcHandle );
+	
+	HAL_NVIC_DisableIRQ(RTC_IRQn);
 
 	HAL_RTC_GetTime(&RtcHandle, &RTC_TimeStruct, RTC_FORMAT_BIN);
-	Hours = RTC_TimeStruct.Hours;
-	Minutes = RTC_TimeStruct.Minutes;
-	Seconds = RTC_TimeStruct.Seconds;
+	HAL_RTC_GetDate(&RtcHandle, &RTC_DateStruct, RTC_FORMAT_BIN);
+	DEBUG(2,"currenttime hour : %d min : %d second : %d\r\n",RTC_TimeStruct.Hours,RTC_TimeStruct.Minutes,RTC_TimeStruct.Seconds);
+
+	RTC_AlarmStructure.AlarmTime.Seconds = (RTC_TimeStruct.Seconds+time)%60;  
+	RTC_AlarmStructure.AlarmTime.Minutes = (RTC_TimeStruct.Minutes + (RTC_TimeStruct.Seconds+time)/60)%60;
+	RTC_AlarmStructure.AlarmTime.Hours = (RTC_TimeStruct.Hours + (RTC_TimeStruct.Minutes + (RTC_TimeStruct.Seconds+time)/60)/60)%24;
+	RTC_AlarmStructure.AlarmTime.SubSeconds = 0;
 	
-	sAlarm.AlarmTime.Hours = (Hours+(Minutes+(Seconds+time)/60)/60)%24;
-	sAlarm.AlarmTime.Minutes = (Minutes+(Seconds+time)/60)%60;
-	sAlarm.AlarmTime.Seconds = (Seconds+time)%60;
-	sAlarm.AlarmTime.SubSeconds = 0;
-	sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-	sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
-	sAlarm.AlarmMask = RTC_ALARMMASK_DATEWEEKDAY;
-	sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
-	sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
-	sAlarm.AlarmDateWeekDay = 1;
-	sAlarm.Alarm = RTC_ALARM_A;
-	
-	DEBUG(2, " 111 hour : %d min : %d second : %d \r\n",	RTC_TimeStruct.Hours,RTC_TimeStruct.Minutes,RTC_TimeStruct.Seconds);
-	if (HAL_RTC_SetAlarm_IT(&RtcHandle, &sAlarm, RTC_FORMAT_BIN) != HAL_OK)
+	DEBUG(2,"wkuptime    hour : %d min : %d second : %d\r\n",RTC_AlarmStructure.AlarmTime.Hours,RTC_AlarmStructure.AlarmTime.Minutes,RTC_AlarmStructure.AlarmTime.Seconds);
+
+	RTC_AlarmStructure.AlarmDateWeekDay = RTC_WEEKDAY_MONDAY;
+	RTC_AlarmStructure.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
+	RTC_AlarmStructure.AlarmMask = RTC_ALARMMASK_DATEWEEKDAY;//RTC_ALARMMASK_NONE;为精准匹配
+	RTC_AlarmStructure.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_NONE;
+	RTC_AlarmStructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
+	RTC_AlarmStructure.Alarm = RTC_ALARM_A;
+    	
+	if( HAL_RTC_SetAlarm_IT( &RtcHandle, &RTC_AlarmStructure, RTC_FORMAT_BIN ) != HAL_OK )
 	{
 		assert_param( FAIL );
-	} 
+	}
+    
+  HAL_NVIC_EnableIRQ(RTC_IRQn);
 }
 
 /* USER CODE END 1 */

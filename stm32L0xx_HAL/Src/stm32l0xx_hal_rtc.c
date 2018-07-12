@@ -182,7 +182,7 @@ HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc)
   {
      return HAL_ERROR;
   }
-
+	printf("HAL_RTC_Init Start \r\n");
   /* Check the parameters */
   assert_param(IS_RTC_ALL_INSTANCE(hrtc->Instance));
   assert_param(IS_RTC_HOUR_FORMAT(hrtc->Init.HourFormat));

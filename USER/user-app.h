@@ -35,7 +35,7 @@ typedef struct d_UserZeta
 
 extern UserZeta_t UserZetaCheck[];
 
-void UserSetaInit(void);
+void UserZetaInit(void);
 
 void UserSend(void);
 
@@ -46,6 +46,8 @@ void UserSetHeart(uint8_t mode);
 void UserSetTimer(ZetaTimer_t Timer);
 
 void UserCloseTimer(ZetaTimer_t Timer);
+
+void UserIntoLowPower(void);
 
 #endif /* __USER_APP_H */
 

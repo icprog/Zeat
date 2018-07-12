@@ -142,8 +142,6 @@ void SysTick_Handler(void)
 /* please refer to the startup file (startup_stm32l0xx.s).                    */
 /******************************************************************************/
 
-extern bool test_rtc_state;
-
 
 /**
 * @brief This function handles RTC global interrupt through EXTI lines 17, 19 and 20 and LSE CSS interrupt through EXTI line 19.
@@ -156,9 +154,8 @@ void RTC_IRQHandler(void)
 	
   HAL_RTC_AlarmIRQHandler(&RtcHandle);
 	
-  DEBUG(3,"%s\r\n",__func__);
   /* USER CODE BEGIN RTC_IRQn 1 */
-
+	HAL_RTC_DeactivateAlarm( &RtcHandle, RTC_ALARM_A );
   /* USER CODE END RTC_IRQn 1 */
 }
 
@@ -173,7 +170,7 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 	}
 	
 	 // check the clk source and set to full speed if we are coming from sleep mode
-	if( ( __HAL_RCC_GET_SYSCLK_SOURCE( ) == RCC_SYSCLKSOURCE_STATUS_HSI ) ||
+	if( ( __HAL_RCC_GET_SYSCLK_SOURCE( ) == RCC_SYSCLKSOURCE_STATUS_HSE ) ||
 			( __HAL_RCC_GET_SYSCLK_SOURCE( ) == RCC_SYSCLKSOURCE_STATUS_MSI ) )
 	{
 			BoardInitMcu( );

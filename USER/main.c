@@ -37,6 +37,7 @@ extern RTC_HandleTypeDef 				RtcHandle;
 	【2】：增加Zeta下行数据脉冲触发
 	【3】：增加主控休眠机制
 	【4】：增加Zeta下行INT唤醒MCU
+	【5】：增加RTC休眠唤醒
 	
   *****************************************************************************/
 /* variable functions ---------------------------------------------------------*/	
@@ -58,7 +59,9 @@ int main(void)
 	  	 
    while (1)
    {	
-		 
+			UserSend(  );
+			SetRtcAlarm(10);///4S误差	  
+			UserIntoLowPower(  );
 	 }
 	 
 }
