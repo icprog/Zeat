@@ -77,4 +77,29 @@ ff 00 0e 02 68 65 6c 6c 6f 77 6f 72 6c 64
 
 
 
+unsigned char crc_high_first(unsigned char *ptr, unsigned char len)
+{
+    unsigned char i; 
+    unsigned char crc=0x00； /* 计算的初始crc值 */ 
 
+    while(len--)
+    {
+        crc ^= *ptr++;  /* 每次先与需要计算的数据异或,计算完指向下一数据 */  
+        for (i=8; i>0; --i)   /* 下面这段计算过程与计算一个字节crc一样 */  
+        { 
+            if (crc & 0x80)
+                crc = (crc << 1) ^ 0x31;
+            else
+                crc = (crc << 1);
+        }
+    }
+
+    return (crc); 
+}
+
+
+Program Size: Code=70778 RO-data=3770 RW-data=2640 ZI-data=6984  
+
+SaveRs485s[index].MainBox.ExpendBox[ExpId].ExpenCheck
+
+	Sensors.MaBoxData 			= SensorMaBoxData;

@@ -97,8 +97,8 @@ void BoardDeInitMcu( void )
 	huart2.gState = HAL_UART_STATE_RESET;
 	
 	///πÿ±’UART5 ±÷”
-	HAL_UART_DeInit(&huart5);
-	huart5.gState = HAL_UART_STATE_RESET;
+	HAL_UART_DeInit(&huart4);
+	huart4.gState = HAL_UART_STATE_RESET;
 	
 	/*******************πÿ±’SPI*********************/
 		

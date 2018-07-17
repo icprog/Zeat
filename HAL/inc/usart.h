@@ -44,16 +44,17 @@
 /* USER CODE BEGIN Includes */
 	 
 #include <stdbool.h>
-	 
+#include "FIFO_Uart.h"		 
 #include "debug.h"
 #include "gpio.h"	 
-#include "gps.h"	 
+#include "gps.h"	
+ 
 	 
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
-extern UART_HandleTypeDef huart5;	 
+extern UART_HandleTypeDef huart4;	 
 
 /* USER CODE BEGIN Private defines */
 
@@ -82,10 +83,10 @@ typedef struct{
 	
 }UART_RX;
 
-extern uint8_t RxBuffer;
+extern UART_RX UART_RX_DATA2;
+	 
+extern UART_FIFO_Typedef_t usart_rs485;
 
-extern UART_RX UART_RX_DATA5;
-extern UART_RX UART_RX_DATA2;	 
 
 typedef struct
 {
@@ -109,10 +110,12 @@ extern void Error_Handler(void);
 
 void MX_USART1_UART_Init(void);
 void MX_USART2_UART_Init(void);
-void MX_USART5_UART_Init(void);
+void MX_USART4_UART_Init(void);
 
 
 /* USER CODE BEGIN Prototypes */
+
+void InitUartFifo(void);
 
 /* USER CODE END Prototypes */
 

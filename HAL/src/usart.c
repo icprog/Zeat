@@ -37,13 +37,22 @@ PUTCHAR_PROTOTYPE
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
-UART_HandleTypeDef huart5;
+UART_HandleTypeDef huart4;
+
+UART_FIFO_Typedef_t usart_rs485;
 
 UART_RX UART_RX_DATA2 = {0, {0}, 0, {0}, false, false};
-UART_RX UART_RX_DATA5 = {0, {0}, 0, {0}, false, false};
 Set_Gps_Ack_t Set_Gps_Ack = {false, false, false, false, false, false, 0, 0, 0};
 
-uint8_t RxBuffer;
+uint8_t rx_rs485_buff[100] = {0};
+uint8_t tx_rs485_buff[100] = {0};
+
+void InitUartFifo(void)
+{
+	FIFO_UartVarInit(&usart_rs485,&huart4,tx_rs485_buff,rx_rs485_buff,100,100,NULL,NULL,NULL);
+	FIFO_UartEnableRxIT(&usart_rs485);
+}
+
 
 /* USART1 init function */
 
@@ -91,26 +100,24 @@ void MX_USART2_UART_Init(void)
 }
 /* USART5 init function */
 
-void MX_USART5_UART_Init(void)
+void MX_USART4_UART_Init(void)
 {
-  huart5.Instance = USART5;
-  huart5.Init.BaudRate = 9600;
-  huart5.Init.WordLength = UART_WORDLENGTH_8B;
-  huart5.Init.StopBits = UART_STOPBITS_1;
-  huart5.Init.Parity = UART_PARITY_NONE;
-  huart5.Init.Mode = UART_MODE_TX_RX;
-  huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart5.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart5.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart5.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart5) != HAL_OK)
+  huart4.Instance = USART4;
+  huart4.Init.BaudRate = 9600;
+  huart4.Init.WordLength = UART_WORDLENGTH_8B;
+  huart4.Init.StopBits = UART_STOPBITS_1;
+  huart4.Init.Parity = UART_PARITY_NONE;
+  huart4.Init.Mode = UART_MODE_TX_RX;
+  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart4.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart4) != HAL_OK)
   {
     Error_Handler();
   }
 	HAL_NVIC_SetPriority(USART4_5_IRQn, 3, 0);
   HAL_NVIC_EnableIRQ(USART4_5_IRQn);
-
-	HAL_UART_Receive_IT(&huart5, UART_RX_DATA5.aRxBuffer, RXBUFFERSIZE);
 }
 
 
@@ -164,28 +171,28 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
   /* USER CODE END USART2_MspInit 1 */
   }
-  else if(uartHandle->Instance==USART5)
+  else if(uartHandle->Instance==USART4)
   {
-  /* USER CODE BEGIN USART5_MspInit 0 */
+  /* USER CODE BEGIN USART4_MspInit 0 */
 
-  /* USER CODE END USART5_MspInit 0 */
+  /* USER CODE END USART4_MspInit 0 */
     /* Peripheral clock enable */
-    __HAL_RCC_USART5_CLK_ENABLE();
+    __HAL_RCC_USART4_CLK_ENABLE();
   
     /**USART5 GPIO Configuration    
-    PB3     ------> USART5_TX
-    PB4     ------> USART5_RX 
+    PC10     ------> USART4_TX
+    PC11     ------> USART4_RX 
     */
-    GPIO_InitStruct.Pin = USART5_TX|USART5_RX;
+    GPIO_InitStruct.Pin = USART4_TX|USART4_RX;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF6_USART5;
-    HAL_GPIO_Init(USART5_IO, &GPIO_InitStruct);
+    GPIO_InitStruct.Alternate = GPIO_AF6_USART4;
+    HAL_GPIO_Init(USART4_IO, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN USART5_MspInit 1 */
+  /* USER CODE BEGIN USART4_MspInit 1 */
 
-  /* USER CODE END USART5_MspInit 1 */
+  /* USER CODE END USART4_MspInit 1 */
   }
 }
 
@@ -233,19 +240,19 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
   /* USER CODE END USART2_MspDeInit 1 */
   }
-  else if(uartHandle->Instance==USART5)
+  else if(uartHandle->Instance==USART4)
   {
-  /* USER CODE BEGIN USART5_MspDeInit 0 */
+  /* USER CODE BEGIN USART4_MspDeInit 0 */
 
-  /* USER CODE END USART5_MspDeInit 0 */
+  /* USER CODE END USART4_MspDeInit 0 */
     /* Peripheral clock disable */
-    __HAL_RCC_USART5_CLK_DISABLE();
+    __HAL_RCC_USART4_CLK_DISABLE();
   
     /**USART5 GPIO Configuration    
     PB3     ------> USART5_TX
     PB4     ------> USART5_RX 
     */
-    HAL_GPIO_DeInit(USART5_IO, USART5_TX|USART5_RX);
+    HAL_GPIO_DeInit(USART4_IO, USART4_TX|USART4_RX);
 
     /* Peripheral interrupt Deinit*/
     HAL_NVIC_DisableIRQ(USART4_5_IRQn);
@@ -274,15 +281,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				UART_RX_DATA2.USART_RX_Len = 0;
 	}	
 #endif	
-	if(huart->Instance==USART5)//如果是串口5
-	{		
-		UART_RX_DATA5.USART_RX_BUF[UART_RX_DATA5.USART_RX_Len] = UART_RX_DATA5.aRxBuffer[0];
-		UART_RX_DATA5.USART_RX_Len++;
-		UART_RX_DATA5.rxtime = HAL_GetTick( );
-        
-	 if(UART_RX_DATA5.USART_RX_Len >= 516)
-			UART_RX_DATA5.USART_RX_Len = 0;		
-	}	
 }
 
 

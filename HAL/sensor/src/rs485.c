@@ -1,15 +1,16 @@
 /*
 **************************************************************************************************************
-*	@file	rs485.c
-*	@author 
-*	@version 
-*	@date    
-*	@brief	用RS485使用查询方式
+*	@file			rs485.c
+*	@author 	Jason
+*	@version  V0.1
+*	@date     2018/07/14
+*	@brief		用RS485使用查询方式
 ***************************************************************************************************************
 */ 
 #include "stm32l0xx_hal.h"
 #include "usart.h"
 #include "rs485.h"
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,106 +18,177 @@
 /*********************************************************************
  * RS485/串口相关配置
  */
-#define RS485_TO_TX()	 ( HAL_GPIO_WritePin(UART_485_IO, UART_485_DE, GPIO_PIN_SET) )	// RS485总线切换到发送模式
-#define RS485_TO_RX()	 ( HAL_GPIO_WritePin(UART_485_IO, UART_485_DE, GPIO_PIN_RESET) )	// RS485总线切换到接收模式		
+#define RS485_TO_TX()	 HAL_GPIO_WritePin(Out_485_DE_Pin_GPIO_Port,Out_485_DE_Pin_Pin, GPIO_PIN_SET);	// RS485总线切换到发送模式
+#define RS485_TO_RX()	 HAL_GPIO_WritePin(Out_485_DE_Pin_GPIO_Port,Out_485_DE_Pin_Pin, GPIO_PIN_RESET);// RS485总线切换到接收模式
 
-#define TX_BUF_LEN	32	// 发送缓冲区长度
-#define RX_BUF_LEN	32	// 接收缓冲区长度
-uint8_t rs485_rxbuf[RX_BUF_LEN+1] = {0};	// 传感器串口接收缓冲区	   
-uint8_t rs485_txbuf[TX_BUF_LEN+1] = {0};	// 传感器串口发送缓冲区
-
-/*********************************************************************
- * 传感器相关配置
- */
-#define SENSOR_CMD_LEN			8  	// 命令长度
-#define SENSOR_REPLY_TIMEOUT	40	// 接收超时时间,实际延时加上sensor_info_tag.delay
-
+rs485_t Rs485s;
 
 /*
- *	InitUsart3:		波特率9600，发送和接收都为DMA模式
- *	参数：			无
- *	返回值：		无	
+ *	Rs485Init:		波特率9600，发送和接收都为DMA模式
+ *	参数：			  无
+ *	返回值：		  无	
  */
-void InitUsart5(void)
+void Rs485Init(void)
 {
-	MX_USART5_UART_Init();
-	InitPowerPin();
-	InitRs( );
-}
-
-/*
- *	InitRs:		初始化传感器
- *	参数：			无
- *	返回值：		无	
- */
-void InitRs(void)
-{
-  GPIO_InitTypeDef GPIO_InitStruct;
-
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
+	MX_USART4_UART_Init(  );
+	InitUartFifo(  );
 	
-  /*Configure GPIO pin : PB5 */
-  GPIO_InitStruct.Pin = UART_485_DE;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(UART_485_IO, &GPIO_InitStruct);
-  HAL_GPIO_WritePin(UART_485_IO, UART_485_DE, GPIO_PIN_RESET);
+	Rs485s.PinInit 		= Rs485PinInit;
+	Rs485s.OpenPin 		= Rs485OpenPin;
+	Rs485s.ClosePin 	= Rs485ClsoePin;
+	Rs485s.PowerOn 		= _12VPowerOn;
+	Rs485s.PowerOff 	= _12VPowerOff;
+	Rs485s.Print			= Rs485Print;
+	Rs485s.Crc16			= CalcCRC16;
+	Rs485s.GetData   	= Rs485GetData;
+	Rs485s.Cmd				= Rs485Cmd;
+	
+	Rs485s.PinInit(  );
 }
 
 /*
- *	InitPowerPin:	初始化传感器的供电引脚
- *	参数：			无
- *	返回值：		无	
+ *	Rs485PinInit:		初始化传感器
+ *	参数：					无
+ *	返回值：				无	
  */
-void InitPowerPin(void)
+void Rs485PinInit(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
 	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE();               		 //开启GPIOB时钟
 
-	/*Configure GPIO pin : PA8 */
-	GPIO_InitStruct.Pin = POWER_12V_ON;
+	GPIO_InitStruct.Pin = Out_12V_ON_Pin_Pin|RS485PIN_0|RS485PIN_1|RS485PIN_2|RS485PIN_3|RS485PIN_4|RS485PIN_5|POWER_485IC_Pin;                     
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HAL_GPIO_Init(POWER_IO, &GPIO_InitStruct);
-	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(POWER_IO, POWER_12V_ON, GPIO_PIN_RESET);
-}
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-/*
- *	Enble_485_Power:	使能485电源引脚
- *	参数：			无
- *	返回值：		无	
- */
-void Enble_485_Power(void)
-{
-	HAL_GPIO_WritePin(POWER_IO, POWER_12V_ON, GPIO_PIN_SET);
-}
-
-/*
- *	Disable_485_Power:	使能485电源引脚
- *	参数：			无
- *	返回值：		无	
- */
-void Disable_485_Power(void)
-{
-    GPIO_InitTypeDef GPIO_InitStruct;
-
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-
-	/*Configure GPIO pin : PA8 */
-	GPIO_InitStruct.Pin = POWER_12V_ON;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+	GPIO_InitStruct.Pin = Out_485_DE_Pin_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HAL_GPIO_Init(POWER_IO, &GPIO_InitStruct);
-	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(POWER_IO, POWER_12V_ON, GPIO_PIN_RESET);
+	HAL_GPIO_Init(Out_485_DE_Pin_GPIO_Port, &GPIO_InitStruct);
+}
+
+/*
+ *	Rs485OpenPin:		使能485接口
+ *	参数：					打开相应的485接口
+ *	返回值：				无	
+ */
+void Rs485OpenPin(int index)
+{
+	uint16_t pin = GPIO_PIN_4;
+	for(int i = 0 ; i < 6 ; i ++)
+	{			
+		HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
+	}
+	HAL_GPIO_WritePin(GPIOB,pin << index ,GPIO_PIN_SET);
+}
+
+/*
+ *	Rs485ClsoePin:	失能485接口
+ *	参数：					关闭所有485接口
+ *	返回值：				无	
+ */
+void Rs485ClsoePin(void)
+{
+	uint16_t pin = GPIO_PIN_4;
+	for(int i = 0 ; i < 6 ; i ++)
+	{			
+     HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
+  }
+}
+
+/*
+ *	_12VPowerOn:		使能12V电源
+ *	参数：					无
+ *	返回值：				无	
+ */
+void _12VPowerOn(void)
+{
+	HAL_GPIO_WritePin(Out_12V_ON_Pin_GPIO_Port,Out_12V_ON_Pin_Pin,GPIO_PIN_SET);
+	HAL_GPIO_WritePin(POWER_485IC_Port,POWER_485IC_Pin,GPIO_PIN_SET);
+}
+
+/*
+ *	_12VPowerOff:	  关闭12V电源
+ *	参数：					无
+ *	返回值：				无	
+ */
+void _12VPowerOff(void)
+{
+	HAL_GPIO_WritePin(Out_12V_ON_Pin_GPIO_Port,Out_12V_ON_Pin_Pin,GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(POWER_485IC_Port,POWER_485IC_Pin,GPIO_PIN_RESET);
+}
+
+/*
+ *	Rs485GetData:	获取485返回数据
+ *	data:					存取数据缓存
+ *	返回值：	    数据长度
+ */
+int Rs485GetData(uint8_t *data)
+{	
+	uint8_t ch;
+	int length = 0;
+    
+  DEBUG(2,"----get_rs485Data----: ");
+	while(FIFO_UartReadByte(&usart_rs485,&ch) == HAL_OK)	
+	{			
+		data[length] = ch;		
+		printf("%02X ",data[length]);
+		length++;
+	}
+  DEBUG(2,"\r\n");
+	return length;
+}
+
+
+/*
+ *	Rs485Cmd:	Rs485下发命令
+ *	sendData:	命令数据
+ *	len			：命令长度
+ *	返回值：	接收到Rs485数据长度
+ */
+int Rs485Cmd(uint8_t *sendData , int len)
+{	
+    RS485_TO_TX();		 
+    Rs485s.Crc16(sendData,len);
+		
+  	HAL_Delay(200);
+    printf("---send : ");
+    for(int i = 0; i < len+2; i++)
+    printf("%02X ",sendData[i]);
+    printf("\r\n");
+    HAL_UART_Transmit(&huart4,sendData,len + 2,0xff);				
+    RS485_TO_RX();
+    HAL_Delay(NBI_RS485_REV_TIME_OUT);
+    memset(Rs485s.Revbuff, 0, sizeof(Rs485s.Revbuff));
+    int length = Rs485s.GetData(Rs485s.Revbuff);
+    
+    char crcH = Rs485s.Revbuff[length-1];
+    char crcL = Rs485s.Revbuff[length-2];
+    
+    Rs485s.Crc16(Rs485s.Revbuff,length-2);
+    if(crcH == Rs485s.Revbuff[length-1] && crcL == Rs485s.Revbuff[length-2])			
+        return length;
+    else
+        return 0;		
+}
+
+/*
+ *	Rs485Print:	打印485数据
+ *	buff:			  数据缓存
+ *	len			：	数据长度
+ *	返回值：	  无
+ */
+void Rs485Print(uint8_t *buff,int len)
+{
+	for(int i = 0 ; i < len ; i++)
+	{
+		DEBUG(2,"%02X ",buff[i]);
+	}
+	DEBUG(2,"\r\n");	
 }
 
 /*
@@ -125,7 +197,7 @@ void Disable_485_Power(void)
  *	len:		数据长度
  *	返回值：	16位的CRC校验值
  */
-static uint16_t CalcCRC16(uint8_t *data, uint8_t len)
+uint16_t CalcCRC16(uint8_t *data, uint8_t len)
 {
 	uint16_t result = 0xffff;
 	uint8_t i, j;
@@ -146,71 +218,7 @@ static uint16_t CalcCRC16(uint8_t *data, uint8_t len)
 			}
 		}
 	}
+	GET_CRC(&(data[len]), result);
 	return result;
-}
-
-/*
- *	ExcuteRs485Command:		查询485传感器数据
- *	command：				Rs485_Command结构体，返回接收到的数据将覆盖发送的data数据域
- *	返回值：				EXCUTE_OK|CRC_ERROR|RECIVE_TIMEOUT
- */
-int8_t ExcuteRs485Command(Rs485Command command)
-{
-	uint8_t i,recive_len=0;
-	uint16_t crc_val;
-	crc_val = CalcCRC16(command.data, command.data_len-2); //计算crc
-	command.data[command.data_len-2] = crc_val&0xff;		//CRC低位	
-	command.data[command.data_len-1] = crc_val>>8;			//CRC高位
-    
-    DEBUG(2,"TX_BUF: ");
-	for (i=0;i<command.data_len;i++)
-	DEBUG(2,"%02x ",command.data[i]);
-	DEBUG(2,"tx\r\n");
-    
-	RS485_TO_TX();	  ///设置为TX
-	HAL_Delay(40);    ///必须延时再发送，否则会出现485异常
-    
-	HAL_UART_Transmit(&huart5, command.data, command.data_len, 0xFFFF); 
-    
-    RS485_TO_RX(); ///设置为Rx	
-	memset(command.data,0,command.recive_len);			//清零接收缓冲区		
-    memset(UART_RX_DATA5.USART_RX_BUF, 0, 516);
-    UART_RX_DATA5.USART_RX_Len = 0;
-
-	DEBUG(3,"RX_BUF[0] : %02x \r\n",UART_RX_DATA5.USART_RX_BUF[0]);
-
-	HAL_Delay(40);//等待485模块切换为接收：去除会异常读取
-    DEBUG(3,"RX_BUF[0] : %02x \r\n",UART_RX_DATA5.USART_RX_BUF[0]);
- 
-	uint32_t uart_over_time = HAL_GetTick( ); ///串口查询不到数据保护机制，防止没接485下异常
-
-	while( (HAL_GetTick( ) - UART_RX_DATA5.rxtime <= 20) || (HAL_GetTick( ) - uart_over_time < 100) ); //等待485接收数据完成：最多11Bit = 10ms//
-
-	if(HAL_GetTick( ) - UART_RX_DATA5.rxtime > 20 && UART_RX_DATA5.USART_RX_Len != 0)//20msRX超时机制 
-	{
-		HAL_NVIC_DisableIRQ(USART4_5_IRQn);
-        DEBUG(2,"RX_BUF: ");
-		memcpy(command.data,UART_RX_DATA5.USART_RX_BUF,UART_RX_DATA5.USART_RX_Len);
-		memset(UART_RX_DATA5.USART_RX_BUF, 0, sizeof(UART_RX_DATA5.USART_RX_BUF));
-		recive_len = UART_RX_DATA5.USART_RX_Len;
-		for(uint8_t i = 0; i<UART_RX_DATA5.USART_RX_Len; i++)
-		DEBUG(2,"%02x ",command.data[i]);
-		DEBUG(2,"\r\n");
-		UART_RX_DATA5.USART_RX_Len = 0;
-		
-		HAL_NVIC_EnableIRQ(USART4_5_IRQn);
-	}
-    DEBUG(3,"recive_len :%d command : %d",recive_len,command.recive_len);
-	if (recive_len!=command.recive_len)					//没有接收到预定长度，则为超时
-    {
-        DEBUG(3,"RECIVE_TIMEOUT : %d ",RECIVE_TIMEOUT);
-		return RECIVE_TIMEOUT;
-    }
-	else if (0!=CalcCRC16(command.data, command.recive_len))		// CRC校验，低位在前，带正确crc进行校验结果应为0
-	{
-		printf("line = %d\r\n",__LINE__);
-		return CRC_ERROR;
-	}
-	return EXCUTE_OK;
 }
 

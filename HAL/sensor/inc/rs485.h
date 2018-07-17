@@ -16,51 +16,62 @@
 #ifdef __cplusplus
 	extern "C" {
 #endif
+		
+#define NBI_RS485_SEND_DATA_LEN     20 
+#define NBI_RS485_REV_DATA_LEN      50 
+#define NBI_RS485_REV_TIME_OUT      500
+#define NBI_RS485_SEND_BUFF_LEN     13
+#define NBI_RS485_PIN_COUNT         6
+#define NBI_RS485_EXBOX_COUNT       5
+
+
+#define NBI_RS485_SEARCH_CODE       0x03
+#define NBI_RS485_SET_CODE          0x05
+		
  
-typedef struct rs485Command
+/*
+*rs485_t: Rs485处理功能代码
+*/
+typedef struct u_rs485
 {
-	uint8_t* data;				//待发送以及返回数据指针，数据返回时将覆盖待发送数据
-	uint8_t data_len;			//数据长度
-	uint8_t recive_len;			//期望接收数据长度
-	uint16_t recive_timeout;	//接收超时时间
-}Rs485Command;
+	/*
+	*接收Rs485传感器数据缓存区
+	*/
+	uint8_t 	Revbuff[20];
+	
+	void 			(*PinInit)(void);
+	void 			(*OpenPin)(int index);
+	void 			(*ClosePin)(void);
+	void 			(*PowerOn)(void);
+	void 			(*PowerOff)(void);
+	void      (*Print)(uint8_t *buff,int len);
+	int 			(*GetData)(uint8_t *data);
+	int 			(*Cmd)(uint8_t *sendData , int len);
+	uint16_t 	(*Crc16)(uint8_t *data, uint8_t len);
+}rs485_t;		
 
-#define RECIVE_TIMEOUT	0
-#define EXCUTE_OK		1
-#define CRC_ERROR		2
-#define TURN_OFF_RS485() 	// 关断RS485总线与电源，进入低功耗模式
+extern rs485_t Rs485s;
 
-void InitUsart5(void);
 
-/*
- *	InitRs:			初始化RS传感器
- *	参数：			无
- *	返回值：		无	
- */
-void InitRs(void);
+void Rs485Init(void);
 
-void InitPowerPin(void);
+void Rs485PinInit(void);
+		
+void Rs485OpenPin(int index);
+		
+void Rs485ClsoePin(void);
 
-/*
- *	Enble_485_Power:	使能485电源引脚
- *	参数：			无
- *	返回值：		无	
- */
-void Enble_485_Power(void);
+void _12VPowerOn(void);
 
-/*
- *	Disable_485_Power:	使能485电源引脚
- *	参数：			无
- *	返回值：		无	
- */
-void Disable_485_Power(void);
+void _12VPowerOff(void);
 
-/*
- *	ExcuteRs485Command:		查询485传感器数据
- *	command：				Rs485_Command结构体，返回接收到的数据将覆盖发送的data数据域
- *	返回值：				EXCUTE_OK|CRC_ERROR|RECIVE_TIMEOUT
- */
-int8_t ExcuteRs485Command(Rs485Command command);
+int Rs485GetData(uint8_t *data);
+
+int Rs485Cmd(uint8_t *sendData , int len);
+
+void Rs485Print(uint8_t *buff,int len);
+
+uint16_t CalcCRC16(uint8_t *data, uint8_t len);
 
 #ifdef __cplusplus
 }
