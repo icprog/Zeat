@@ -45,16 +45,16 @@ void UserSend(void)
 	
 	//发送数据
 	
-	ZetaSendBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*14);
+	ZetaSendBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*49);
 	
 	ZetaSendBuf.Buf[0] = 0xff;
 	ZetaSendBuf.Buf[1] = 0x00;
 	
 	ZetaSendBuf.Buf[3] = 0x02;
 	
-	memcpy(&ZetaSendBuf.Buf[4],"helloworld",10);
+	memcpy(&ZetaSendBuf.Buf[4],"1234567890123456789012345678901234567890123456789",49);
 	
-	ZetaSendBuf.Buf[2] = 0x04 + 10;
+	ZetaSendBuf.Buf[2] = 0x04 + 49;
 	
 	ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
 	
@@ -78,7 +78,7 @@ void UserSend(void)
 		if(DataAck == Status)
 		{			
 //			HAL_Delay(300);	
-//			UserCheckCmd(&UserZetaCheck[NETIME]);
+//			UserCheckCmd(&UserZetaCheck[NETIME]); ///结合外部flash使用
 			break;
 		}
 		else if(LenError != Status)
@@ -98,7 +98,7 @@ void UserSend(void)
 	free(ZetaSendBuf.Buf);
 }
 
-/*UserCheckCmd：用户查询Zeta
+/*UserCheckCmd：用户查询Zeta：服务器查询下发
 *参数：					UserZetaCheckCmd：查询命令
 *返回值：   		无
 */

@@ -188,25 +188,11 @@ void USART4_5_IRQHandler(void)
   /* USER CODE BEGIN USART4_5_IRQn 0 */
 
   /* USER CODE END USART4_5_IRQn 0 */
-    HAL_UART_IRQHandler(&huart5);
+//   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN USART4_5_IRQn 1 */
-	uint32_t timeout = 0;
-
-	timeout = HAL_GetTick( );
-	while (HAL_UART_GetState(&huart5)!=HAL_UART_STATE_READY)//等待就绪
-	{
-    if(HAL_GetTick( ) - timeout> 20) break;		///20ms超时处理
-		printf("timeout--11 \r\n");
-	}
-     
-	timeout = HAL_GetTick( );
-	while(HAL_UART_Receive_IT(&huart5, UART_RX_DATA5.aRxBuffer, RXBUFFERSIZE)!=HAL_OK)//一次处理完成之后，重新开启中断并设置RxXferCount为1
-	{
-    if(HAL_GetTick( ) - timeout> 20) break;	 	///20ms超时处理	
-		printf("timeout \r\n");
-	}
-	DEBUG(3,"%s\r\n",__func__);
-
+		
+		FIFO_UartIRQ(&usart_rs485);
+	
   /* USER CODE END USART4_5_IRQn 1 */
 }
 

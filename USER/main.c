@@ -30,13 +30,13 @@ extern RTC_HandleTypeDef 				RtcHandle;
   * @返回参数   无
 
 	版本说明：
-	【1】：ZETA-V0.2
+	【1】：ZETA-V0.3
 
   优化功能：
 	【1】：实现基本通讯
 	【2】：增加Zeta下行数据脉冲触发
 	【3】：增加主控休眠机制
-	【4】：增加Zeta下行INT唤醒MCU
+	【4】：增加Zeta下行数据INT触发MCU
 	【5】：增加RTC休眠唤醒
 	
   *****************************************************************************/
@@ -47,21 +47,25 @@ int main(void)
    BoardInitMcu(  );	
    DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
 	
-	 UserCheckCmd(&UserZetaCheck[MAC]);
-	
-	 UserCheckCmd(&UserZetaCheck[COUNTER]);
-	 
-	 UserCheckCmd(&UserZetaCheck[RSSI]);
-	
-	 UserSetHeart(0x00);
-	
-	 UserSend(  );
+//	 UserCheckCmd(&UserZetaCheck[MAC]);
+//	
+//	 UserCheckCmd(&UserZetaCheck[COUNTER]);
+//	 
+//	 UserCheckCmd(&UserZetaCheck[RSSI]);
+//	
+//	 UserSetHeart(0x00);
+//	
+//	 UserSend(  );
+		SensorsInit(  );
 	  	 
    while (1)
    {	
-			UserSend(  );
-			SetRtcAlarm(10);///4S误差	  
-			UserIntoLowPower(  );
+//			UserSend(  );
+//			SetRtcAlarm(10);///4S误差	  
+//			UserIntoLowPower(  );
+		 Sensors.Handle(  );
+//		 
+		 HAL_Delay(30000);
 	 }
 	 
 }

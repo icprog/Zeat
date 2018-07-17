@@ -99,6 +99,7 @@ unsigned char crc_high_first(unsigned char *ptr, unsigned char len)
 
 
 Program Size: Code=70778 RO-data=3770 RW-data=2640 ZI-data=6984  
+Program Size: Code=22556 RO-data=1712 RW-data=1468 ZI-data=6836  
 
 SaveRs485s[index].MainBox.ExpendBox[ExpId].ExpenCheck
 

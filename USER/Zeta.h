@@ -26,6 +26,12 @@
 #define  ZETASTATU_IO					GPIOB
 #define  ZETASTATU_PIN				GPIO_PIN_14
 
+#define  ZETAMAX							38
+
+/*
+*ZetaState_t: Zeta状态列表
+*/
+
 typedef enum uZetaState
 {
 	/***********数据帧应答***********/
@@ -63,6 +69,9 @@ typedef enum uZetaState
 	
 }ZetaState_t;
 
+/*
+*Zeta_t: Zeta发送、接收处理缓存
+*/
 typedef struct uZeta
 {
 	uint8_t 		Len;
@@ -71,6 +80,9 @@ typedef struct uZeta
 	ZetaState_t States;
 }Zeta_t;
 
+/*
+*ZetaTimer_t: Zeta设置定时器参数
+*/
 typedef struct uZetaTimer
 {
 	uint8_t 		*StartTime;
@@ -78,6 +90,9 @@ typedef struct uZetaTimer
 	uint8_t    	TimerID;
 }ZetaTimer_t;
 
+/*
+*ZetaHandle_t: Zeta处理功能代码
+*/
 typedef struct uZetaHandle
 {
 	void 					(*Init)(void);
@@ -85,8 +100,8 @@ typedef struct uZetaHandle
 	void 					(*WakeupDisable)(void);
 	void 					(*Interrupt)(void);
 	void 					(*Send)(Zeta_t *ZetaBuf);
+	ZetaState_t		(*Recv)(void);
 	GPIO_PinState (*Status)(void);
-	ZetaState_t 	(*Recv)(void);
 	
 }ZetaHandle_t;
 
@@ -111,7 +126,7 @@ GPIO_PinState ZetaStatus(void);
 
 void ZetaSend(Zeta_t *ZetaBuf);
 
-uint8_t ZetaRecv(void);
+ZetaState_t ZetaRecv(void);
 
 
 #endif /* __ZETA_H  */
