@@ -186,5 +186,7 @@ uint8_t CalcCRC8(uint8_t *ptr, uint8_t len)
 			crc = (crc << 1);
 		}
 	}
+	
+	DEBUG_APP(2,"crc8 = %02X",crc);
 	return (crc); 
 }

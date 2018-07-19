@@ -44,9 +44,9 @@ typedef struct u_rs485
 	void 			(*ClosePin)(void);
 	void 			(*PowerOn)(void);
 	void 			(*PowerOff)(void);
-	void      (*Print)(uint8_t *buff,int len);
-	int 			(*GetData)(uint8_t *data);
 	uint16_t 	(*Crc16)(uint8_t *data, uint8_t len); 
+	int 			(*GetData)(uint8_t *data);
+	void      (*Print)(uint8_t *buff,int len, uint8_t DebugLive);
 	int 			(*Cmd)(uint8_t *sendData , int len, uint32_t time_out);
 }rs485_t;		
 
@@ -67,7 +67,7 @@ void _12VPowerOff(void);
 
 int Rs485GetData(uint8_t *data);
 
-void Rs485Print(uint8_t *buff,int len);
+void Rs485Print(uint8_t *buff,int len, uint8_t DebugLive);
 
 int Rs485Cmd(uint8_t *sendData, int len, uint32_t time_out);
 

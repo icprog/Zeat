@@ -70,18 +70,22 @@ void UserSend(void)
 	
 	for(uint8_t SedId = 0; SedId <= SendBufsCounter -1; SedId++)
 	{
-		memcpy1(&ZetaSendBuf.Buf[5], SendBufs[SendBufsCounter].Buf, SendBufs[SendBufsCounter].Len); ///payload
+		memcpy1(&ZetaSendBuf.Buf[9], SendBufs[SedId].Buf, SendBufs[SedId].Len); ///payload
+		DEBUG(2,"ZetaSendBuf: ");
+		for(uint8_t i = 0; i < SendBufs[SedId].Len; i++)
+		DEBUG(2,"%02X ",ZetaSendBuf.Buf[5+i]);
+		DEBUG(2,"\r\n");
 		
-		ZetaSendBuf.Buf[5 + SendBufs[SendBufsCounter].Len++] = (UpSeqCounter&0xff00)<<8; ///Seq
-		ZetaSendBuf.Buf[5 + SendBufs[SendBufsCounter].Len++] = (UpSeqCounter&0xff);
+		ZetaSendBuf.Buf[9 + SendBufs[SedId].Len++] = (UpSeqCounter&0xff00)<<8; ///Seq
+		ZetaSendBuf.Buf[9 + SendBufs[SedId].Len++] = (UpSeqCounter&0xff);
 		
-		ZetaSendBuf.Buf[5 + SendBufs[SendBufsCounter].Len++] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[5],SendBufs[SendBufsCounter].Len); ///CRC
+		ZetaSendBuf.Buf[9 + SendBufs[SedId].Len++] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[9],SendBufs[SedId].Len); ///CRC
 
 //	memcpy(&ZetaSendBuf.Buf[4],"1234567890123456789012345678901234567890123456789",49);
 	
 //	ZetaSendBuf.Buf[2] = 0x04 + 49;
 	
-		ZetaSendBuf.Buf[2] = 0x09 + SendBufs[SendBufsCounter].Len; /// +sensor_len
+		ZetaSendBuf.Buf[2] = 0x09 + SendBufs[SedId].Len; /// +sensor_len
 		ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
 		
 		SendBufs[SendBufsCounter].Len = 0;
@@ -94,7 +98,7 @@ void UserSend(void)
 			DEBUG(2,"start send data\r\n");
 			
 			for(uint8_t j = 0; j<ZetaSendBuf.Len; j++)
-			DEBUG(2,"%02x ",ZetaSendBuf.Buf[j]);
+			DEBUG(2,"%02X ",ZetaSendBuf.Buf[j]);
 			DEBUG(2,"\r\n");
 			
 			ZetaHandle.Send(&ZetaSendBuf);

@@ -78,7 +78,6 @@ void Rs485PinInit(void)
  */
 void Rs485OpenPin(int index)
 {
-//	uint16_t pin = GPIO_PIN_4;
 	uint16_t pin =  RS485PIN_5;
 	for(uint8_t i = 0 ; i < 6 ; i ++)
 	{			
@@ -86,15 +85,7 @@ void Rs485OpenPin(int index)
 	}
 	HAL_GPIO_WritePin(GPIOB,pin >> index ,GPIO_PIN_SET);
 }
-//void Rs485OpenPin(int index)
-//{
-//	uint16_t pin = GPIO_PIN_4;
-//	for(uint8_t i = 0 ; i < 6 ; i ++)
-//	{			
-//		HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
-//	}
-//	HAL_GPIO_WritePin(GPIOB,pin << index ,GPIO_PIN_SET);
-//}
+
 
 /*
  *	Rs485ClsoePin:	失能485接口
@@ -142,11 +133,10 @@ int Rs485GetData(uint8_t *data)
 	uint8_t ch;
 	int length = 0;
     
-  DEBUG(3,"----get_rs485Data----: ");
 	while(FIFO_UartReadByte(&usart_rs485,&ch) == HAL_OK)	
 	{			
 		data[length] = ch;		
-		printf("%02X ",data[length]);
+		DEBUG(2,"%02X ",data[length]);
 		length++;
 	}
 	if(length>0)
@@ -195,13 +185,13 @@ int Rs485Cmd(uint8_t *sendData, int len, uint32_t time_out)
  *	len			：	数据长度
  *	返回值：	  无
  */
-void Rs485Print(uint8_t *buff,int len)
+void Rs485Print(uint8_t *buff,int len, uint8_t DebugLive)
 {
 	for(int i = 0 ; i < len ; i++)
 	{
-		DEBUG(2,"%02X ",buff[i]);
+		DEBUG(DebugLive,"%02X ",buff[i]);
 	}
-	DEBUG(2,"\r\n");	
+	DEBUG(DebugLive,"\r\n");	
 }
 
 /*
