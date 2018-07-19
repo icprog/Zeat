@@ -132,13 +132,14 @@ int Rs485GetData(uint8_t *data)
 	uint8_t ch;
 	int length = 0;
     
-  DEBUG(2,"----get_rs485Data----: ");
+  DEBUG(3,"----get_rs485Data----: ");
 	while(FIFO_UartReadByte(&usart_rs485,&ch) == HAL_OK)	
 	{			
 		data[length] = ch;		
 		printf("%02X ",data[length]);
 		length++;
 	}
+	if(length>0)
   DEBUG(2,"\r\n");
 	return length;
 }
@@ -148,19 +149,21 @@ int Rs485GetData(uint8_t *data)
  *	Rs485Cmd:	Rs485下发命令
  *	sendData:	命令数据
  *	len			：命令长度
+*   time_out: 等待时间
  *	返回值：	接收到Rs485数据长度
  */
-int Rs485Cmd(uint8_t *sendData , int len)
+int Rs485Cmd(uint8_t *sendData, int len, uint32_t time_out)
 {	
     RS485_TO_TX();		 
     Rs485s.Crc16(sendData,len);
 		
-  	HAL_Delay(200);
-    printf("---send : ");
+  	HAL_Delay(time_out);
+		DEBUG_APP(3,"time_out %d",time_out);
+    DEBUG(3,"---send : ");
     for(int i = 0; i < len+2; i++)
-    printf("%02X ",sendData[i]);
-    printf("\r\n");
-    HAL_UART_Transmit(&huart4,sendData,len + 2,0xff);				
+    DEBUG(3,"%02X ",sendData[i]);
+    DEBUG(3,"\r\n");
+    HAL_UART_Transmit(&huart4,sendData,len + 2,0xffff);				
     RS485_TO_RX();
     HAL_Delay(NBI_RS485_REV_TIME_OUT);
     memset(Rs485s.Revbuff, 0, sizeof(Rs485s.Revbuff));

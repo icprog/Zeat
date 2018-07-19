@@ -38,6 +38,7 @@ extern RTC_HandleTypeDef 				RtcHandle;
 	【3】：增加主控休眠机制
 	【4】：增加Zeta下行数据INT触发MCU
 	【5】：增加RTC休眠唤醒
+	【6】：增加Rs485读取数据
 	
   *****************************************************************************/
 /* variable functions ---------------------------------------------------------*/	
@@ -56,7 +57,7 @@ int main(void)
 //	 UserSetHeart(0x00);
 //	
 //	 UserSend(  );
-		SensorsInit(  );
+	SensorsInit(  );
 	  	 
    while (1)
    {	

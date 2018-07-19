@@ -8,6 +8,7 @@
 ***************************************************************************************************************
 */
 #include "sensor.h"
+#include "user-app.h"
 
 #include "stm32l0xx_hal.h"
 #include "rs485.h"
@@ -18,21 +19,21 @@
 
 CheckRs485_t CheckRs485s[] = {
 ///Addr  Identifier	RegAddress  RegDatalen  SendDataLen	RevDataLen	SensorToLen  		TimeOut  SendBuff		revBuff			name
-	{0x00, 0x00,				0x0000,     0x0000,         7,          9,    RS485_IDE+4,    1000*1, "EXPEND",  	"",    		"EXPEND"},	///扩展盒
-	{0x02, 0x02,				0x0000, 		0x0002,  				6,					9, 		RS485_IDE+4,		1000*1,		"" ,			"" ,		"SWR-100W"},  ///土壤温湿度
+	{0x00, 0x00,				0x0000,     0x0000,         7,          9,    RS485_IDE+4,    200*1, "EXPEND",  	"",    		"EXPEND"},	///扩展盒
+	{0x02, 0x02,				0x0000, 		0x0002,  				6,					9, 		RS485_IDE+4,		200*1,		"" ,			"" ,		"SWR-100W"},  ///土壤温湿度
 	{0x05, 0x05,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*1,		"" ,			"" ,		"ST_PH"		},  ///土壤、水PH
-	{0x06, 0x06,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*1,		"" ,			"" ,		"ST_GH"		},	///光合有效
+	{0x06, 0x06,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		200*1,		"" ,			"" ,		"ST_GH"		},	///光合有效
 	{0x07, 0x07,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*1,		"" ,			"" ,		"ST_Y/MW"	},  ///叶面温度
 	{0x08, 0x08,				0x0001, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*1,		"" ,			"" ,		"ST_YMS"	},  ///叶面湿度
-	{0x0C, 0x03,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*1,		"" ,			"" ,		"ST-TW"		},  ///土壤温度
-	{0x0D, 0x0D,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*1,		"" ,			"" ,		"ST-EC"		},  ///EC
-	{0x0E, 0x0E,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*7,		"" ,			"" ,		"ST_CO2"	},	///CO2				
+	{0x0C, 0x03,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		200*1,		"" ,			"" ,		"ST-TW"		},  ///土壤温度
+	{0x0D, 0x0D,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		200*1,		"" ,			"" ,		"ST-EC"		},  ///EC
+	{0x0E, 0x0E,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*10,	"" ,			"" ,		"ST_CO2"	},	///CO2				
 //	{0x0F, 0x24,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*1,		"" ,			"" ,		"ST_AP"		},///气象站：大气压				
-	{0x11, 0x11,				0x0000, 		0x0001,  				6,					9, 		RS485_IDE+4,		1000*1,		"" ,			"" ,		"OXY"			},  ///水溶氧
-	{0x12, 0x12,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*1,		"" ,			"" ,		"andan"		},  ///氨氮
-	{0x13, 0x13,				0x0000, 		0x0002,  				6,					9, 		RS485_IDE+4,		1000*1,		"" ,			"" ,		"Water-EC"},  ///水EC
-	{0x14, 0x14,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		1000*1,		"" ,			"" ,		"Water-T" },  ///水温
-	{0x15, 0x15,				0x0000, 		0x0002,  				6,					7, 		RS485_IDE+2,		1000*1,		"" ,			"" ,		"Water-K+"},	///水钾+
+	{0x11, 0x11,				0x0000, 		0x0001,  				6,					9, 		RS485_IDE+4,		200*1,		"" ,			"" ,		"OXY"			},  ///水溶氧
+	{0x12, 0x12,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		200*1,		"" ,			"" ,		"andan"		},  ///氨氮
+	{0x13, 0x13,				0x0000, 		0x0002,  				6,					9, 		RS485_IDE+4,		200*1,		"" ,			"" ,		"Water-EC"},  ///水EC
+	{0x14, 0x14,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE+2,		200*1,		"" ,			"" ,		"Water-T" },  ///水温
+	{0x15, 0x15,				0x0000, 		0x0002,  				6,					7, 		RS485_IDE+2,		200*1,		"" ,			"" ,		"Water-K+"},	///水钾+
 	{0xFD, 0x18,				0x0000, 		0x0002,  				6,				 13, 		RS485_IDE+8,		1000*1,		"" ,			"" ,		"Air-Ill" },	///空气温湿度、光照
 };
 
@@ -56,14 +57,16 @@ uint8_t ExpendBoxbuff[9] = {0xFE,0x03,0x04,0x00,0x00,0x00,0x00,0x00,0x00};
 void SensorsInit(void)
 {
 	Sensors.Handle		 			= SensorHandle;
+	Sensors.DataProces			=	SensorDataProces;
 	Sensors.QueryPinStaus 	= SensorQueryPinStaus;
 	Sensors.QueryType 			= SensorQueryType;
 	Sensors.GetData 				= SensorGetData;
 	Sensors.GetRs485Type 		= GetRs485Type;
-	Sensors.ExpBoxAddr 			= SensorExpBoxAddr;
-	Sensors.ExpenData 			= SensorExpenData;
 	Sensors.ExpendBoxLive 	= SensorExpendBoxLive;
 	Sensors.MaBoxData 			= SensorMaBoxData;
+	Sensors.ExpBoxAddr 			= SensorExpBoxAddr;
+	Sensors.ExpenData 			= SensorExpenData;
+
 	
 	Rs485Init(  );
 	Rs485s.PowerOn(  );
@@ -75,6 +78,244 @@ void SensorsInit(void)
 	Sensors.QueryPinStaus(  );
 	
 	Rs485s.PowerOff(  );
+}
+
+/*
+ *	SensorHandle:	  传感器处理
+ *	参数：			  	无
+ *	返回值：				无
+ */
+void SensorHandle(void)
+{			
+	Rs485s.PowerOn(  );
+	
+	for(uint8_t id = 0 ; id < NBI_RS485_PIN_COUNT; id++)
+	{
+		DEBUG_APP(2,"Start get sensor data main box id = %d",++id);
+		id--;
+		if(Sensors.GetRs485Type( id ) != RS485_NONE)
+		{
+			Rs485s.OpenPin(id);
+			HAL_Delay(1000);
+			
+			Sensors.GetData(id);			
+		}
+	}
+	Rs485s.ClosePin(  );	
+	
+	Rs485s.PowerOff(  );
+	
+	SendBufsCounter = 0;
+	
+	Sensors.DataProces(  );
+}
+
+/*
+ *	SensorDataProces:	传感器数据处理
+ *	参数：			  		无
+ *	返回值：					无
+ */
+void SensorDataProces(void) 
+{
+	/**********运算长度**************/
+	uint8_t Len = 0;
+	
+	/**********传感器类型BUF下标**************/
+	uint8_t Index = 0;
+	
+	/**********实际数据总长度**************/
+	uint8_t Length = 0; 
+	
+	/***********传感器缓存区*************/
+	uint8_t Temp[50] = {0};
+	
+	/***********传感器数据长度*************/
+	uint8_t TempIndex = 0;
+	
+	/***********剩余待获取传感器个数*************/
+	uint8_t GetSensorCounter = 0;
+	
+	uint8_t ExId = 0;
+
+#if 1
+
+	DEBUG_APP(2, "-----Start get data Counter : %d----",Sensors.Counter);
+	for(uint8_t PortId = 0 ; PortId < NBI_RS485_PIN_COUNT; PortId++)
+	{
+		if(SaveRs485s[PortId].Type == RS485_SIGNAL && GetSensorCounter < Sensors.Counter)
+		{
+			Len += SaveRs485s[PortId].MainBox.SensorToLen;
+			DEBUG_APP(2, "222PortId : %d Len = %d\r\n",PortId, Len);
+			
+			if(Len <= ZETAMAX)
+			{
+				SendBufs[SendBufsCounter].Port[Index++] = SaveRs485s[PortId].MainBox.Index; //接口ID
+				SendBufs[SendBufsCounter].Port[Index++] = SaveRs485s[PortId].MainBox.Identifier; //解码标识
+				
+				DEBUG_APP(2,"TempIndex = %d",TempIndex);
+				memcpy1(&Temp[TempIndex], &SaveRs485s[PortId].MainBox.SensorBuff[0], SaveRs485s[PortId].MainBox.SensorToLen-RS485_IDE);
+				for(uint8_t i = 0; i< SaveRs485s[PortId].MainBox.SensorToLen-RS485_IDE; i++)
+				{
+					DEBUG(2,"%02x ",Temp[TempIndex + i]);
+				}
+				DEBUG(2,"\r\n");
+				TempIndex += SaveRs485s[PortId].MainBox.SensorToLen-RS485_IDE ;
+				Length += SaveRs485s[PortId].MainBox.SensorToLen;
+				GetSensorCounter++;
+								
+				DEBUG_APP(2,"11SendBufsCounter = %d, Len = %d, PortId = %d,GetSensorCounter = %d, Sensors.Counter = %d",SendBufsCounter,Len, PortId, GetSensorCounter, Sensors.Counter);
+			}
+			else
+			{
+				/********************分包第几帧*****************/
+				SendBufs[SendBufsCounter].Buf[0] = SendBufsCounter;
+				
+				/********************电量*****************/
+				SendBufs[SendBufsCounter].Buf[1] = CheckBattery(  );
+				
+				/********************传感器个数*****************/
+				SendBufs[SendBufsCounter].Buf[2] = Index/2;
+
+				uint8_t BufLen = 3;
+				
+				memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], SendBufs[SendBufsCounter].Port, Index);
+				
+				BufLen += Index;
+				memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], Temp, TempIndex);
+				
+				Length += 3;
+				
+				SendBufs[SendBufsCounter].Len = Length;
+								
+				DEBUG_APP(2,"22SendBufsCounter = %d, Length = %d, PortId = %d,GetSensorCounter = %d, Sensors.Counter = %d",SendBufsCounter,Length, PortId, GetSensorCounter, Sensors.Counter);
+				for(uint8_t i = 0; i< Length; i++)
+				DEBUG(2,"%02X ",SendBufs[SendBufsCounter].Buf[i]);
+				DEBUG(2,"\r\n");
+	
+				memset(Temp, 0, TempIndex);
+				
+				PortId --; //下标回退	
+				SendBufsCounter ++; 
+				Len = 0;
+				Length = 0;
+				TempIndex = 0;	
+				Index = 0;
+			}				
+		}
+		else if(SaveRs485s[PortId].Type == RS485_EXPAND_BOX && GetSensorCounter < Sensors.Counter)
+		{
+			for( ExId = 0 ; ExId < 5; ExId++)
+			{
+				if(SaveRs485s[PortId].MainBox.ExpendBox[ExId].ExpenCheck) ///接口存在
+				{
+					Len += SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen;
+			
+					DEBUG_APP(2,"PortId = %d, ExId = %d Len = %d SensorToLen = %d",PortId,ExId,Len, SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen);
+					if(Len <= ZETAMAX)
+					{
+						SendBufs[SendBufsCounter].Port[Index++] = SaveRs485s[PortId].MainBox.ExpendBox[ExId].Index; //接口ID
+						SendBufs[SendBufsCounter].Port[Index++] = SaveRs485s[PortId].MainBox.ExpendBox[ExId].Identifier; //解码标识
+						
+						memcpy1(&Temp[TempIndex], &SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorBuff[0], SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen-RS485_IDE);
+
+						TempIndex += SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen-RS485_IDE;
+						Length += SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen;
+						GetSensorCounter++;
+						
+						DEBUG_APP(2,"33SendBufsCounter = %d, Length = %d, PortId = %d,GetSensorCounter = %d, Sensors.Counter = %d",SendBufsCounter,Length, PortId, GetSensorCounter, Sensors.Counter);
+					}
+					else
+					{					
+						/********************分包第几帧*****************/
+						SendBufs[SendBufsCounter].Buf[0] = SendBufsCounter;
+						
+						/********************电量*****************/
+						SendBufs[SendBufsCounter].Buf[1] = CheckBattery(  );
+						
+						/********************传感器个数*****************/
+						SendBufs[SendBufsCounter].Buf[2] = Index/2;
+
+						
+						uint8_t BufLen = 3;
+				
+						memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], SendBufs[SendBufsCounter].Port, Index);
+				
+						BufLen += Index;
+						memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], Temp, TempIndex);
+						
+						Length += 3;
+
+						SendBufs[SendBufsCounter].Len = Length;
+						
+						DEBUG_APP(2,"44SendBufsCounter = %d, Length = %d, PortId = %d,GetSensorCounter = %d, Sensors.Counter = %d",SendBufsCounter,Length, PortId, GetSensorCounter, Sensors.Counter);
+						for(uint8_t i = 0; i<Length; i++)
+						DEBUG(2,"%02X ",SendBufs[SendBufsCounter].Buf[i]);
+						DEBUG(2,"\r\n");
+				
+						memset(Temp, 0, TempIndex);
+						
+						ExId --;
+						SendBufsCounter ++;
+						Len = 0;
+						Length = 0;
+						TempIndex = 0;	
+						Index = 0;
+					}
+				}
+			}
+		}					
+
+		if(PortId == 5 && ExId == 5)
+		{
+			if(1 == GetSensorCounter - Sensors.Counter)
+				GetSensorCounter --;
+		}
+		
+		if(GetSensorCounter == Sensors.Counter)  ///<38B
+		{			
+			/********************分包第几帧*****************/
+			SendBufs[SendBufsCounter].Buf[0] = SendBufsCounter;
+			
+			/********************电量*****************/
+			SendBufs[SendBufsCounter].Buf[1] = CheckBattery(  );
+			
+			/********************传感器个数*****************/
+			SendBufs[SendBufsCounter].Buf[2] = Index/2;
+
+			uint8_t BufLen = 3;
+	
+			memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], SendBufs[SendBufsCounter].Port, Index); ///传感器标识
+			DEBUG_APP(2, "444PortId : %d counter = %d\r\n",PortId, GetSensorCounter);
+			
+			DEBUG_APP(3,"Index = %d, \r\n",Index);
+	
+			BufLen += Index;
+			
+			DEBUG(2,"BufLen = %d, \r\n",BufLen);
+			memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], Temp, TempIndex); ///传感器数据
+			
+			Length += 3;
+
+			SendBufs[SendBufsCounter].Len = Length;
+			
+			DEBUG(2,"55SendBufsCounter = %d, Length = %d,TempIndex = %d, Length = %d\r\n",SendBufsCounter,Length,TempIndex,Length);
+			for(uint8_t i = 0; i< Length; i++)
+			DEBUG(2,"%02X ",SendBufs[SendBufsCounter].Buf[i]);
+			DEBUG(2,"\r\n");
+	
+			memset(Temp, 0, TempIndex);
+			
+			SendBufsCounter ++;
+			Len = 0;
+			Length = 0;
+			TempIndex = 0;	
+			Index = 0;
+		}
+	}
+	
+	Sensors.Counter = 0;
+	GetSensorCounter = 0;
+#endif	
 }
 
 /*
@@ -119,171 +360,7 @@ HAL_StatusTypeDef SensorQueryPinStaus(void)
 	return Status;
 }
 
-/*
- *	SensorHandle:	  传感器数据处理
- *	参数：			  	无
- *	返回值：				无
- */
-void SensorHandle(void)
-{
-	uint8_t Len = 0;
-	uint8_t Index = 0;
-	uint8_t Length = 0;
-	uint8_t Temp[40];
-	uint8_t TempIndex = 0;
-	uint8_t GetSensorCounter = 0;
-		
-	Rs485s.PowerOn(  );
-	
-	for(uint8_t id = 0 ; id < NBI_RS485_PIN_COUNT; id++)
-	{
-		DEBUG_APP(2,"Start get sensor data main box id = %d",++id);
-		id--;
-		if(Sensors.GetRs485Type( id ) != RS485_NONE)
-		{
-			Rs485s.OpenPin(id);
-			HAL_Delay(1000);
-			
-			Sensors.GetData(id);			
-		}
-	}
-	Rs485s.ClosePin(  );	
-	
-	Rs485s.PowerOff(  );
-	
-	SendBufsCounter = 0;
-	
-#if 1
 
-	DEBUG_APP(2, "Start get data Counter : %d",Sensors.Counter);
-	for(uint8_t PortId = 0 ; PortId < NBI_RS485_PIN_COUNT; PortId++)
-	{
-		if(SaveRs485s[PortId].Type == RS485_SIGNAL && GetSensorCounter < Sensors.Counter)
-		{
-			Len += SaveRs485s[PortId].MainBox.SensorToLen;
-			DEBUG_APP(2, "222PortId : %d Len = %d\r\n",PortId, Len);
-			
-			if(Len <= ZETAMAX)
-			{
-				SendBufs[SendBufsCounter].Port[Index++] = SaveRs485s[PortId].MainBox.Index; //接口ID
-				SendBufs[SendBufsCounter].Port[Index++] = SaveRs485s[PortId].MainBox.Identifier; //解码标识
-				
-				DEBUG_APP(2,"TempIndex = %d",TempIndex);
-				memcpy1(&Temp[TempIndex], &SaveRs485s[PortId].MainBox.SensorBuff[0], SaveRs485s[PortId].MainBox.SensorToLen-RS485_IDE);
-				for(uint8_t i = 0; i< SaveRs485s[PortId].MainBox.SensorToLen-RS485_IDE; i++)
-				{
-					DEBUG(2,"%02x ",Temp[TempIndex + i]);
-				}
-				DEBUG(2,"\r\n");
-				TempIndex += SaveRs485s[PortId].MainBox.SensorToLen-RS485_IDE ;
-				Length += SaveRs485s[PortId].MainBox.SensorToLen;
-				GetSensorCounter++;
-								
-				DEBUG_APP(2,"11SendBufsCounter = %d, Len = %d,PortId = %d",SendBufsCounter,Len, PortId);
-			}
-			else
-			{
-				uint8_t BufLen = 0;
-				
-				memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], SendBufs[SendBufsCounter].Port, Index);
-				
-				BufLen += Index;
-				memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], Temp, TempIndex);
-				
-				DEBUG_APP(2,"22SendBufsCounter = %d, Len = %d,TempIndex = %d",SendBufsCounter,Len, TempIndex);
-
-				memset(Temp, 0, TempIndex);
-				
-				PortId --; //下标回退			
-				SendBufsCounter ++; 
-				Len = 0;
-				Length = 0;
-				TempIndex = 0;	
-				Index = 0;
-			}				
-		}
-		else if(SaveRs485s[PortId].Type == RS485_EXPAND_BOX && GetSensorCounter < Sensors.Counter)
-		{
-			for(uint8_t ExId = 0 ; ExId < 5; ExId++)
-			{
-				if(SaveRs485s[PortId].MainBox.ExpendBox[ExId].ExpenCheck) ///接口存在
-				{
-					Len += SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen;
-			
-					DEBUG_APP(2,"PortId = %d, ExId = %d Len = %d SensorToLen = %d",PortId,ExId,Len, SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen);
-					if(Len <= ZETAMAX)
-					{
-						SendBufs[SendBufsCounter].Port[Index++] = SaveRs485s[PortId].MainBox.ExpendBox[ExId].Index; //接口ID
-						SendBufs[SendBufsCounter].Port[Index++] = SaveRs485s[PortId].MainBox.ExpendBox[ExId].Identifier; //解码标识
-						
-						memcpy1(&Temp[TempIndex], &SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorBuff[0], SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen-RS485_IDE);
-
-						TempIndex += SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen-RS485_IDE;
-						Length += SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen;
-						GetSensorCounter++;
-						
-						DEBUG_APP(2,"33SendBufsCounter = %d, Len = %d, PortId = %d",SendBufsCounter,Len, PortId);
-					}
-					else
-					{
-						
-						uint8_t BufLen = 0;
-				
-						memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], SendBufs[SendBufsCounter].Port, Index);
-				
-						BufLen += Index;
-						memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], Temp, TempIndex);
-						
-						DEBUG(2,"44SendBufsCounter = %d, Len = %d, PortId = %d, Length = %d\r\n",SendBufsCounter,Len, PortId,Length);
-						for(uint8_t i = 0; i<Length; i++)
-						DEBUG(2,"%02X ",SendBufs[SendBufsCounter].Buf[i]);
-						DEBUG(2,"\r\n");
-				
-						memset(Temp, 0, TempIndex);
-						
-						ExId --;
-						SendBufsCounter ++;
-						Len = 0;
-						Length = 0;
-						TempIndex = 0;	
-						Index = 0;
-					}
-				}
-			}
-		}						
-		if(GetSensorCounter == Sensors.Counter)  ///<38B
-		{
-			uint8_t BufLen = 0;
-	
-			memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], SendBufs[SendBufsCounter].Port, Index);
-			DEBUG_APP(2, "444PortId : %d counter = %d\r\n",PortId, GetSensorCounter);
-			
-			DEBUG_APP(3,"Index = %d, \r\n",Index);
-	
-			BufLen += Index;
-			
-			DEBUG(2,"BufLen = %d, \r\n",BufLen);
-			memcpy1(&SendBufs[SendBufsCounter].Buf[BufLen], Temp, TempIndex);
-			
-			DEBUG(2,"55SendBufsCounter = %d, Len = %d,TempIndex = %d, Length = %d\r\n",SendBufsCounter,Len,TempIndex,Length);
-			for(uint8_t i = 0; i< Length; i++)
-			DEBUG(2,"%02X ",SendBufs[SendBufsCounter].Buf[i]);
-			DEBUG(2,"\r\n");
-	
-			memset(Temp, 0, TempIndex);
-			
-			SendBufsCounter ++;
-			Len = 0;
-			Length = 0;
-			TempIndex = 0;	
-			Index = 0;
-		}
-	}
-	
-	Sensors.Counter = 0;
-	GetSensorCounter = 0;
-#endif	
-}
 
 /*
  *	SensorQueryType:		广播查询主板485类型
@@ -297,7 +374,7 @@ Rstype_t SensorQueryType(int PortId)
 	
 	SaveRs485s[PortId].Type = RS485_NONE;
 	
-	int len = Rs485s.Cmd(ExpendBoxbuff,7);   // 地址广播：get expend return data 	
+	int len = Rs485s.Cmd(ExpendBoxbuff,7, 1000);   // 地址广播：get expend return data 	
 	
 	memcpy(repbuff,Rs485s.Revbuff,len);
 		
@@ -361,10 +438,10 @@ Rstype_t SensorQueryType(int PortId)
 //		for(int i = 0 ; i < ARRAY(CheckRs485s) ; i ++)
 		for(int i = 4 ; i < 6 ; i ++) ///只查询叶面传感器
 		{			
-			len = Rs485s.Cmd(CheckRs485s[i].SendBuff,CheckRs485s[i].SendDataLen);
+			len = Rs485s.Cmd(CheckRs485s[i].SendBuff, CheckRs485s[i].SendDataLen, CheckRs485s[i].TimeOut);
 			while(HAL_GetTick() - startTime < CheckRs485s[i].TimeOut && len != CheckRs485s[i].RevDataLen)
 			{
-				len = Rs485s.Cmd(CheckRs485s[i].SendBuff,CheckRs485s[i].SendDataLen);				
+				len = Rs485s.Cmd(CheckRs485s[i].SendBuff,CheckRs485s[i].SendDataLen, CheckRs485s[i].TimeOut);				
 				HAL_Delay(500);
 			}
 			if(len == CheckRs485s[i].RevDataLen)
@@ -446,7 +523,7 @@ HAL_StatusTypeDef SensorExpBoxAddr(int index)
 				DEBUG_APP(2,"exbox port=%d sensor open success",ExpId);
 			}
 			
-		  len = Rs485s.Cmd(ExpendBoxbuff,7);   // 地址广播：get expend return data 	
+		  len = Rs485s.Cmd(ExpendBoxbuff,7, 1000);   // 地址广播：get expend return data 	
 	
 			memcpy(repbuff,Rs485s.Revbuff,len);
 	
@@ -491,7 +568,7 @@ HAL_StatusTypeDef SensorExpBoxAddr(int index)
 //				for( i = 0 ; i < ARRAY(CheckRs485s) ; i ++)
 				for(int i = 4 ; i < 6 ; i ++) ///只查询叶面传感器
 				{
-					len = Rs485s.Cmd(CheckRs485s[i].SendBuff,CheckRs485s[i].SendDataLen);
+					len = Rs485s.Cmd(CheckRs485s[i].SendBuff,CheckRs485s[i].SendDataLen, CheckRs485s[i].TimeOut);
 				
 					if(len == CheckRs485s[i].RevDataLen)
 					{
@@ -518,7 +595,7 @@ HAL_StatusTypeDef SensorExpBoxAddr(int index)
 		
 	//关闭 扩展盒
 	OpenExpendBoxbuff[5] = 0x00;
-	len = Rs485s.Cmd(OpenExpendBoxbuff,7);		
+	len = Rs485s.Cmd(OpenExpendBoxbuff,7, 200);		
 	if(len == 0)
 	{
 			DEBUG_ERROR(2,"close expend box falie");		
@@ -542,12 +619,12 @@ HAL_StatusTypeDef SensorMaBoxData(uint8_t id)
 	uint32_t startTime = 0;
 	uint32_t getDataTimeOut = 4000;
 	
-	len = Rs485s.Cmd(CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].SendBuff,CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].SendDataLen);
+	len = Rs485s.Cmd(CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].SendBuff,CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].SendDataLen, CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].TimeOut);
 	//等待发送完成,				
 	startTime = HAL_GetTick();
 	while(HAL_GetTick() - startTime < getDataTimeOut && len != CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].RevDataLen)
 	{
-		len = Rs485s.Cmd(CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].SendBuff,CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].SendDataLen);
+		len = Rs485s.Cmd(CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].SendBuff,CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].SendDataLen, CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].TimeOut);
 		HAL_Delay(500);
 	}
 	if(len != CheckRs485s[SaveRs485s[id].MainBox.CheckIndex].RevDataLen)
@@ -597,38 +674,39 @@ HAL_StatusTypeDef SensorExpenData(uint8_t index)
 				continue;
 			}
 			
-			HAL_Delay(1000);
-			len = Rs485s.Cmd(CheckRs485s[SaveRs485s[index].MainBox.ExpendBox[Exid].CheckIndex].SendBuff,CheckRs485s[SaveRs485s[index].MainBox.ExpendBox[Exid].CheckIndex].SendDataLen);
+			len = Rs485s.Cmd(CheckRs485s[SaveRs485s[index].MainBox.ExpendBox[Exid].CheckIndex].SendBuff,CheckRs485s[SaveRs485s[index].MainBox.ExpendBox[Exid].CheckIndex].SendDataLen,CheckRs485s[SaveRs485s[index].MainBox.ExpendBox[Exid].CheckIndex].TimeOut);
 			//等待发送完成,				
 			startTime = HAL_GetTick();
 			while(HAL_GetTick() - startTime < getDataTimeOut && len != CheckRs485s[SaveRs485s[index].MainBox.ExpendBox[Exid].CheckIndex].RevDataLen)
 			{
-				len = Rs485s.Cmd(CheckRs485s[SaveRs485s[index].MainBox.CheckIndex].SendBuff,CheckRs485s[SaveRs485s[index].MainBox.CheckIndex].SendDataLen);
+				len = Rs485s.Cmd(CheckRs485s[SaveRs485s[index].MainBox.CheckIndex].SendBuff,CheckRs485s[SaveRs485s[index].MainBox.CheckIndex].SendDataLen,CheckRs485s[SaveRs485s[index].MainBox.ExpendBox[Exid].CheckIndex].TimeOut);
 				HAL_Delay(500);
 			}
 			if(len != CheckRs485s[SaveRs485s[index].MainBox.ExpendBox[Exid].CheckIndex].RevDataLen)
 			{
-				DEBUG_APP(2,"Get Exid : %02x data error",SaveRs485s[index].MainBox.ExpendBox[Exid].Index);	
-				return HAL_ERROR;
+				DEBUG_ERROR(2,"Get Exid : %02x data error",SaveRs485s[index].MainBox.ExpendBox[Exid].Index);	
 			}
-
-			Sensors.Counter ++;
-			
-			memset(SaveRs485s[index].MainBox.ExpendBox[Exid].DataBuff,0,len);
-			memcpy(SaveRs485s[index].MainBox.ExpendBox[Exid].DataBuff,Rs485s.Revbuff,len);
-
-			DEBUG(2,"main_box = %d, exbox port=%d Index = 0x%02x sensor Rs485 revData : ",++index,++Exid,SaveRs485s[index].MainBox.ExpendBox[Exid].Index);
-			index--;
-			Exid--;
-			Rs485s.Print(SaveRs485s[index].MainBox.ExpendBox[Exid].DataBuff,len);				
-
-			//get data
-			for(int i = 0,j = 3 ; j < len - 2; j ++)
+			else
 			{
-				SaveRs485s[index].MainBox.ExpendBox[Exid].SensorBuff[i] = SaveRs485s[index].MainBox.ExpendBox[Exid].DataBuff[j];
-				DEBUG_APP(2,"get data[%d] = 0x%02x\r\n",j,SaveRs485s[index].MainBox.ExpendBox[Exid].SensorBuff[i]);	
-				i++;
-			}						
+
+				Sensors.Counter ++;
+				
+				memset(SaveRs485s[index].MainBox.ExpendBox[Exid].DataBuff,0,len);
+				memcpy(SaveRs485s[index].MainBox.ExpendBox[Exid].DataBuff,Rs485s.Revbuff,len);
+
+				DEBUG(2,"main_box = %d, exbox port=%d Index = 0x%02x sensor Rs485 revData : ",++index,++Exid,SaveRs485s[index].MainBox.ExpendBox[Exid].Index);
+				index--;
+				Exid--;
+				Rs485s.Print(SaveRs485s[index].MainBox.ExpendBox[Exid].DataBuff,len);				
+
+				//get data
+				for(int i = 0,j = 3 ; j < len - 2; j ++)
+				{
+					SaveRs485s[index].MainBox.ExpendBox[Exid].SensorBuff[i] = SaveRs485s[index].MainBox.ExpendBox[Exid].DataBuff[j];
+					DEBUG_APP(2,"get data[%d] = 0x%02x\r\n",j,SaveRs485s[index].MainBox.ExpendBox[Exid].SensorBuff[i]);	
+					i++;
+				}	
+			}			
 		}
 	}
 	return HAL_OK;
@@ -674,7 +752,7 @@ uint8_t OpenExpenBox(uint8_t ExpId)
 		temp = ExpId;				
 	}
 	OpenExpendBoxbuff[5] = 0x01 << temp;
-	len = Rs485s.Cmd(OpenExpendBoxbuff,7);
+	len = Rs485s.Cmd(OpenExpendBoxbuff,7, 200);
 
 	DEBUG_APP(2,"Rs485s--len = %d",len);
 	return len;

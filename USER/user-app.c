@@ -10,6 +10,11 @@
 #include <math.h>
 #include "user-app.h"
 #include "Zeta.h"
+#include "sensor.h"
+
+#define VERSIOS					0x01
+
+volatile uint16_t	UpSeqCounter = 0; 
 
 UserZeta_t UserZetaCheck[] = {
 	{0x10, 1500, Payload}, ///查询mac
@@ -18,24 +23,30 @@ UserZeta_t UserZetaCheck[] = {
 	{0x13, 1000, Payload}, ///查询网络质量
 };
 
+uint8_t DeviceInfo[4] = {0};
+
 /*UserZetaInit：用户调用Zeta初始化
 *参数：					无
 *返回值：   		无
 */
 void UserZetaInit(void)
 {
-	ZetaHandle.Init = ZetaInit;
-	ZetaHandle.WakeupEnable = WakeupZetaEnable;
-	ZetaHandle.WakeupDisable = WakeupZetaDisable;
-	ZetaHandle.Interrupt = ZetaInterrupt;
-	ZetaHandle.Status = ZetaStatus;
-	ZetaHandle.Send = ZetaSend;
-	ZetaHandle.Recv = ZetaRecv;
+	ZetaHandle.Init 						= ZetaInit;
+	ZetaHandle.WakeupEnable 		= WakeupZetaEnable;
+	ZetaHandle.WakeupDisable 		= WakeupZetaDisable;
+	ZetaHandle.Interrupt 				= ZetaInterrupt;
+	ZetaHandle.Status 					= ZetaStatus;
+	ZetaHandle.Send 						= ZetaSend;
+	ZetaHandle.Recv 						= ZetaRecv;
+	ZetaHandle.CRC8 						=	CalcCRC8;
 	
 	ZetaHandle.Init(  );
+	
+	UserGetAddID(  );
 }
 
-/*UserSend：用户调用Zeta发送函数：注意：发送数据前必须等待模块注册完成，否则发送失败，其它模式默认可直接执行
+/*UserSend：用户调用Zeta发送函数：注意：发送数据前必须等待模块注册完成，否则发送失败，其它模式默认可直接执行,
+*						最大发送数据MAX = 49
 *参数：			无
 *返回值：   无
 */
@@ -52,47 +63,71 @@ void UserSend(void)
 	
 	ZetaSendBuf.Buf[3] = 0x02;
 	
-	memcpy(&ZetaSendBuf.Buf[4],"1234567890123456789012345678901234567890123456789",49);
+	ZetaSendBuf.Buf[4] = (VERSIOS << 4); ///|充电状态
 	
-	ZetaSendBuf.Buf[2] = 0x04 + 49;
+	/********************设备ID*****************/
+	memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
 	
-	ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
-	
-	for(uint8_t i = 0; i < 3; i++)
+	for(uint8_t SedId = 0; SedId <= SendBufsCounter -1; SedId++)
 	{
+		memcpy1(&ZetaSendBuf.Buf[5], SendBufs[SendBufsCounter].Buf, SendBufs[SendBufsCounter].Len); ///payload
 		
-		DEBUG(2,"start send data\r\n");
+		ZetaSendBuf.Buf[5 + SendBufs[SendBufsCounter].Len++] = (UpSeqCounter&0xff00)<<8; ///Seq
+		ZetaSendBuf.Buf[5 + SendBufs[SendBufsCounter].Len++] = (UpSeqCounter&0xff);
 		
-		for(uint8_t j = 0; j<ZetaSendBuf.Len; j++)
-		DEBUG(2,"%02x ",ZetaSendBuf.Buf[j]);
-		DEBUG(2,"\r\n");
+		ZetaSendBuf.Buf[5 + SendBufs[SendBufsCounter].Len++] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[5],SendBufs[SendBufsCounter].Len); ///CRC
+
+//	memcpy(&ZetaSendBuf.Buf[4],"1234567890123456789012345678901234567890123456789",49);
+	
+//	ZetaSendBuf.Buf[2] = 0x04 + 49;
+	
+		ZetaSendBuf.Buf[2] = 0x09 + SendBufs[SendBufsCounter].Len; /// +sensor_len
+		ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
 		
-		ZetaHandle.Send(&ZetaSendBuf);
-				
-		HAL_Delay(100);
-		ZetaState_t  Status = ZetaHandle.Recv(  );
+		SendBufs[SendBufsCounter].Len = 0;
 		
-		uint32_t overtime = HAL_GetTick(  );
-		while((DataAck != Status) && (HAL_GetTick(  ) - overtime < 200));
+		///UpSeqCounter ++;
 		
-		if(DataAck == Status)
-		{			
-//			HAL_Delay(300);	
-//			UserCheckCmd(&UserZetaCheck[NETIME]); ///结合外部flash使用
-			break;
-		}
-		else if(LenError != Status)
+		for(uint8_t i = 0; i < 3; i++)
 		{
-			if(Unregistered == Status)
+			
+			DEBUG(2,"start send data\r\n");
+			
+			for(uint8_t j = 0; j<ZetaSendBuf.Len; j++)
+			DEBUG(2,"%02x ",ZetaSendBuf.Buf[j]);
+			DEBUG(2,"\r\n");
+			
+			ZetaHandle.Send(&ZetaSendBuf);
+					
+			HAL_Delay(100);
+			ZetaState_t  Status = ZetaHandle.Recv(  );
+			
+			uint32_t overtime = HAL_GetTick(  );
+			while((DataAck != Status) && (HAL_GetTick(  ) - overtime < 200));
+			
+			if(DataAck == Status)
+			{			
+	//			HAL_Delay(300);	
+	//			UserCheckCmd(&UserZetaCheck[NETIME]); ///结合外部flash使用
+				
+				if(SedId == SendBufsCounter -1)
+				UpSeqCounter ++;
+				
+				break;
+			}
+			else if(LenError != Status)
 			{
-				DEBUG(2,"---Writing registered---\r\n");
-				HAL_Delay(40000);
+				if(Unregistered == Status)
+				{
+					DEBUG(2,"---Writing registered---\r\n");
+					HAL_Delay(40000);
+				}
+				else
+				HAL_Delay(300);	
 			}
 			else
-			HAL_Delay(300);	
+				break;			
 		}
-		else
-			break;			
 	}
 	
 	free(ZetaSendBuf.Buf);
@@ -274,4 +309,47 @@ void UserIntoLowPower(void)
     /* Enter Stop Mode */
     __HAL_PWR_CLEAR_FLAG( PWR_FLAG_WU );
     HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
+}
+
+/*!
+*UserGetAddID：	获取设备ID
+*返回值: 		    无
+*/
+void UserGetAddID(void)
+{
+	static char String_Buffer[33] = {0}; ///读取flash写入字符串
+	static uint8_t DevTemp[8] = {0};
+
+	STMFLASH_Read(DEV_ADDR,(uint16_t*)String_Buffer,DEV_ADDR_SIZE/2);         ////DEV
+	
+	String_Conversion(String_Buffer, DevTemp, DEV_ADDR_SIZE);  
+
+	///09 07 18 30 0000 0001 ///0730 0001  30: Zeta  31:Zeta+GPS	
+	DeviceInfo[0] = DevTemp[1];
+	DeviceInfo[1] = DevTemp[3];
+	
+	DeviceInfo[2] = DevTemp[6];
+	DeviceInfo[3] = DevTemp[7];
+	
+	DEBUG(2,"DEV: ");
+	for(uint8_t i = 0; i < 4; i++)
+	DEBUG(2,"%02x ",DeviceInfo[i]);
+	DEBUG(2,"\r\n");
+	
+	memset(String_Buffer, 33, 0);	
+}
+
+/*!
+*String_Conversion：字符串转换为16进制
+*返回值: 		    		无
+*/
+void String_Conversion(char *str, uint8_t *src, uint8_t len)
+{
+ volatile int i,v;
+			
+ for(i=0; i<len/2; i++)
+ {
+	sscanf(str+i*2,"%2X",&v);
+	src[i]=(uint8_t)v;
+ }
 }

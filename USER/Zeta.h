@@ -101,8 +101,8 @@ typedef struct uZetaHandle
 	void 					(*Interrupt)(void);
 	void 					(*Send)(Zeta_t *ZetaBuf);
 	ZetaState_t		(*Recv)(void);
+	uint8_t 			(*CRC8)(uint8_t *ptr, uint8_t len);
 	GPIO_PinState (*Status)(void);
-	
 }ZetaHandle_t;
 
 
@@ -127,6 +127,8 @@ GPIO_PinState ZetaStatus(void);
 void ZetaSend(Zeta_t *ZetaBuf);
 
 ZetaState_t ZetaRecv(void);
+
+uint8_t CalcCRC8(uint8_t *ptr, uint8_t len);
 
 
 #endif /* __ZETA_H  */

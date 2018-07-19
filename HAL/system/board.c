@@ -49,7 +49,7 @@ void BoardInitMcu( void )
 	MX_USART2_UART_Init(  );
 	
 	/****************ADC初始化*******************/
-//	MX_ADC_Init(  );
+	MX_ADC_Init(  );
 	
 	/*****************电源管理********************/
 //	InitPower(  );

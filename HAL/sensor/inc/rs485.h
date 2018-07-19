@@ -19,7 +19,7 @@
 		
 #define NBI_RS485_SEND_DATA_LEN     20 
 #define NBI_RS485_REV_DATA_LEN      50 
-#define NBI_RS485_REV_TIME_OUT      500
+#define NBI_RS485_REV_TIME_OUT      200
 #define NBI_RS485_SEND_BUFF_LEN     13
 #define NBI_RS485_PIN_COUNT         6
 #define NBI_RS485_EXBOX_COUNT       5
@@ -46,8 +46,8 @@ typedef struct u_rs485
 	void 			(*PowerOff)(void);
 	void      (*Print)(uint8_t *buff,int len);
 	int 			(*GetData)(uint8_t *data);
-	int 			(*Cmd)(uint8_t *sendData , int len);
-	uint16_t 	(*Crc16)(uint8_t *data, uint8_t len);
+	uint16_t 	(*Crc16)(uint8_t *data, uint8_t len); 
+	int 			(*Cmd)(uint8_t *sendData , int len, uint32_t time_out);
 }rs485_t;		
 
 extern rs485_t Rs485s;
@@ -67,9 +67,9 @@ void _12VPowerOff(void);
 
 int Rs485GetData(uint8_t *data);
 
-int Rs485Cmd(uint8_t *sendData , int len);
-
 void Rs485Print(uint8_t *buff,int len);
+
+int Rs485Cmd(uint8_t *sendData, int len, uint32_t time_out);
 
 uint16_t CalcCRC16(uint8_t *data, uint8_t len);
 

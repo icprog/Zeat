@@ -35,6 +35,10 @@ typedef struct d_UserZeta
 
 extern UserZeta_t UserZetaCheck[];
 
+extern uint8_t DeviceInfo[4];
+
+extern volatile uint16_t	UpSeqCounter;
+
 void UserZetaInit(void);
 
 void UserSend(void);
@@ -48,6 +52,10 @@ void UserSetTimer(ZetaTimer_t Timer);
 void UserCloseTimer(ZetaTimer_t Timer);
 
 void UserIntoLowPower(void);
+
+void UserGetAddID(void);
+
+void String_Conversion(char *str, uint8_t *src, uint8_t len);
 
 #endif /* __USER_APP_H */
 

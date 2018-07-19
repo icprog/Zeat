@@ -18,32 +18,32 @@
 #define VDD_APPLI                      		 							((uint32_t) 1220U)    /* Value of analog voltage supply Vdda (unit: mV) */
 #define VFULL																						((uint32_t) 4095U)
 
+/*
+*CheckBattery：读取电池电量
+*返回值：			 电量百分比
+*/
 uint8_t CheckBattery(void)
 {
 	uint16_t adc[3] = {0};
+	uint8_t  Battery = 0;
 	
-	adc[0] = AdcReadParameter(ADC_CHANNEL_0, 10);
-	float Rechargeing = VREFINT_CAL_VREF*(*VREFINT_CAL_ADDR)*adc[0];
+//	adc[1] = AdcReadParameter(ADC_CHANNEL_0, 10);
+//	float Rechargeing = VREFINT_CAL_VREF*(*VREFINT_CAL_ADDR)*adc[1];
 	
-	adc[1] = AdcReadParameter(ADC_CHANNEL_1, 10);
-	float VBAT = VREFINT_CAL_VREF*(*VREFINT_CAL_ADDR)*adc[1]; 
+	adc[0] = AdcReadParameter(ADC_CHANNEL_1, 10);
+	float VBAT = VREFINT_CAL_VREF*(*VREFINT_CAL_ADDR)*adc[0]; 
 	
-	adc[2] = AdcReadParameter(ADC_CHANNEL_VREFINT, 10);
+	adc[1] = AdcReadParameter(ADC_CHANNEL_VREFINT, 10);
 	
-	float temp = adc[2] * VFULL;
+	float temp = adc[1] * VFULL;
 	
-	DEBUG(2, "BAT = %d adc17 = %d adc1 = %d, adc0 = %d, VBAT = %.2fmV Rechargeing = %.2fmV\r\n", *VREFINT_CAL_ADDR, adc[2], adc[1], adc[0], (VBAT/temp)*2000, (Rechargeing/temp)*6100);  ///100:510
+	DEBUG(2, "BAT = %d adc17 = %d , adc0 = %d, VBAT = %.2fmV \r\n", *VREFINT_CAL_ADDR,  adc[1], adc[0], (VBAT/temp)*2000);  ///100:510
+		
+	Battery = (((VBAT/temp)*2000 - 3600)/6);
 	
-//	if((Rechargeing/temp)*6100 > 4500)
-//		RF_Send_Data.Rechargeing = 0x01; ///充电状态反馈
-//	else
-//		RF_Send_Data.Rechargeing = 0x00;
-//	
-//	RF_Send_Data.Battery = (((VBAT/temp)*2000 - 3600)/6);
-//	
-//	if(RF_Send_Data.Battery >= 100)
-//		RF_Send_Data.Battery = 100;
-//	else if(RF_Send_Data.Battery <= 5)
-//		RF_Send_Data.Battery = 3;
-	return *adc;
+	if(Battery >= 100)
+		Battery = 100;
+	else if(Battery <= 5)
+		Battery = 3;
+	return Battery;
 }

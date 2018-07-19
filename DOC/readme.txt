@@ -111,3 +111,5 @@ Program Size: Code=20212 RO-data=340 RW-data=116 ZI-data=3172
 SaveRs485s[index].MainBox.ExpendBox[ExpId].ExpenCheck
 
 	Sensors.MaBoxData 			= SensorMaBoxData;
+	
+0907183000000001 ///0730 0001  30: Zeta  31:Zeta+GPS	

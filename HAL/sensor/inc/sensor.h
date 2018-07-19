@@ -228,8 +228,9 @@ typedef struct u_SaveRs485
 */
 typedef struct u_SendBuf
 {
-	uint8_t						Port[38];
-	uint8_t						Buf[38];
+	uint8_t						Port[50];
+	uint8_t						Buf[50];
+	uint8_t						Len;
 }SendBuf_t;
 
 /*
@@ -240,6 +241,8 @@ typedef struct u_Sensor
 	uint8_t						Counter;
 		
 	void 							(*Handle)(void);
+	
+	void 							(*DataProces)(void);
 
 	void 							(*ExpendBoxLive)(int expend_sensor,int index);
 	
@@ -265,9 +268,13 @@ extern SaveRs485_t  SaveRs485s[6];
 extern SendBuf_t		SendBufs[10];
 extern Sensor_t     Sensors;
 
+extern volatile 	uint8_t SendBufsCounter;
+
 void SensorsInit(void);
 
 void SensorHandle(void);
+
+void SensorDataProces(void);
 
 HAL_StatusTypeDef SensorQueryPinStaus(void);
 
