@@ -78,13 +78,23 @@ void Rs485PinInit(void)
  */
 void Rs485OpenPin(int index)
 {
-	uint16_t pin = GPIO_PIN_4;
-	for(int i = 0 ; i < 6 ; i ++)
+//	uint16_t pin = GPIO_PIN_4;
+	uint16_t pin =  RS485PIN_5;
+	for(uint8_t i = 0 ; i < 6 ; i ++)
 	{			
-		HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOB,pin >> i,GPIO_PIN_RESET);
 	}
-	HAL_GPIO_WritePin(GPIOB,pin << index ,GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOB,pin >> index ,GPIO_PIN_SET);
 }
+//void Rs485OpenPin(int index)
+//{
+//	uint16_t pin = GPIO_PIN_4;
+//	for(uint8_t i = 0 ; i < 6 ; i ++)
+//	{			
+//		HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
+//	}
+//	HAL_GPIO_WritePin(GPIOB,pin << index ,GPIO_PIN_SET);
+//}
 
 /*
  *	Rs485ClsoePin:	Ê§ÄÜ485½Ó¿Ú
