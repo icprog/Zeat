@@ -126,21 +126,22 @@ void _12VPowerOff(void)
 /*
  *	Rs485GetData:	获取485返回数据
  *	data:					存取数据缓存
+*  debuglevel:    debug等级
  *	返回值：	    数据长度
  */
-int Rs485GetData(uint8_t *data)
+uint8_t Rs485GetData(uint8_t *data, uint8_t debuglevel)
 {	
 	uint8_t ch;
-	int length = 0;
+	uint8_t length = 0;
     
 	while(FIFO_UartReadByte(&usart_rs485,&ch) == HAL_OK)	
 	{			
 		data[length] = ch;		
-		DEBUG(2,"%02X ",data[length]);
+		DEBUG(debuglevel,"%02X ",data[length]);
 		length++;
 	}
 	if(length>0)
-  DEBUG(2,"\r\n");
+  DEBUG(debuglevel,"\r\n");
 	return length;
 }
 
@@ -149,10 +150,11 @@ int Rs485GetData(uint8_t *data)
  *	Rs485Cmd:	Rs485下发命令
  *	sendData:	命令数据
  *	len			：命令长度
-*   time_out: 等待时间
+*  debuglevel: debug等级
+ *  time_out: 等待时间
  *	返回值：	接收到Rs485数据长度
  */
-int Rs485Cmd(uint8_t *sendData, int len, uint32_t time_out)
+uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t time_out)
 {	
     RS485_TO_TX();		 
     Rs485s.Crc16(sendData,len);
@@ -167,7 +169,7 @@ int Rs485Cmd(uint8_t *sendData, int len, uint32_t time_out)
     RS485_TO_RX();
     HAL_Delay(NBI_RS485_REV_TIME_OUT);
     memset(Rs485s.Revbuff, 0, sizeof(Rs485s.Revbuff));
-    int length = Rs485s.GetData(Rs485s.Revbuff);
+    int length = Rs485s.GetData(Rs485s.Revbuff,debuglevel);
     
     char crcH = Rs485s.Revbuff[length-1];
     char crcL = Rs485s.Revbuff[length-2];

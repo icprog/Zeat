@@ -73,7 +73,7 @@ void UserSend(void)
 		memcpy1(&ZetaSendBuf.Buf[9], SendBufs[SedId].Buf, SendBufs[SedId].Len); ///payload
 		DEBUG(2,"ZetaSendBuf: ");
 		for(uint8_t i = 0; i < SendBufs[SedId].Len; i++)
-		DEBUG(2,"%02X ",ZetaSendBuf.Buf[5+i]);
+		DEBUG(2,"%02X ",ZetaSendBuf.Buf[9+i]);
 		DEBUG(2,"\r\n");
 		
 		ZetaSendBuf.Buf[9 + SendBufs[SedId].Len++] = (UpSeqCounter&0xff00)<<8; ///Seq

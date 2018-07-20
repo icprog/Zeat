@@ -19,12 +19,14 @@
 #endif
 			
 #define DEBUG__						1
-#define DEBUG_LEVEL	  		        2					//调试等级，配合DEBUG调试宏控制调试输出范围,大于该等级的调试不输出
+#define DEBUG_LEVEL	  		2					//调试等级，配合DEBUG调试宏控制调试输出范围,大于该等级的调试不输出
 		
 		
 #ifdef DEBUG__				  	//调试宏定义  
 #include <stdio.h>
 #include <string.h>  
+		
+#define NODEBUG		 3
 		
 #define APP        2
 

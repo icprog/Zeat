@@ -65,8 +65,8 @@ int main(void)
 //			SetRtcAlarm(10);///4SÎó²î	  
 //			UserIntoLowPower(  );
 		 Sensors.Handle(  );
-		 UserSend(  );
-//		 
+//		 UserSend(  );
+		 
 		 HAL_Delay(30000);
 	 }
 	 
