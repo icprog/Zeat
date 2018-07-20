@@ -131,17 +131,21 @@ void _12VPowerOff(void)
  */
 uint8_t Rs485GetData(uint8_t *data, uint8_t debuglevel)
 {	
-	uint8_t ch;
+	uint8_t ch = 0;
 	uint8_t length = 0;
-    
+	    
 	while(FIFO_UartReadByte(&usart_rs485,&ch) == HAL_OK)	
 	{			
 		data[length] = ch;		
-		DEBUG(debuglevel,"%02X ",data[length]);
 		length++;
 	}
 	if(length>0)
-  DEBUG(debuglevel,"\r\n");
+	{
+		DEBUG(debuglevel,"----get data----");
+		for(uint8_t i = 0; i< length; i++)
+		DEBUG(debuglevel,"%02X ",data[i]);
+		DEBUG(debuglevel,"\r\n");
+	}
 	return length;
 }
 
@@ -161,15 +165,15 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
 		
   	HAL_Delay(time_out);
 		DEBUG_APP(3,"time_out %d",time_out);
-    DEBUG(3,"---send : ");
-    for(int i = 0; i < len+2; i++)
-    DEBUG(3,"%02X ",sendData[i]);
-    DEBUG(3,"\r\n");
+//    DEBUG(2,"---send : ");
+//    for(int i = 0; i < len+2; i++)
+//    DEBUG(2,"%02X ",sendData[i]);
+//    DEBUG(2,"\r\n");
     HAL_UART_Transmit(&huart4,sendData,len + 2,0xffff);				
     RS485_TO_RX();
     HAL_Delay(NBI_RS485_REV_TIME_OUT);
     memset(Rs485s.Revbuff, 0, sizeof(Rs485s.Revbuff));
-    int length = Rs485s.GetData(Rs485s.Revbuff,debuglevel);
+    uint8_t length = Rs485s.GetData(Rs485s.Revbuff,debuglevel);
     
     char crcH = Rs485s.Revbuff[length-1];
     char crcL = Rs485s.Revbuff[length-2];

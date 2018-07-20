@@ -14,7 +14,7 @@
 
 #define VERSIOS					0x01
 
-volatile uint16_t	UpSeqCounter = 0; 
+volatile uint16_t	UpSeqCounter = 1; 
 
 UserZeta_t UserZetaCheck[] = {
 	{0x10, 1500, Payload}, ///≤È—Ømac

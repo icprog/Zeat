@@ -19,7 +19,7 @@
 		
 #define NBI_RS485_SEND_DATA_LEN     20 
 #define NBI_RS485_REV_DATA_LEN      50 
-#define NBI_RS485_REV_TIME_OUT      200
+#define NBI_RS485_REV_TIME_OUT      400
 #define NBI_RS485_SEND_BUFF_LEN     13
 #define NBI_RS485_PIN_COUNT         6
 #define NBI_RS485_EXBOX_COUNT       5

@@ -837,8 +837,8 @@ Section Cross References
     rs485.o(i.Rs485Cmd) refers to memseta.o(.text) for __aeabi_memclr4
     rs485.o(i.Rs485Cmd) refers to rs485.o(.bss) for Rs485s
     rs485.o(i.Rs485Cmd) refers to usart.o(.bss) for huart4
-    rs485.o(i.Rs485GetData) refers to printfa.o(i.__0printf) for __2printf
     rs485.o(i.Rs485GetData) refers to fifo_uart.o(i.FIFO_UartReadByte) for FIFO_UartReadByte
+    rs485.o(i.Rs485GetData) refers to printfa.o(i.__0printf) for __2printf
     rs485.o(i.Rs485GetData) refers to usart.o(.bss) for usart_rs485
     rs485.o(i.Rs485Init) refers to usart.o(i.MX_USART4_UART_Init) for MX_USART4_UART_Init
     rs485.o(i.Rs485Init) refers to usart.o(i.InitUartFifo) for InitUartFifo
@@ -872,22 +872,23 @@ Section Cross References
     sensor.o(i.SensorExpBoxAddr) refers to memseta.o(.text) for __aeabi_memclr4
     sensor.o(i.SensorExpBoxAddr) refers to printfa.o(i.__0printf) for __2printf
     sensor.o(i.SensorExpBoxAddr) refers to sensor.o(i.OpenExpenBox) for OpenExpenBox
-    sensor.o(i.SensorExpBoxAddr) refers to memcpya.o(.text) for __aeabi_memcpy4
+    sensor.o(i.SensorExpBoxAddr) refers to stm32l0xx_hal.o(i.HAL_Delay) for HAL_Delay
+    sensor.o(i.SensorExpBoxAddr) refers to sensor.o(i.memcpy1) for memcpy1
     sensor.o(i.SensorExpBoxAddr) refers to stm32l0xx_hal.o(i.HAL_GetTick) for HAL_GetTick
     sensor.o(i.SensorExpBoxAddr) refers to sensor.o(.bss) for SaveRs485s
     sensor.o(i.SensorExpBoxAddr) refers to sensor.o(.conststring) for .conststring
     sensor.o(i.SensorExpBoxAddr) refers to sensor.o(.data) for CheckRs485s
     sensor.o(i.SensorExpBoxAddr) refers to rs485.o(.bss) for Rs485s
     sensor.o(i.SensorExpenData) refers to sensor.o(i.OpenExpenBox) for OpenExpenBox
-    sensor.o(i.SensorExpenData) refers to stm32l0xx_hal.o(i.HAL_GetTick) for HAL_GetTick
     sensor.o(i.SensorExpenData) refers to stm32l0xx_hal.o(i.HAL_Delay) for HAL_Delay
     sensor.o(i.SensorExpenData) refers to printfa.o(i.__0printf) for __2printf
+    sensor.o(i.SensorExpenData) refers to stm32l0xx_hal.o(i.HAL_GetTick) for HAL_GetTick
     sensor.o(i.SensorExpenData) refers to memseta.o(.text) for __aeabi_memclr
     sensor.o(i.SensorExpenData) refers to sensor.o(i.memcpy1) for memcpy1
     sensor.o(i.SensorExpenData) refers to sensor.o(.bss) for SaveRs485s
     sensor.o(i.SensorExpenData) refers to sensor.o(.data) for CheckRs485s
-    sensor.o(i.SensorExpenData) refers to rs485.o(.bss) for Rs485s
     sensor.o(i.SensorExpenData) refers to sensor.o(.conststring) for .conststring
+    sensor.o(i.SensorExpenData) refers to rs485.o(.bss) for Rs485s
     sensor.o(i.SensorExpendBoxLive) refers to sensor.o(.bss) for SaveRs485s
     sensor.o(i.SensorGetData) refers to sensor.o(.bss) for Sensors
     sensor.o(i.SensorHandle) refers to printfa.o(i.__0printf) for __2printf
@@ -911,7 +912,7 @@ Section Cross References
     sensor.o(i.SensorQueryPinStaus) refers to sensor.o(.bss) for Sensors
     sensor.o(i.SensorQueryPinStaus) refers to sensor.o(.conststring) for .conststring
     sensor.o(i.SensorQueryType) refers to memseta.o(.text) for __aeabi_memclr4
-    sensor.o(i.SensorQueryType) refers to memcpya.o(.text) for __aeabi_memcpy4
+    sensor.o(i.SensorQueryType) refers to sensor.o(i.memcpy1) for memcpy1
     sensor.o(i.SensorQueryType) refers to printfa.o(i.__0printf) for __2printf
     sensor.o(i.SensorQueryType) refers to stm32l0xx_hal.o(i.HAL_GetTick) for HAL_GetTick
     sensor.o(i.SensorQueryType) refers to stm32l0xx_hal.o(i.HAL_Delay) for HAL_Delay
@@ -2349,87 +2350,87 @@ Image Symbol Table
     i.RTC_Init                               0x08004078   Section        0  rtc-board.o(i.RTC_Init)
     i.Rs485ClsoePin                          0x08004114   Section        0  rs485.o(i.Rs485ClsoePin)
     i.Rs485Cmd                               0x08004138   Section        0  rs485.o(i.Rs485Cmd)
-    i.Rs485GetData                           0x080041e4   Section        0  rs485.o(i.Rs485GetData)
-    i.Rs485Init                              0x08004234   Section        0  rs485.o(i.Rs485Init)
-    i.Rs485OpenPin                           0x08004294   Section        0  rs485.o(i.Rs485OpenPin)
-    i.Rs485PinInit                           0x080042cc   Section        0  rs485.o(i.Rs485PinInit)
-    i.Rs485Print                             0x08004348   Section        0  rs485.o(i.Rs485Print)
-    i.STMFLASH_Read                          0x08004380   Section        0  stmflash.o(i.STMFLASH_Read)
-    i.SVC_Handler                            0x0800439a   Section        0  stm32l0xx_it.o(i.SVC_Handler)
-    i.SensorDataProces                       0x0800439c   Section        0  sensor.o(i.SensorDataProces)
-    i.SensorExpBoxAddr                       0x0800493c   Section        0  sensor.o(i.SensorExpBoxAddr)
-    i.SensorExpenData                        0x08004c5c   Section        0  sensor.o(i.SensorExpenData)
-    i.SensorExpendBoxLive                    0x08004eb4   Section        0  sensor.o(i.SensorExpendBoxLive)
-    i.SensorGetData                          0x08004f0c   Section        0  sensor.o(i.SensorGetData)
-    i.SensorHandle                           0x08004f48   Section        0  sensor.o(i.SensorHandle)
-    i.SensorMaBoxData                        0x08004fbc   Section        0  sensor.o(i.SensorMaBoxData)
-    i.SensorQueryPinStaus                    0x0800515c   Section        0  sensor.o(i.SensorQueryPinStaus)
-    i.SensorQueryType                        0x080051b0   Section        0  sensor.o(i.SensorQueryType)
-    i.SensorsInit                            0x08005460   Section        0  sensor.o(i.SensorsInit)
-    i.String_Conversion                      0x080054e0   Section        0  user-app.o(i.String_Conversion)
-    i.SysTick_Handler                        0x0800551c   Section        0  stm32l0xx_it.o(i.SysTick_Handler)
-    i.SystemClockConfig                      0x08005544   Section        0  board.o(i.SystemClockConfig)
-    i.SystemClockReConfig                    0x080055f8   Section        0  board.o(i.SystemClockReConfig)
-    i.SystemInit                             0x08005688   Section        0  system_stm32l0xx.o(i.SystemInit)
-    i.UART_AdvFeatureConfig                  0x080056f0   Section        0  stm32l0xx_hal_uart.o(i.UART_AdvFeatureConfig)
-    i.UART_CheckIdleState                    0x080057e0   Section        0  stm32l0xx_hal_uart.o(i.UART_CheckIdleState)
-    i.UART_DMAAbortOnError                   0x08005854   Section        0  stm32l0xx_hal_uart.o(i.UART_DMAAbortOnError)
-    UART_DMAAbortOnError                     0x08005855   Thumb Code    24  stm32l0xx_hal_uart.o(i.UART_DMAAbortOnError)
-    i.UART_EndRxTransfer                     0x0800586c   Section        0  stm32l0xx_hal_uart.o(i.UART_EndRxTransfer)
-    UART_EndRxTransfer                       0x0800586d   Thumb Code    34  stm32l0xx_hal_uart.o(i.UART_EndRxTransfer)
-    i.UART_EndTransmit_IT                    0x0800588e   Section        0  stm32l0xx_hal_uart.o(i.UART_EndTransmit_IT)
-    UART_EndTransmit_IT                      0x0800588f   Thumb Code    32  stm32l0xx_hal_uart.o(i.UART_EndTransmit_IT)
-    i.UART_Receive_IT                        0x080058ae   Section        0  stm32l0xx_hal_uart.o(i.UART_Receive_IT)
-    UART_Receive_IT                          0x080058af   Thumb Code   144  stm32l0xx_hal_uart.o(i.UART_Receive_IT)
-    i.UART_SetConfig                         0x08005940   Section        0  stm32l0xx_hal_uart.o(i.UART_SetConfig)
-    i.UART_Transmit_IT                       0x08005d30   Section        0  stm32l0xx_hal_uart.o(i.UART_Transmit_IT)
-    UART_Transmit_IT                         0x08005d31   Thumb Code   114  stm32l0xx_hal_uart.o(i.UART_Transmit_IT)
-    i.UART_WaitOnFlagUntilTimeout            0x08005da2   Section        0  stm32l0xx_hal_uart.o(i.UART_WaitOnFlagUntilTimeout)
-    i.USART2_IRQHandler                      0x08005e14   Section        0  stm32l0xx_it.o(i.USART2_IRQHandler)
-    i.USART4_5_IRQHandler                    0x08005e6c   Section        0  stm32l0xx_it.o(i.USART4_5_IRQHandler)
-    i.UartReadByte                           0x08005e7c   Section        0  fifo_uart.o(i.UartReadByte)
-    i.UartSendByte                           0x08005e98   Section        0  fifo_uart.o(i.UartSendByte)
-    i.UserGetAddID                           0x08005eb4   Section        0  user-app.o(i.UserGetAddID)
-    i.UserZetaInit                           0x08005f38   Section        0  user-app.o(i.UserZetaInit)
-    i.WakeupZetaDisable                      0x08005f8c   Section        0  zeta.o(i.WakeupZetaDisable)
-    i.WakeupZetaEnable                       0x08005fb0   Section        0  zeta.o(i.WakeupZetaEnable)
-    i.ZetaInit                               0x08005fd4   Section        0  zeta.o(i.ZetaInit)
-    i.ZetaInterrupt                          0x08006088   Section        0  zeta.o(i.ZetaInterrupt)
-    i.ZetaRecv                               0x080060b0   Section        0  zeta.o(i.ZetaRecv)
-    i.ZetaSend                               0x08006270   Section        0  zeta.o(i.ZetaSend)
-    i.ZetaStatus                             0x08006294   Section        0  zeta.o(i.ZetaStatus)
-    i._12VPowerOff                           0x080062a8   Section        0  rs485.o(i._12VPowerOff)
-    i._12VPowerOn                            0x080062c8   Section        0  rs485.o(i._12VPowerOn)
-    i.__0printf                              0x080062e4   Section        0  printfa.o(i.__0printf)
-    i.__ARM_clz                              0x08006304   Section        0  depilogue.o(i.__ARM_clz)
-    i.__ARM_common_ll_muluu                  0x08006332   Section        0  stm32l0xx_hal_uart.o(i.__ARM_common_ll_muluu)
-    i.__scatterload_copy                     0x08006362   Section       14  handlers.o(i.__scatterload_copy)
-    i.__scatterload_null                     0x08006370   Section        2  handlers.o(i.__scatterload_null)
-    i.__scatterload_zeroinit                 0x08006372   Section       14  handlers.o(i.__scatterload_zeroinit)
-    i.__set_PRIMASK                          0x08006380   Section        0  fifo_uart.o(i.__set_PRIMASK)
-    __set_PRIMASK                            0x08006381   Thumb Code     6  fifo_uart.o(i.__set_PRIMASK)
-    i._fp_digits                             0x08006388   Section        0  printfa.o(i._fp_digits)
-    _fp_digits                               0x08006389   Thumb Code   316  printfa.o(i._fp_digits)
-    i._printf_core                           0x080064e0   Section        0  printfa.o(i._printf_core)
-    _printf_core                             0x080064e1   Thumb Code  1754  printfa.o(i._printf_core)
-    i._printf_post_padding                   0x08006bcc   Section        0  printfa.o(i._printf_post_padding)
-    _printf_post_padding                     0x08006bcd   Thumb Code    32  printfa.o(i._printf_post_padding)
-    i._printf_pre_padding                    0x08006bec   Section        0  printfa.o(i._printf_pre_padding)
-    _printf_pre_padding                      0x08006bed   Thumb Code    44  printfa.o(i._printf_pre_padding)
-    i.delay_init                             0x08006c18   Section        0  delay.o(i.delay_init)
-    i.fputc                                  0x08006c2c   Section        0  usart.o(i.fputc)
-    i.free                                   0x08006c48   Section        0  malloc.o(i.free)
-    i.main                                   0x08006c9c   Section        0  main.o(i.main)
-    i.malloc                                 0x08006cf8   Section        0  malloc.o(i.malloc)
-    i.memcpy1                                0x08006d64   Section        0  sensor.o(i.memcpy1)
-    .constdata                               0x08006d7c   Section       33  system_stm32l0xx.o(.constdata)
-    .constdata                               0x08006d9d   Section       46  stm32l0xx_it.o(.constdata)
-    __func__                                 0x08006d9d   Data          18  stm32l0xx_it.o(.constdata)
-    __func__                                 0x08006daf   Data          28  stm32l0xx_it.o(.constdata)
-    .constdata                               0x08006dcb   Section       14  zeta.o(.constdata)
-    __func__                                 0x08006dcb   Data          14  zeta.o(.constdata)
-    .constdata                               0x08006dd9   Section       64  ctype_c.o(.constdata)
-    .conststring                             0x08006e1c   Section     1811  sensor.o(.conststring)
+    i.Rs485GetData                           0x080041d8   Section        0  rs485.o(i.Rs485GetData)
+    i.Rs485Init                              0x08004254   Section        0  rs485.o(i.Rs485Init)
+    i.Rs485OpenPin                           0x080042b4   Section        0  rs485.o(i.Rs485OpenPin)
+    i.Rs485PinInit                           0x080042ec   Section        0  rs485.o(i.Rs485PinInit)
+    i.Rs485Print                             0x08004368   Section        0  rs485.o(i.Rs485Print)
+    i.STMFLASH_Read                          0x080043a0   Section        0  stmflash.o(i.STMFLASH_Read)
+    i.SVC_Handler                            0x080043ba   Section        0  stm32l0xx_it.o(i.SVC_Handler)
+    i.SensorDataProces                       0x080043bc   Section        0  sensor.o(i.SensorDataProces)
+    i.SensorExpBoxAddr                       0x08004a28   Section        0  sensor.o(i.SensorExpBoxAddr)
+    i.SensorExpenData                        0x08004d74   Section        0  sensor.o(i.SensorExpenData)
+    i.SensorExpendBoxLive                    0x08005038   Section        0  sensor.o(i.SensorExpendBoxLive)
+    i.SensorGetData                          0x08005090   Section        0  sensor.o(i.SensorGetData)
+    i.SensorHandle                           0x080050cc   Section        0  sensor.o(i.SensorHandle)
+    i.SensorMaBoxData                        0x08005140   Section        0  sensor.o(i.SensorMaBoxData)
+    i.SensorQueryPinStaus                    0x080052e0   Section        0  sensor.o(i.SensorQueryPinStaus)
+    i.SensorQueryType                        0x08005334   Section        0  sensor.o(i.SensorQueryType)
+    i.SensorsInit                            0x080055e4   Section        0  sensor.o(i.SensorsInit)
+    i.String_Conversion                      0x08005664   Section        0  user-app.o(i.String_Conversion)
+    i.SysTick_Handler                        0x080056a0   Section        0  stm32l0xx_it.o(i.SysTick_Handler)
+    i.SystemClockConfig                      0x080056c8   Section        0  board.o(i.SystemClockConfig)
+    i.SystemClockReConfig                    0x0800577c   Section        0  board.o(i.SystemClockReConfig)
+    i.SystemInit                             0x0800580c   Section        0  system_stm32l0xx.o(i.SystemInit)
+    i.UART_AdvFeatureConfig                  0x08005874   Section        0  stm32l0xx_hal_uart.o(i.UART_AdvFeatureConfig)
+    i.UART_CheckIdleState                    0x08005964   Section        0  stm32l0xx_hal_uart.o(i.UART_CheckIdleState)
+    i.UART_DMAAbortOnError                   0x080059d8   Section        0  stm32l0xx_hal_uart.o(i.UART_DMAAbortOnError)
+    UART_DMAAbortOnError                     0x080059d9   Thumb Code    24  stm32l0xx_hal_uart.o(i.UART_DMAAbortOnError)
+    i.UART_EndRxTransfer                     0x080059f0   Section        0  stm32l0xx_hal_uart.o(i.UART_EndRxTransfer)
+    UART_EndRxTransfer                       0x080059f1   Thumb Code    34  stm32l0xx_hal_uart.o(i.UART_EndRxTransfer)
+    i.UART_EndTransmit_IT                    0x08005a12   Section        0  stm32l0xx_hal_uart.o(i.UART_EndTransmit_IT)
+    UART_EndTransmit_IT                      0x08005a13   Thumb Code    32  stm32l0xx_hal_uart.o(i.UART_EndTransmit_IT)
+    i.UART_Receive_IT                        0x08005a32   Section        0  stm32l0xx_hal_uart.o(i.UART_Receive_IT)
+    UART_Receive_IT                          0x08005a33   Thumb Code   144  stm32l0xx_hal_uart.o(i.UART_Receive_IT)
+    i.UART_SetConfig                         0x08005ac4   Section        0  stm32l0xx_hal_uart.o(i.UART_SetConfig)
+    i.UART_Transmit_IT                       0x08005eb4   Section        0  stm32l0xx_hal_uart.o(i.UART_Transmit_IT)
+    UART_Transmit_IT                         0x08005eb5   Thumb Code   114  stm32l0xx_hal_uart.o(i.UART_Transmit_IT)
+    i.UART_WaitOnFlagUntilTimeout            0x08005f26   Section        0  stm32l0xx_hal_uart.o(i.UART_WaitOnFlagUntilTimeout)
+    i.USART2_IRQHandler                      0x08005f98   Section        0  stm32l0xx_it.o(i.USART2_IRQHandler)
+    i.USART4_5_IRQHandler                    0x08005ff0   Section        0  stm32l0xx_it.o(i.USART4_5_IRQHandler)
+    i.UartReadByte                           0x08006000   Section        0  fifo_uart.o(i.UartReadByte)
+    i.UartSendByte                           0x0800601c   Section        0  fifo_uart.o(i.UartSendByte)
+    i.UserGetAddID                           0x08006038   Section        0  user-app.o(i.UserGetAddID)
+    i.UserZetaInit                           0x080060bc   Section        0  user-app.o(i.UserZetaInit)
+    i.WakeupZetaDisable                      0x08006110   Section        0  zeta.o(i.WakeupZetaDisable)
+    i.WakeupZetaEnable                       0x08006134   Section        0  zeta.o(i.WakeupZetaEnable)
+    i.ZetaInit                               0x08006158   Section        0  zeta.o(i.ZetaInit)
+    i.ZetaInterrupt                          0x0800620c   Section        0  zeta.o(i.ZetaInterrupt)
+    i.ZetaRecv                               0x08006234   Section        0  zeta.o(i.ZetaRecv)
+    i.ZetaSend                               0x080063f4   Section        0  zeta.o(i.ZetaSend)
+    i.ZetaStatus                             0x08006418   Section        0  zeta.o(i.ZetaStatus)
+    i._12VPowerOff                           0x0800642c   Section        0  rs485.o(i._12VPowerOff)
+    i._12VPowerOn                            0x0800644c   Section        0  rs485.o(i._12VPowerOn)
+    i.__0printf                              0x08006468   Section        0  printfa.o(i.__0printf)
+    i.__ARM_clz                              0x08006488   Section        0  depilogue.o(i.__ARM_clz)
+    i.__ARM_common_ll_muluu                  0x080064b6   Section        0  stm32l0xx_hal_uart.o(i.__ARM_common_ll_muluu)
+    i.__scatterload_copy                     0x080064e6   Section       14  handlers.o(i.__scatterload_copy)
+    i.__scatterload_null                     0x080064f4   Section        2  handlers.o(i.__scatterload_null)
+    i.__scatterload_zeroinit                 0x080064f6   Section       14  handlers.o(i.__scatterload_zeroinit)
+    i.__set_PRIMASK                          0x08006504   Section        0  fifo_uart.o(i.__set_PRIMASK)
+    __set_PRIMASK                            0x08006505   Thumb Code     6  fifo_uart.o(i.__set_PRIMASK)
+    i._fp_digits                             0x0800650c   Section        0  printfa.o(i._fp_digits)
+    _fp_digits                               0x0800650d   Thumb Code   316  printfa.o(i._fp_digits)
+    i._printf_core                           0x08006664   Section        0  printfa.o(i._printf_core)
+    _printf_core                             0x08006665   Thumb Code  1754  printfa.o(i._printf_core)
+    i._printf_post_padding                   0x08006d50   Section        0  printfa.o(i._printf_post_padding)
+    _printf_post_padding                     0x08006d51   Thumb Code    32  printfa.o(i._printf_post_padding)
+    i._printf_pre_padding                    0x08006d70   Section        0  printfa.o(i._printf_pre_padding)
+    _printf_pre_padding                      0x08006d71   Thumb Code    44  printfa.o(i._printf_pre_padding)
+    i.delay_init                             0x08006d9c   Section        0  delay.o(i.delay_init)
+    i.fputc                                  0x08006db0   Section        0  usart.o(i.fputc)
+    i.free                                   0x08006dcc   Section        0  malloc.o(i.free)
+    i.main                                   0x08006e20   Section        0  main.o(i.main)
+    i.malloc                                 0x08006e7c   Section        0  malloc.o(i.malloc)
+    i.memcpy1                                0x08006ee8   Section        0  sensor.o(i.memcpy1)
+    .constdata                               0x08006f00   Section       33  system_stm32l0xx.o(.constdata)
+    .constdata                               0x08006f21   Section       46  stm32l0xx_it.o(.constdata)
+    __func__                                 0x08006f21   Data          18  stm32l0xx_it.o(.constdata)
+    __func__                                 0x08006f33   Data          28  stm32l0xx_it.o(.constdata)
+    .constdata                               0x08006f4f   Section       14  zeta.o(.constdata)
+    __func__                                 0x08006f4f   Data          14  zeta.o(.constdata)
+    .constdata                               0x08006f5d   Section       64  ctype_c.o(.constdata)
+    .conststring                             0x08006fa0   Section     1811  sensor.o(.conststring)
     .data                                    0x20000000   Section        4  system_stm32l0xx.o(.data)
     .data                                    0x20000004   Section        4  stm32l0xx_hal.o(.data)
     .data                                    0x20000008   Section        4  delay.o(.data)
@@ -2685,70 +2686,70 @@ Image Symbol Table
     RTC_IRQHandler                           0x08004061   Thumb Code    20  stm32l0xx_it.o(i.RTC_IRQHandler)
     RTC_Init                                 0x08004079   Thumb Code   142  rtc-board.o(i.RTC_Init)
     Rs485ClsoePin                            0x08004115   Thumb Code    30  rs485.o(i.Rs485ClsoePin)
-    Rs485Cmd                                 0x08004139   Thumb Code   158  rs485.o(i.Rs485Cmd)
-    Rs485GetData                             0x080041e5   Thumb Code    62  rs485.o(i.Rs485GetData)
-    Rs485Init                                0x08004235   Thumb Code    54  rs485.o(i.Rs485Init)
-    Rs485OpenPin                             0x08004295   Thumb Code    50  rs485.o(i.Rs485OpenPin)
-    Rs485PinInit                             0x080042cd   Thumb Code   112  rs485.o(i.Rs485PinInit)
-    Rs485Print                               0x08004349   Thumb Code    42  rs485.o(i.Rs485Print)
-    STMFLASH_Read                            0x08004381   Thumb Code    26  stmflash.o(i.STMFLASH_Read)
-    SVC_Handler                              0x0800439b   Thumb Code     2  stm32l0xx_it.o(i.SVC_Handler)
-    SensorDataProces                         0x0800439d   Thumb Code  1414  sensor.o(i.SensorDataProces)
-    SensorExpBoxAddr                         0x0800493d   Thumb Code   684  sensor.o(i.SensorExpBoxAddr)
-    SensorExpenData                          0x08004c5d   Thumb Code   572  sensor.o(i.SensorExpenData)
-    SensorExpendBoxLive                      0x08004eb5   Thumb Code    78  sensor.o(i.SensorExpendBoxLive)
-    SensorGetData                            0x08004f0d   Thumb Code    54  sensor.o(i.SensorGetData)
-    SensorHandle                             0x08004f49   Thumb Code   100  sensor.o(i.SensorHandle)
-    SensorMaBoxData                          0x08004fbd   Thumb Code   388  sensor.o(i.SensorMaBoxData)
-    SensorQueryPinStaus                      0x0800515d   Thumb Code    72  sensor.o(i.SensorQueryPinStaus)
-    SensorQueryType                          0x080051b1   Thumb Code   582  sensor.o(i.SensorQueryType)
-    SensorsInit                              0x08005461   Thumb Code    78  sensor.o(i.SensorsInit)
-    String_Conversion                        0x080054e1   Thumb Code    54  user-app.o(i.String_Conversion)
-    SysTick_Handler                          0x0800551d   Thumb Code    32  stm32l0xx_it.o(i.SysTick_Handler)
-    SystemClockConfig                        0x08005545   Thumb Code   176  board.o(i.SystemClockConfig)
-    SystemClockReConfig                      0x080055f9   Thumb Code   136  board.o(i.SystemClockReConfig)
-    SystemInit                               0x08005689   Thumb Code    88  system_stm32l0xx.o(i.SystemInit)
-    UART_AdvFeatureConfig                    0x080056f1   Thumb Code   240  stm32l0xx_hal_uart.o(i.UART_AdvFeatureConfig)
-    UART_CheckIdleState                      0x080057e1   Thumb Code   112  stm32l0xx_hal_uart.o(i.UART_CheckIdleState)
-    UART_SetConfig                           0x08005941   Thumb Code   954  stm32l0xx_hal_uart.o(i.UART_SetConfig)
-    UART_WaitOnFlagUntilTimeout              0x08005da3   Thumb Code   112  stm32l0xx_hal_uart.o(i.UART_WaitOnFlagUntilTimeout)
-    USART2_IRQHandler                        0x08005e15   Thumb Code    80  stm32l0xx_it.o(i.USART2_IRQHandler)
-    USART4_5_IRQHandler                      0x08005e6d   Thumb Code    10  stm32l0xx_it.o(i.USART4_5_IRQHandler)
-    UartReadByte                             0x08005e7d   Thumb Code    28  fifo_uart.o(i.UartReadByte)
-    UartSendByte                             0x08005e99   Thumb Code    28  fifo_uart.o(i.UartSendByte)
-    UserGetAddID                             0x08005eb5   Thumb Code    94  user-app.o(i.UserGetAddID)
-    UserZetaInit                             0x08005f39   Thumb Code    46  user-app.o(i.UserZetaInit)
-    WakeupZetaDisable                        0x08005f8d   Thumb Code    36  zeta.o(i.WakeupZetaDisable)
-    WakeupZetaEnable                         0x08005fb1   Thumb Code    36  zeta.o(i.WakeupZetaEnable)
-    ZetaInit                                 0x08005fd5   Thumb Code   166  zeta.o(i.ZetaInit)
-    ZetaInterrupt                            0x08006089   Thumb Code    24  zeta.o(i.ZetaInterrupt)
-    ZetaRecv                                 0x080060b1   Thumb Code   422  zeta.o(i.ZetaRecv)
-    ZetaSend                                 0x08006271   Thumb Code    26  zeta.o(i.ZetaSend)
-    ZetaStatus                               0x08006295   Thumb Code    14  zeta.o(i.ZetaStatus)
-    _12VPowerOff                             0x080062a9   Thumb Code    26  rs485.o(i._12VPowerOff)
-    _12VPowerOn                              0x080062c9   Thumb Code    24  rs485.o(i._12VPowerOn)
-    __0printf                                0x080062e5   Thumb Code    24  printfa.o(i.__0printf)
-    __1printf                                0x080062e5   Thumb Code     0  printfa.o(i.__0printf)
-    __2printf                                0x080062e5   Thumb Code     0  printfa.o(i.__0printf)
-    __c89printf                              0x080062e5   Thumb Code     0  printfa.o(i.__0printf)
-    printf                                   0x080062e5   Thumb Code     0  printfa.o(i.__0printf)
-    __ARM_clz                                0x08006305   Thumb Code    46  depilogue.o(i.__ARM_clz)
-    __ARM_common_ll_muluu                    0x08006333   Thumb Code    48  stm32l0xx_hal_uart.o(i.__ARM_common_ll_muluu)
-    __scatterload_copy                       0x08006363   Thumb Code    14  handlers.o(i.__scatterload_copy)
-    __scatterload_null                       0x08006371   Thumb Code     2  handlers.o(i.__scatterload_null)
-    __scatterload_zeroinit                   0x08006373   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
-    delay_init                               0x08006c19   Thumb Code    16  delay.o(i.delay_init)
-    fputc                                    0x08006c2d   Thumb Code    20  usart.o(i.fputc)
-    free                                     0x08006c49   Thumb Code    80  malloc.o(i.free)
-    main                                     0x08006c9d   Thumb Code    34  main.o(i.main)
-    malloc                                   0x08006cf9   Thumb Code    92  malloc.o(i.malloc)
-    memcpy1                                  0x08006d65   Thumb Code    24  sensor.o(i.memcpy1)
-    AHBPrescTable                            0x08006d7c   Data          16  system_stm32l0xx.o(.constdata)
-    APBPrescTable                            0x08006d8c   Data           8  system_stm32l0xx.o(.constdata)
-    PLLMulTable                              0x08006d94   Data           9  system_stm32l0xx.o(.constdata)
-    __ctype_categories                       0x08006dd9   Data          64  ctype_c.o(.constdata)
-    Region$$Table$$Base                      0x08007530   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x08007550   Number         0  anon$$obj.o(Region$$Table)
+    Rs485Cmd                                 0x08004139   Thumb Code   148  rs485.o(i.Rs485Cmd)
+    Rs485GetData                             0x080041d9   Thumb Code    88  rs485.o(i.Rs485GetData)
+    Rs485Init                                0x08004255   Thumb Code    54  rs485.o(i.Rs485Init)
+    Rs485OpenPin                             0x080042b5   Thumb Code    50  rs485.o(i.Rs485OpenPin)
+    Rs485PinInit                             0x080042ed   Thumb Code   112  rs485.o(i.Rs485PinInit)
+    Rs485Print                               0x08004369   Thumb Code    42  rs485.o(i.Rs485Print)
+    STMFLASH_Read                            0x080043a1   Thumb Code    26  stmflash.o(i.STMFLASH_Read)
+    SVC_Handler                              0x080043bb   Thumb Code     2  stm32l0xx_it.o(i.SVC_Handler)
+    SensorDataProces                         0x080043bd   Thumb Code  1614  sensor.o(i.SensorDataProces)
+    SensorExpBoxAddr                         0x08004a29   Thumb Code   726  sensor.o(i.SensorExpBoxAddr)
+    SensorExpenData                          0x08004d75   Thumb Code   666  sensor.o(i.SensorExpenData)
+    SensorExpendBoxLive                      0x08005039   Thumb Code    78  sensor.o(i.SensorExpendBoxLive)
+    SensorGetData                            0x08005091   Thumb Code    54  sensor.o(i.SensorGetData)
+    SensorHandle                             0x080050cd   Thumb Code   100  sensor.o(i.SensorHandle)
+    SensorMaBoxData                          0x08005141   Thumb Code   388  sensor.o(i.SensorMaBoxData)
+    SensorQueryPinStaus                      0x080052e1   Thumb Code    72  sensor.o(i.SensorQueryPinStaus)
+    SensorQueryType                          0x08005335   Thumb Code   582  sensor.o(i.SensorQueryType)
+    SensorsInit                              0x080055e5   Thumb Code    78  sensor.o(i.SensorsInit)
+    String_Conversion                        0x08005665   Thumb Code    54  user-app.o(i.String_Conversion)
+    SysTick_Handler                          0x080056a1   Thumb Code    32  stm32l0xx_it.o(i.SysTick_Handler)
+    SystemClockConfig                        0x080056c9   Thumb Code   176  board.o(i.SystemClockConfig)
+    SystemClockReConfig                      0x0800577d   Thumb Code   136  board.o(i.SystemClockReConfig)
+    SystemInit                               0x0800580d   Thumb Code    88  system_stm32l0xx.o(i.SystemInit)
+    UART_AdvFeatureConfig                    0x08005875   Thumb Code   240  stm32l0xx_hal_uart.o(i.UART_AdvFeatureConfig)
+    UART_CheckIdleState                      0x08005965   Thumb Code   112  stm32l0xx_hal_uart.o(i.UART_CheckIdleState)
+    UART_SetConfig                           0x08005ac5   Thumb Code   954  stm32l0xx_hal_uart.o(i.UART_SetConfig)
+    UART_WaitOnFlagUntilTimeout              0x08005f27   Thumb Code   112  stm32l0xx_hal_uart.o(i.UART_WaitOnFlagUntilTimeout)
+    USART2_IRQHandler                        0x08005f99   Thumb Code    80  stm32l0xx_it.o(i.USART2_IRQHandler)
+    USART4_5_IRQHandler                      0x08005ff1   Thumb Code    10  stm32l0xx_it.o(i.USART4_5_IRQHandler)
+    UartReadByte                             0x08006001   Thumb Code    28  fifo_uart.o(i.UartReadByte)
+    UartSendByte                             0x0800601d   Thumb Code    28  fifo_uart.o(i.UartSendByte)
+    UserGetAddID                             0x08006039   Thumb Code    94  user-app.o(i.UserGetAddID)
+    UserZetaInit                             0x080060bd   Thumb Code    46  user-app.o(i.UserZetaInit)
+    WakeupZetaDisable                        0x08006111   Thumb Code    36  zeta.o(i.WakeupZetaDisable)
+    WakeupZetaEnable                         0x08006135   Thumb Code    36  zeta.o(i.WakeupZetaEnable)
+    ZetaInit                                 0x08006159   Thumb Code   166  zeta.o(i.ZetaInit)
+    ZetaInterrupt                            0x0800620d   Thumb Code    24  zeta.o(i.ZetaInterrupt)
+    ZetaRecv                                 0x08006235   Thumb Code   422  zeta.o(i.ZetaRecv)
+    ZetaSend                                 0x080063f5   Thumb Code    26  zeta.o(i.ZetaSend)
+    ZetaStatus                               0x08006419   Thumb Code    14  zeta.o(i.ZetaStatus)
+    _12VPowerOff                             0x0800642d   Thumb Code    26  rs485.o(i._12VPowerOff)
+    _12VPowerOn                              0x0800644d   Thumb Code    24  rs485.o(i._12VPowerOn)
+    __0printf                                0x08006469   Thumb Code    24  printfa.o(i.__0printf)
+    __1printf                                0x08006469   Thumb Code     0  printfa.o(i.__0printf)
+    __2printf                                0x08006469   Thumb Code     0  printfa.o(i.__0printf)
+    __c89printf                              0x08006469   Thumb Code     0  printfa.o(i.__0printf)
+    printf                                   0x08006469   Thumb Code     0  printfa.o(i.__0printf)
+    __ARM_clz                                0x08006489   Thumb Code    46  depilogue.o(i.__ARM_clz)
+    __ARM_common_ll_muluu                    0x080064b7   Thumb Code    48  stm32l0xx_hal_uart.o(i.__ARM_common_ll_muluu)
+    __scatterload_copy                       0x080064e7   Thumb Code    14  handlers.o(i.__scatterload_copy)
+    __scatterload_null                       0x080064f5   Thumb Code     2  handlers.o(i.__scatterload_null)
+    __scatterload_zeroinit                   0x080064f7   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
+    delay_init                               0x08006d9d   Thumb Code    16  delay.o(i.delay_init)
+    fputc                                    0x08006db1   Thumb Code    20  usart.o(i.fputc)
+    free                                     0x08006dcd   Thumb Code    80  malloc.o(i.free)
+    main                                     0x08006e21   Thumb Code    34  main.o(i.main)
+    malloc                                   0x08006e7d   Thumb Code    92  malloc.o(i.malloc)
+    memcpy1                                  0x08006ee9   Thumb Code    24  sensor.o(i.memcpy1)
+    AHBPrescTable                            0x08006f00   Data          16  system_stm32l0xx.o(.constdata)
+    APBPrescTable                            0x08006f10   Data           8  system_stm32l0xx.o(.constdata)
+    PLLMulTable                              0x08006f18   Data           9  system_stm32l0xx.o(.constdata)
+    __ctype_categories                       0x08006f5d   Data          64  ctype_c.o(.constdata)
+    Region$$Table$$Base                      0x080076b4   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x080076d4   Number         0  anon$$obj.o(Region$$Table)
     SystemCoreClock                          0x20000000   Data           4  system_stm32l0xx.o(.data)
     uwTick                                   0x20000004   Data           4  stm32l0xx_hal.o(.data)
     McuInitialized                           0x2000000c   Data           1  board.o(.data)
@@ -2794,9 +2795,9 @@ Memory Map of the image
 
   Image Entry point : 0x080000c1
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00007b4c, Max: 0x00020000, ABSOLUTE, COMPRESSED[0x00007648])
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00007cd0, Max: 0x00020000, ABSOLUTE, COMPRESSED[0x000077cc])
 
-    Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x00007550, Max: 0x00020000, ABSOLUTE)
+    Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x000076d4, Max: 0x00020000, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -2951,81 +2952,81 @@ Memory Map of the image
     0x08004060   0x00000018   Code   RO         4959    i.RTC_IRQHandler    stm32l0xx_it.o
     0x08004078   0x0000009c   Code   RO         4290    i.RTC_Init          rtc-board.o
     0x08004114   0x00000024   Code   RO         4630    i.Rs485ClsoePin     rs485.o
-    0x08004138   0x000000ac   Code   RO         4631    i.Rs485Cmd          rs485.o
-    0x080041e4   0x00000050   Code   RO         4632    i.Rs485GetData      rs485.o
-    0x08004234   0x00000060   Code   RO         4633    i.Rs485Init         rs485.o
-    0x08004294   0x00000038   Code   RO         4634    i.Rs485OpenPin      rs485.o
-    0x080042cc   0x0000007c   Code   RO         4635    i.Rs485PinInit      rs485.o
-    0x08004348   0x00000038   Code   RO         4636    i.Rs485Print        rs485.o
-    0x08004380   0x0000001a   Code   RO         4603    i.STMFLASH_Read     stmflash.o
-    0x0800439a   0x00000002   Code   RO         4960    i.SVC_Handler       stm32l0xx_it.o
-    0x0800439c   0x000005a0   Code   RO         4712    i.SensorDataProces  sensor.o
-    0x0800493c   0x00000320   Code   RO         4713    i.SensorExpBoxAddr  sensor.o
-    0x08004c5c   0x00000258   Code   RO         4714    i.SensorExpenData   sensor.o
-    0x08004eb4   0x00000058   Code   RO         4715    i.SensorExpendBoxLive  sensor.o
-    0x08004f0c   0x0000003c   Code   RO         4716    i.SensorGetData     sensor.o
-    0x08004f48   0x00000074   Code   RO         4717    i.SensorHandle      sensor.o
-    0x08004fbc   0x000001a0   Code   RO         4718    i.SensorMaBoxData   sensor.o
-    0x0800515c   0x00000054   Code   RO         4719    i.SensorQueryPinStaus  sensor.o
-    0x080051b0   0x000002b0   Code   RO         4720    i.SensorQueryType   sensor.o
-    0x08005460   0x00000080   Code   RO         4721    i.SensorsInit       sensor.o
-    0x080054e0   0x0000003c   Code   RO         5040    i.String_Conversion  user-app.o
-    0x0800551c   0x00000028   Code   RO         4961    i.SysTick_Handler   stm32l0xx_it.o
-    0x08005544   0x000000b4   Code   RO         4555    i.SystemClockConfig  board.o
-    0x080055f8   0x00000090   Code   RO         4556    i.SystemClockReConfig  board.o
-    0x08005688   0x00000068   Code   RO           13    i.SystemInit        system_stm32l0xx.o
-    0x080056f0   0x000000f0   Code   RO         3455    i.UART_AdvFeatureConfig  stm32l0xx_hal_uart.o
-    0x080057e0   0x00000074   Code   RO         3456    i.UART_CheckIdleState  stm32l0xx_hal_uart.o
-    0x08005854   0x00000018   Code   RO         3457    i.UART_DMAAbortOnError  stm32l0xx_hal_uart.o
-    0x0800586c   0x00000022   Code   RO         3467    i.UART_EndRxTransfer  stm32l0xx_hal_uart.o
-    0x0800588e   0x00000020   Code   RO         3468    i.UART_EndTransmit_IT  stm32l0xx_hal_uart.o
-    0x080058ae   0x00000090   Code   RO         3470    i.UART_Receive_IT   stm32l0xx_hal_uart.o
-    0x0800593e   0x00000002   PAD
-    0x08005940   0x000003f0   Code   RO         3471    i.UART_SetConfig    stm32l0xx_hal_uart.o
-    0x08005d30   0x00000072   Code   RO         3472    i.UART_Transmit_IT  stm32l0xx_hal_uart.o
-    0x08005da2   0x00000070   Code   RO         3473    i.UART_WaitOnFlagUntilTimeout  stm32l0xx_hal_uart.o
-    0x08005e12   0x00000002   PAD
-    0x08005e14   0x00000058   Code   RO         4962    i.USART2_IRQHandler  stm32l0xx_it.o
-    0x08005e6c   0x00000010   Code   RO         4963    i.USART4_5_IRQHandler  stm32l0xx_it.o
-    0x08005e7c   0x0000001c   Code   RO         4826    i.UartReadByte      fifo_uart.o
-    0x08005e98   0x0000001c   Code   RO         4828    i.UartSendByte      fifo_uart.o
-    0x08005eb4   0x00000084   Code   RO         5043    i.UserGetAddID      user-app.o
-    0x08005f38   0x00000054   Code   RO         5048    i.UserZetaInit      user-app.o
-    0x08005f8c   0x00000024   Code   RO         5116    i.WakeupZetaDisable  zeta.o
-    0x08005fb0   0x00000024   Code   RO         5117    i.WakeupZetaEnable  zeta.o
-    0x08005fd4   0x000000b4   Code   RO         5118    i.ZetaInit          zeta.o
-    0x08006088   0x00000028   Code   RO         5119    i.ZetaInterrupt     zeta.o
-    0x080060b0   0x000001c0   Code   RO         5120    i.ZetaRecv          zeta.o
-    0x08006270   0x00000024   Code   RO         5121    i.ZetaSend          zeta.o
-    0x08006294   0x00000014   Code   RO         5122    i.ZetaStatus        zeta.o
-    0x080062a8   0x00000020   Code   RO         4637    i._12VPowerOff      rs485.o
-    0x080062c8   0x0000001c   Code   RO         4638    i._12VPowerOn       rs485.o
-    0x080062e4   0x00000020   Code   RO         5435    i.__0printf         mc_p.l(printfa.o)
-    0x08006304   0x0000002e   Code   RO         5557    i.__ARM_clz         mf_p.l(depilogue.o)
-    0x08006332   0x00000030   Code   RO         3758    i.__ARM_common_ll_muluu  stm32l0xx_hal_uart.o
-    0x08006362   0x0000000e   Code   RO         5564    i.__scatterload_copy  mc_p.l(handlers.o)
-    0x08006370   0x00000002   Code   RO         5565    i.__scatterload_null  mc_p.l(handlers.o)
-    0x08006372   0x0000000e   Code   RO         5566    i.__scatterload_zeroinit  mc_p.l(handlers.o)
-    0x08006380   0x00000006   Code   RO         4830    i.__set_PRIMASK     fifo_uart.o
-    0x08006386   0x00000002   PAD
-    0x08006388   0x00000158   Code   RO         5442    i._fp_digits        mc_p.l(printfa.o)
-    0x080064e0   0x000006ec   Code   RO         5443    i._printf_core      mc_p.l(printfa.o)
-    0x08006bcc   0x00000020   Code   RO         5444    i._printf_post_padding  mc_p.l(printfa.o)
-    0x08006bec   0x0000002c   Code   RO         5445    i._printf_pre_padding  mc_p.l(printfa.o)
-    0x08006c18   0x00000014   Code   RO         4352    i.delay_init        delay.o
-    0x08006c2c   0x0000001c   Code   RO         4145    i.fputc             usart.o
-    0x08006c48   0x00000054   Code   RO         5463    i.free              mc_p.l(malloc.o)
-    0x08006c9c   0x0000005c   Code   RO         4928    i.main              main.o
-    0x08006cf8   0x0000006c   Code   RO         5464    i.malloc            mc_p.l(malloc.o)
-    0x08006d64   0x00000018   Code   RO         4722    i.memcpy1           sensor.o
-    0x08006d7c   0x00000021   Data   RO           14    .constdata          system_stm32l0xx.o
-    0x08006d9d   0x0000002e   Data   RO         4964    .constdata          stm32l0xx_it.o
-    0x08006dcb   0x0000000e   Data   RO         5124    .constdata          zeta.o
-    0x08006dd9   0x00000040   Data   RO         5560    .constdata          mc_p.l(ctype_c.o)
-    0x08006e19   0x00000003   PAD
-    0x08006e1c   0x00000713   Data   RO         4724    .conststring        sensor.o
-    0x0800752f   0x00000001   PAD
-    0x08007530   0x00000020   Data   RO         5562    Region$$Table       anon$$obj.o
+    0x08004138   0x000000a0   Code   RO         4631    i.Rs485Cmd          rs485.o
+    0x080041d8   0x0000007c   Code   RO         4632    i.Rs485GetData      rs485.o
+    0x08004254   0x00000060   Code   RO         4633    i.Rs485Init         rs485.o
+    0x080042b4   0x00000038   Code   RO         4634    i.Rs485OpenPin      rs485.o
+    0x080042ec   0x0000007c   Code   RO         4635    i.Rs485PinInit      rs485.o
+    0x08004368   0x00000038   Code   RO         4636    i.Rs485Print        rs485.o
+    0x080043a0   0x0000001a   Code   RO         4603    i.STMFLASH_Read     stmflash.o
+    0x080043ba   0x00000002   Code   RO         4960    i.SVC_Handler       stm32l0xx_it.o
+    0x080043bc   0x0000066c   Code   RO         4712    i.SensorDataProces  sensor.o
+    0x08004a28   0x0000034c   Code   RO         4713    i.SensorExpBoxAddr  sensor.o
+    0x08004d74   0x000002c4   Code   RO         4714    i.SensorExpenData   sensor.o
+    0x08005038   0x00000058   Code   RO         4715    i.SensorExpendBoxLive  sensor.o
+    0x08005090   0x0000003c   Code   RO         4716    i.SensorGetData     sensor.o
+    0x080050cc   0x00000074   Code   RO         4717    i.SensorHandle      sensor.o
+    0x08005140   0x000001a0   Code   RO         4718    i.SensorMaBoxData   sensor.o
+    0x080052e0   0x00000054   Code   RO         4719    i.SensorQueryPinStaus  sensor.o
+    0x08005334   0x000002b0   Code   RO         4720    i.SensorQueryType   sensor.o
+    0x080055e4   0x00000080   Code   RO         4721    i.SensorsInit       sensor.o
+    0x08005664   0x0000003c   Code   RO         5040    i.String_Conversion  user-app.o
+    0x080056a0   0x00000028   Code   RO         4961    i.SysTick_Handler   stm32l0xx_it.o
+    0x080056c8   0x000000b4   Code   RO         4555    i.SystemClockConfig  board.o
+    0x0800577c   0x00000090   Code   RO         4556    i.SystemClockReConfig  board.o
+    0x0800580c   0x00000068   Code   RO           13    i.SystemInit        system_stm32l0xx.o
+    0x08005874   0x000000f0   Code   RO         3455    i.UART_AdvFeatureConfig  stm32l0xx_hal_uart.o
+    0x08005964   0x00000074   Code   RO         3456    i.UART_CheckIdleState  stm32l0xx_hal_uart.o
+    0x080059d8   0x00000018   Code   RO         3457    i.UART_DMAAbortOnError  stm32l0xx_hal_uart.o
+    0x080059f0   0x00000022   Code   RO         3467    i.UART_EndRxTransfer  stm32l0xx_hal_uart.o
+    0x08005a12   0x00000020   Code   RO         3468    i.UART_EndTransmit_IT  stm32l0xx_hal_uart.o
+    0x08005a32   0x00000090   Code   RO         3470    i.UART_Receive_IT   stm32l0xx_hal_uart.o
+    0x08005ac2   0x00000002   PAD
+    0x08005ac4   0x000003f0   Code   RO         3471    i.UART_SetConfig    stm32l0xx_hal_uart.o
+    0x08005eb4   0x00000072   Code   RO         3472    i.UART_Transmit_IT  stm32l0xx_hal_uart.o
+    0x08005f26   0x00000070   Code   RO         3473    i.UART_WaitOnFlagUntilTimeout  stm32l0xx_hal_uart.o
+    0x08005f96   0x00000002   PAD
+    0x08005f98   0x00000058   Code   RO         4962    i.USART2_IRQHandler  stm32l0xx_it.o
+    0x08005ff0   0x00000010   Code   RO         4963    i.USART4_5_IRQHandler  stm32l0xx_it.o
+    0x08006000   0x0000001c   Code   RO         4826    i.UartReadByte      fifo_uart.o
+    0x0800601c   0x0000001c   Code   RO         4828    i.UartSendByte      fifo_uart.o
+    0x08006038   0x00000084   Code   RO         5043    i.UserGetAddID      user-app.o
+    0x080060bc   0x00000054   Code   RO         5048    i.UserZetaInit      user-app.o
+    0x08006110   0x00000024   Code   RO         5116    i.WakeupZetaDisable  zeta.o
+    0x08006134   0x00000024   Code   RO         5117    i.WakeupZetaEnable  zeta.o
+    0x08006158   0x000000b4   Code   RO         5118    i.ZetaInit          zeta.o
+    0x0800620c   0x00000028   Code   RO         5119    i.ZetaInterrupt     zeta.o
+    0x08006234   0x000001c0   Code   RO         5120    i.ZetaRecv          zeta.o
+    0x080063f4   0x00000024   Code   RO         5121    i.ZetaSend          zeta.o
+    0x08006418   0x00000014   Code   RO         5122    i.ZetaStatus        zeta.o
+    0x0800642c   0x00000020   Code   RO         4637    i._12VPowerOff      rs485.o
+    0x0800644c   0x0000001c   Code   RO         4638    i._12VPowerOn       rs485.o
+    0x08006468   0x00000020   Code   RO         5435    i.__0printf         mc_p.l(printfa.o)
+    0x08006488   0x0000002e   Code   RO         5557    i.__ARM_clz         mf_p.l(depilogue.o)
+    0x080064b6   0x00000030   Code   RO         3758    i.__ARM_common_ll_muluu  stm32l0xx_hal_uart.o
+    0x080064e6   0x0000000e   Code   RO         5564    i.__scatterload_copy  mc_p.l(handlers.o)
+    0x080064f4   0x00000002   Code   RO         5565    i.__scatterload_null  mc_p.l(handlers.o)
+    0x080064f6   0x0000000e   Code   RO         5566    i.__scatterload_zeroinit  mc_p.l(handlers.o)
+    0x08006504   0x00000006   Code   RO         4830    i.__set_PRIMASK     fifo_uart.o
+    0x0800650a   0x00000002   PAD
+    0x0800650c   0x00000158   Code   RO         5442    i._fp_digits        mc_p.l(printfa.o)
+    0x08006664   0x000006ec   Code   RO         5443    i._printf_core      mc_p.l(printfa.o)
+    0x08006d50   0x00000020   Code   RO         5444    i._printf_post_padding  mc_p.l(printfa.o)
+    0x08006d70   0x0000002c   Code   RO         5445    i._printf_pre_padding  mc_p.l(printfa.o)
+    0x08006d9c   0x00000014   Code   RO         4352    i.delay_init        delay.o
+    0x08006db0   0x0000001c   Code   RO         4145    i.fputc             usart.o
+    0x08006dcc   0x00000054   Code   RO         5463    i.free              mc_p.l(malloc.o)
+    0x08006e20   0x0000005c   Code   RO         4928    i.main              main.o
+    0x08006e7c   0x0000006c   Code   RO         5464    i.malloc            mc_p.l(malloc.o)
+    0x08006ee8   0x00000018   Code   RO         4722    i.memcpy1           sensor.o
+    0x08006f00   0x00000021   Data   RO           14    .constdata          system_stm32l0xx.o
+    0x08006f21   0x0000002e   Data   RO         4964    .constdata          stm32l0xx_it.o
+    0x08006f4f   0x0000000e   Data   RO         5124    .constdata          zeta.o
+    0x08006f5d   0x00000040   Data   RO         5560    .constdata          mc_p.l(ctype_c.o)
+    0x08006f9d   0x00000003   PAD
+    0x08006fa0   0x00000713   Data   RO         4724    .conststring        sensor.o
+    0x080076b3   0x00000001   PAD
+    0x080076b4   0x00000020   Data   RO         5562    Region$$Table       anon$$obj.o
 
 
     Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x00002238, Max: 0x00005000, ABSOLUTE, COMPRESSED[0x000000f8])
@@ -3071,9 +3072,9 @@ Image component sizes
        152          6          0          0          0       1949   gpio-board.o
        112         68          0          0          0        867   main.o
        252         78          0          0          0        627   power.o
-       756        130          0          0         56       7871   rs485.o
+       788        146          0          0         56       7891   rs485.o
        188         22          0          0         36       1677   rtc-board.o
-      4672        464       1811       1400       4240      13897   sensor.o
+      5028        480       1811       1400       4240      14161   sensor.o
         28          8        192          0       1536        728   startup_stm32l073xx.o
        148         24          0          4          0       4318   stm32l0xx_hal.o
       1810         52          0          0          0       7940   stm32l0xx_hal_adc.o
@@ -3095,7 +3096,7 @@ Image component sizes
        916        118         14         32         44       6058   zeta.o
 
     ----------------------------------------------------------------------
-     21730       1642       2129       1520       7228     525136   Object Totals
+     22118       1674       2129       1520       7228     525420   Object Totals
          0          0         32          0          0          0   (incl. Generated)
         34          0          1          3          7          0   (incl. Padding)
 
@@ -3169,15 +3170,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     27836       1838       2196       1532       7228     520600   Grand Totals
-     27836       1838       2196        248       7228     520600   ELF Image Totals (compressed)
-     27836       1838       2196        248          0          0   ROM Totals
+     28224       1870       2196       1532       7228     520884   Grand Totals
+     28224       1870       2196        248       7228     520884   ELF Image Totals (compressed)
+     28224       1870       2196        248          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                30032 (  29.33kB)
+    Total RO  Size (Code + RO Data)                30420 (  29.71kB)
     Total RW  Size (RW Data + ZI Data)              8760 (   8.55kB)
-    Total ROM Size (Code + RO Data + RW Data)      30280 (  29.57kB)
+    Total ROM Size (Code + RO Data + RW Data)      30668 (  29.95kB)
 
 ==============================================================================
 
