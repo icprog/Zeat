@@ -813,7 +813,7 @@ void RS485CmdPackage(char mode)
 {
 	for(int index = 0 ; index < ARRAY(CheckRs485s); index ++)
 	{
-//		DEBUG_APP(2,"index = %d,addr = %02X\r\n",index,CheckRs485s[index].Addr);
+		DEBUG_APP(2,"index = %d,addr = %02X\r\n",index,CheckRs485s[index].Addr);
 		memset(CheckRs485s[index].SendBuff,0,sizeof(CheckRs485s[index].SendBuff));
 		CheckRs485s[index].SendBuff[0] = CheckRs485s[index].Addr;
 		CheckRs485s[index].SendBuff[1] = mode;
@@ -821,6 +821,10 @@ void RS485CmdPackage(char mode)
 		CheckRs485s[index].SendBuff[3] = (CheckRs485s[index].RegAddress & 0x00FF);
 		CheckRs485s[index].SendBuff[4] = (CheckRs485s[index].RegDatalen & 0xFF00)  >> 8;				
 		CheckRs485s[index].SendBuff[5] = (CheckRs485s[index].RegDatalen & 0x00FF);
+		
+		for(uint8_t i = 0; i < 6; i ++)
+	  DEBUG(2,"%02X ",CheckRs485s[index].SendBuff[i]);
+		DEBUG(2,"\r\n");
 	}
 }
 
