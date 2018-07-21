@@ -47,7 +47,7 @@ void BoardInitMcu( void )
 	MX_USART1_UART_Init(  );  
 					
 	MX_USART2_UART_Init(  );
-	
+		
 	/****************ADC≥ı ºªØ*******************/
 	MX_ADC_Init(  );
 	
@@ -60,6 +60,8 @@ void BoardInitMcu( void )
 	HAL_NVIC_EnableIRQ(RTC_IRQn);
 			
 	UserZetaInit(  );
+	
+	SensorsInit(  );
 }
 
 /*

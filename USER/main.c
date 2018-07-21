@@ -57,17 +57,17 @@ int main(void)
 //	 UserSetHeart(0x00);
 //	
 //	 UserSend(  );
-	SensorsInit(  );
-	  	 
+			
+	Sensors.QueryPinStaus(  );
+	 
    while (1)
    {	
 //			UserSend(  );
-//			SetRtcAlarm(10);///4SÎó²î	  
-//			UserIntoLowPower(  );
+		
 		 Sensors.Handle(  );
-//		 UserSend(  );
-		 
-		 HAL_Delay(30000);
+		 UserSend(  );
+		 SetRtcAlarm(20);///4SÎó²î	  
+		 UserIntoLowPower(  );		 
 	 }
 	 
 }
