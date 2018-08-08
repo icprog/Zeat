@@ -69,7 +69,7 @@ int main(void)
    {		
 		 Sensors.Handle(  );
 		 UserSend(  );
-		 SetRtcAlarm(20);///4SÎó²î	  
+		 SetRtcAlarm(40);///4SÎó²î	  
 		 UserIntoLowPower(  );		
 //			HAL_Delay(20000);
 	 }

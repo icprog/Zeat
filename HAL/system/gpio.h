@@ -28,36 +28,35 @@
 #define  GPS_Power_ON     					GPIO_PIN_12
 
 /********************485 UART******************/
-#define  USART4_IO									GPIOC
-#define  USART4_TX									GPIO_PIN_10
-#define  USART4_RX									GPIO_PIN_11
+#define  USART5_IO									GPIOB
+#define  USART5_TX									GPIO_PIN_3
+#define  USART5_RX									GPIO_PIN_4
 
 /**********************12V电源开关：485供电****************************/
 #define Out_12V_ON_Pin_GPIO_Port    GPIOB
-#define Out_12V_ON_Pin_Pin          GPIO_PIN_3
+#define Out_12V_ON_Pin_Pin          GPIO_PIN_5
 
-#define	RS485PIN_0									GPIO_PIN_4
-#define RS485PIN_1									GPIO_PIN_5
-#define RS485PIN_2									GPIO_PIN_6
-#define RS485PIN_3									GPIO_PIN_7
-#define RS485PIN_4									GPIO_PIN_8
-#define RS485PIN_5									GPIO_PIN_9
+#define	RS485PIN_0									GPIO_PIN_13
+#define RS485PIN_1									GPIO_PIN_14
+#define RS485PIN_2									GPIO_PIN_15
+
 
 /***********************485IC电源IO***************************/
-#define POWER_485IC_Pin             GPIO_PIN_14
-#define POWER_485IC_Port            GPIOB
+#define POWER_485IC_Pin             GPIO_PIN_12
+#define POWER_485IC_Port            GPIOA
 
 /**************485收发切换开关**************/
 #define Out_485_DE_Pin_Pin          GPIO_PIN_15
 #define Out_485_DE_Pin_GPIO_Port    GPIOA
 
 
-#define OUT_CH_CE_GPIO_Port					GPIOC
-#define	OUT_CH_CE_Pin								GPIO_PIN_6
+/***********************充电IC IO配置***************************/
+#define OUT_CH_CE_GPIO_Port					GPIOB
+#define	OUT_CH_CE_Pin								GPIO_PIN_9
 
 #define IN_CH_STAT1_Pin							GPIO_PIN_8
-#define IN_CH_STAT2_Pin							GPIO_PIN_9
-#define IN_CH_PG_Pin								GPIO_PIN_7
+#define IN_CH_STAT2_Pin							GPIO_PIN_7
+#define IN_CH_PG_Pin								GPIO_PIN_8
 
 
 /*!

@@ -26,8 +26,8 @@
 #define  ZETASTATU_IO					GPIOB
 #define  ZETASTATU_PIN				GPIO_PIN_2
 
-#define  ZETAPOWER_IO					GPIOB
-#define  ZETAPOWER_PIN				GPIO_PIN_13
+#define  ZETAPOWER_IO					GPIOA
+#define  ZETAPOWER_PIN				GPIO_PIN_11
 
 #define  ZETAMAXLEN						38
 

@@ -66,7 +66,7 @@ void UserSend(void)
 	
 	/********************…Ë±∏ID*****************/
 	memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
-		
+			
 	for(uint8_t SedId = 0; SedId <= SendBufsCounter - 1; SedId++)
 	{
 		memcpy1(&ZetaSendBuf.Buf[9], SendBufs[SedId].Buf, SendBufs[SedId].Len); ///payload

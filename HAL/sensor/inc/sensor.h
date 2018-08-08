@@ -264,7 +264,7 @@ typedef struct u_Sensor
 
 
 extern CheckRs485_t CheckRs485s[];
-extern SaveRs485_t  SaveRs485s[6];
+extern SaveRs485_t  SaveRs485s[3];
 extern SendBuf_t		SendBufs[10];
 extern Sensor_t     Sensors;
 

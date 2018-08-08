@@ -30,7 +30,7 @@ rs485_t Rs485s;
  */
 void Rs485Init(void)
 {
-	MX_USART4_UART_Init(  );
+	MX_USART5_UART_Init(  );
 	InitUartFifo(  );
 	
 	Rs485s.PinInit 		= Rs485PinInit;
@@ -58,13 +58,13 @@ void Rs485PinInit(void)
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();               		 //¿ªÆôGPIOBÊ±ÖÓ
 
-	GPIO_InitStruct.Pin = Out_12V_ON_Pin_Pin|RS485PIN_0|RS485PIN_1|RS485PIN_2|RS485PIN_3|RS485PIN_4|RS485PIN_5|POWER_485IC_Pin;                     
+	GPIO_InitStruct.Pin = Out_12V_ON_Pin_Pin|RS485PIN_0|RS485PIN_1|RS485PIN_2;                     
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = Out_485_DE_Pin_Pin;
+	GPIO_InitStruct.Pin = Out_485_DE_Pin_Pin|POWER_485IC_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -78,12 +78,13 @@ void Rs485PinInit(void)
  */
 void Rs485OpenPin(int index)
 {
-	uint16_t pin =  RS485PIN_5;
-	for(uint8_t i = 0 ; i < 6 ; i ++)
+	uint16_t pin =  RS485PIN_0;
+	for(uint8_t i = 0 ; i < 2 ; i ++)
 	{			
-		HAL_GPIO_WritePin(GPIOB,pin >> i,GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
 	}
-	HAL_GPIO_WritePin(GPIOB,pin >> index ,GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOB,pin << index ,GPIO_PIN_SET);
+	DEBUG(2,"Rs485OpenPin = %04x\r\n",pin << index);
 }
 
 
@@ -94,10 +95,11 @@ void Rs485OpenPin(int index)
  */
 void Rs485ClsoePin(void)
 {
-	uint16_t pin = GPIO_PIN_4;
-	for(int i = 0 ; i < 6 ; i ++)
+	uint16_t pin = GPIO_PIN_0;
+	for(int i = 0 ; i < 2 ; i ++)
 	{			
      HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
+		 DEBUG(2,"Rs485ClsoePin = %04x\r\n",pin << i);
   }
 }
 
@@ -169,7 +171,7 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
 //    for(int i = 0; i < len+2; i++)
 //    DEBUG(2,"%02X ",sendData[i]);
 //    DEBUG(2,"\r\n");
-    HAL_UART_Transmit(&huart4,sendData,len + 2,0xffff);				
+    HAL_UART_Transmit(&huart5,sendData,len + 2,0xffff);				
     RS485_TO_RX(  );
 	
 		if(sendData[0] == 0xFD)

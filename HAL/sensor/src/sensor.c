@@ -37,7 +37,7 @@ CheckRs485_t CheckRs485s[] = {
 	{0xFD, 0x18,				0x0000, 		0x0004,  				6,				 13, 		RS485_IDE_LEN+8,		500*1,	  "" ,			"" ,		"Air-Ill" },	///空气温湿度、光照
 };
 
-SaveRs485_t  SaveRs485s[6];
+SaveRs485_t  SaveRs485s[3];
 
 SendBuf_t		 SendBufs[10] = {{{0}, {0}, 0}};
 
@@ -73,6 +73,37 @@ void SensorsInit(void)
 }
 
 /*
+ *	GetRs485Type:		485接口类型
+ *	参数：			  	主板Rs485接口ID
+ *	返回值：				Rs485类型：RS485_NONE/RS485_EXPAND_BOX/RS485_SIGNAL
+ */
+Rstype_t GetRs485Type(int index)
+{	
+	return SaveRs485s[index].Type;
+}
+
+/*
+ *	SensorGetData:		获取Rs185传感器数据
+ *	参数：			  		Rs485主板接口
+ *	返回值：					获取成功/失败
+ */
+HAL_StatusTypeDef SensorGetData(int id)
+{	
+	HAL_StatusTypeDef status;
+	
+	if(Sensors.GetRs485Type(id) == RS485_SIGNAL)
+	{
+		status = Sensors.MaBoxData( id );
+	}
+	else if(Sensors.GetRs485Type(id) == RS485_EXPAND_BOX)
+	{
+		status = Sensors.ExpenData( id );
+	}
+	
+	return status;
+}
+
+/*
  *	SensorHandle:	  传感器处理
  *	参数：			  	无
  *	返回值：				无
@@ -81,7 +112,7 @@ void SensorHandle(void)
 {			
 	Rs485s.PowerOn(  );
 	
-	for(uint8_t id = 0 ; id < NBI_RS485_PIN_COUNT; id++)
+	for(uint8_t id = 0; id < NBI_RS485_PIN_COUNT; id++)
 	{
 		if(Sensors.GetRs485Type( id ) != RS485_NONE)
 		{
@@ -117,6 +148,12 @@ void SensorDataProces(void)
 	/**********传感器类型BUF下标**************/
 	uint8_t Index = 0;
 	
+	/***********扩展盒ID*************/
+	uint8_t ExId = 0;
+	
+	/***********主板ID*************/
+	uint8_t PortId = 0;
+	
 	/**********实际数据总长度**************/
 	uint8_t Length = 0; 
 	
@@ -129,16 +166,12 @@ void SensorDataProces(void)
 	/***********剩余待获取传感器个数*************/
 	uint8_t GetSensorCounter = 0;
 	
-	uint8_t ExId = 0;
-	
-	uint8_t PortId = 0;
-	
 	WdgTime = 0;
 
 #if 1
 
 	DEBUG_APP(2, "-----Start get data Counter : %d----",Sensors.Counter);
-	for(PortId = 0 ; PortId < NBI_RS485_PIN_COUNT; PortId++)
+	for(PortId = 0; PortId < NBI_RS485_PIN_COUNT; PortId++)
 	{
 		if(SaveRs485s[PortId].Type == RS485_SIGNAL && GetSensorCounter < Sensors.Counter)
 		{
@@ -214,7 +247,8 @@ void SensorDataProces(void)
 				{
 					Len += SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen;
 			
-					DEBUG_APP(3,"PortId = %d, ExId = %d Len = %d SensorToLen = %d",PortId,ExId,Len, SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen);
+					DEBUG_APP(3,"PortId = %d, ExId = %d Len = %d SensorToLen = %d",PortId,ExId,Len, \
+					SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen);
 					if(Len <= ZETAMAXLEN)
 					{
 						if(SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen != 0)
@@ -225,7 +259,8 @@ void SensorDataProces(void)
 							memcpy1(&Temp[TempIndex], &SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorBuff[0], \
 											SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen-RS485_IDE_LEN);
 							
-							memset(SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorBuff, 0, SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen-RS485_IDE_LEN);
+							memset(SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorBuff, 0, \
+							SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen-RS485_IDE_LEN);
 
 							TempIndex += SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen-RS485_IDE_LEN;
 							Length += SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen;
@@ -339,16 +374,6 @@ void SensorDataProces(void)
 }
 
 /*
- *	GetRs485Type:		485接口类型
- *	参数：			  	主板Rs485接口ID
- *	返回值：				Rs485类型：RS485_NONE/RS485_EXPAND_BOX/RS485_SIGNAL
- */
-Rstype_t GetRs485Type(int index)
-{	
-	return SaveRs485s[index].Type;
-}
-
-/*
  *	SensorQueryPinStaus:		广播查询485、读取传感器数据
  *	参数：			  					无
  *	返回值：								查询状态：成功/失败/超时
@@ -359,7 +384,7 @@ HAL_StatusTypeDef SensorQueryPinStaus(void)
 	
 	RS485CmdPackage(NBI_RS485_SEARCH_CODE);///获取预存485命令缓存
 	
-	for(int id = 0 ; id < NBI_RS485_PIN_COUNT ; id++)
+	for(int id = 0; id < NBI_RS485_PIN_COUNT ; id++)
 	{	
 		WdgTime = 0;
 		
@@ -373,7 +398,7 @@ HAL_StatusTypeDef SensorQueryPinStaus(void)
 			DEBUG_APP(3,"pin %02x: find device\r\n",id);
 			
 			if(WdgTime>=70) ///4S清除WWDG
-				WdgTime = 0;
+				WdgTime = 0;		
 		}		
 		else 
 		{
@@ -792,27 +817,6 @@ HAL_StatusTypeDef SensorExpenData(uint8_t index)
 		DEBUG_APP(3,"close expend box ok");
 		return HAL_OK;
 	}
-}
-
-/*
- *	SensorGetData:		获取Rs185传感器数据
- *	参数：			  		Rs485主板接口
- *	返回值：					获取成功/失败
- */
-HAL_StatusTypeDef SensorGetData(int id)
-{	
-	HAL_StatusTypeDef status;
-	
-	if(Sensors.GetRs485Type(id) == RS485_SIGNAL)
-	{
-		status = Sensors.MaBoxData( id );
-	}
-	else if(Sensors.GetRs485Type(id) == RS485_EXPAND_BOX)
-	{
-		status = Sensors.ExpenData( id );
-	}
-	
-	return status;
 }
 
 /*

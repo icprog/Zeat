@@ -120,4 +120,7 @@ Program Size: Code=31544 RO-data=2412 RW-data=1532 ZI-data=7244
 ZetaHandle.Interrupt
 
 		SaveRs485s[id].MainBox.SensorToLen = 0; ///传感器总长度		
+		
 
+.\Objects\Zetav03.axf: Error: L6218E: Undefined symbol huart4 (referred from board.o).
+.\Objects\Zetav03.axf: Error: L6218E: Undefined symbol MX_USART4_UART_Init (referred from rs485.o).

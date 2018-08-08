@@ -38,6 +38,12 @@ void ZetaInit(void)
 	GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  
 	GPIO_Initure.Pull=GPIO_PULLUP;          
 	GPIO_Initure.Speed=GPIO_SPEED_HIGH;     
+	HAL_GPIO_Init(ZETAPOWER_IO,&GPIO_Initure);
+	
+	GPIO_Initure.Pin=ZETAPOWER_PIN;  
+	GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  
+	GPIO_Initure.Pull=GPIO_PULLUP;          
+	GPIO_Initure.Speed=GPIO_SPEED_HIGH;     
 	HAL_GPIO_Init(ZETAINT_IO,&GPIO_Initure);
 	
 	GPIO_Initure.Pin=ZETASTATU_PIN;  
