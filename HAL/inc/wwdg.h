@@ -1,11 +1,16 @@
 /**
   ******************************************************************************
-  * File Name          : USART.h
+  * File Name          : WWDG.h
   * Description        : This file provides code for the configuration
-  *                      of the USART instances.
+  *                      of the WWDG instances.
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -32,8 +37,8 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __usart_H
-#define __usart_H
+#ifndef __wwdg_H
+#define __wwdg_H
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -42,73 +47,33 @@
 #include "stm32l0xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-	 
-#include <stdbool.h>
-#include "FIFO_Uart.h"		 
-#include "debug.h"
-#include "gpio.h"	 
-#include "gps.h"	
- 
+
+#define 	WDGMAX	200		/************一个周期64ms,200周期为: 12.8ms************/
 	 
 /* USER CODE END Includes */
 
-extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart2;
-extern UART_HandleTypeDef huart4;	 
-extern UART_HandleTypeDef hlpuart1;
+extern WWDG_HandleTypeDef hwwdg;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-#define RXBUFFERSIZE   			1 //缓存大小
-
-#define USART_REC_LEN  			516  	//定义最大接收字节数 516
-
-typedef struct{
-	
-	uint32_t rxtime;
-	
-	uint8_t USART_RX_BUF[USART_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
-	//接收状态
-	//bit15，	接收完成标志
-	//bit14，	接收到0x0d
-	//bit13~0，	接收到的有效字节数目
-	uint16_t USART_RX_Len;       //接收数据长度
-
-	uint8_t aRxBuffer[1];//HAL库使用的串口接收缓冲
-	
-	bool USART_TX_STATE;
-	
-	bool Rx_State;
-	
-}UART_RX;
-
-extern UART_RX UART_RX_DATA2;
-extern UART_RX UART_RX_LPUART1;
-	 
-extern UART_FIFO_Typedef_t usart_rs485;
-	 
-/* USER CODE END Private defines */
-
 extern void Error_Handler(void);
 
-void MX_USART1_UART_Init(void);
-void MX_USART2_UART_Init(void);
-void MX_USART4_UART_Init(void);
-void MX_LPUART1_UART_Init(void);
-
+void MX_WWDG_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
-void InitUartFifo(void);
+extern uint16_t WdgTime;
+
+extern void WWDG_NVIC_Init(void);
 
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ usart_H */
+#endif /*__ wwdg_H */
 
 /**
   * @}

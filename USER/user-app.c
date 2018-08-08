@@ -11,6 +11,7 @@
 #include "user-app.h"
 #include "Zeta.h"
 #include "sensor.h"
+#include "gps.h"
 
 #define VERSIOS					0x01
 
@@ -25,25 +26,23 @@ UserZeta_t UserZetaCheck[] = {
 
 uint8_t DeviceInfo[4] = {0};
 
-/*UserZetaInit：用户调用Zeta初始化
-*参数：					无
-*返回值：   		无
+/*UserInit：	用户调用初始化
+*参数：				无
+*返回值：   	无
 */
-void UserZetaInit(void)
-{
-	ZetaHandle.Init 						= ZetaInit;
-	ZetaHandle.WakeupEnable 		= WakeupZetaEnable;
-	ZetaHandle.WakeupDisable 		= WakeupZetaDisable;
-	ZetaHandle.Interrupt 				= ZetaInterrupt;
-	ZetaHandle.Status 					= ZetaStatus;
-	ZetaHandle.Send 						= ZetaSend;
-	ZetaHandle.Recv 						= ZetaRecv;
-	ZetaHandle.CRC8 						=	CalcCRC8;
-	
-	ZetaHandle.Init(  );
-	
+void UserInit(void)
+{		
 	UserGetAddID(  );
+
+	ZetaHandle.Init(  );
+		
+	if(GPSEXIST == DeviceInfo[1])
+	{
+		Gps.Init(  );
+		Gps.Set(  );
+	}
 }
+
 
 /*UserSend：用户调用Zeta发送函数：注意：发送数据前必须等待模块注册完成，否则发送失败，其它模式默认可直接执行,
 *						最大发送数据MAX = 49
@@ -67,10 +66,15 @@ void UserSend(void)
 	
 	/********************设备ID*****************/
 	memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
-	
-	for(uint8_t SedId = 0; SedId <= SendBufsCounter -1; SedId++)
+		
+	for(uint8_t SedId = 0; SedId <= SendBufsCounter - 1; SedId++)
 	{
 		memcpy1(&ZetaSendBuf.Buf[9], SendBufs[SedId].Buf, SendBufs[SedId].Len); ///payload
+				
+		ZetaSendBuf.Buf[9] += 1; 
+		
+		ZetaSendBuf.Buf[9] |= (SendBufsCounter<<4);  ///总包数|当前第几包
+		
 		DEBUG(2,"ZetaSendBuf: ");
 		for(uint8_t i = 0; i < SendBufs[SedId].Len; i++)
 		DEBUG(2,"%02X ",ZetaSendBuf.Buf[9+i]);
@@ -82,16 +86,14 @@ void UserSend(void)
 		ZetaSendBuf.Buf[9 + SendBufs[SedId].Len++] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[9],SendBufs[SedId].Len); ///CRC
 
 //	memcpy(&ZetaSendBuf.Buf[4],"1234567890123456789012345678901234567890123456789",49);
-	
+//	
 //	ZetaSendBuf.Buf[2] = 0x04 + 49;
 	
 		ZetaSendBuf.Buf[2] = 0x09 + SendBufs[SedId].Len; /// +sensor_len
 		ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
 		
 		SendBufs[SendBufsCounter].Len = 0;
-		
-		///UpSeqCounter ++;
-		
+				
 		for(uint8_t i = 0; i < 3; i++)
 		{
 			
@@ -109,12 +111,14 @@ void UserSend(void)
 			uint32_t overtime = HAL_GetTick(  );
 			while((DataAck != Status) && (HAL_GetTick(  ) - overtime < 200));
 			
+			DEBUG(2,"Status = %02x\r\n",Status);
+			
 			if(DataAck == Status)
 			{			
 	//			HAL_Delay(300);	
 	//			UserCheckCmd(&UserZetaCheck[NETIME]); ///结合外部flash使用
 				
-				if(SedId == SendBufsCounter -1)
+				if(SedId == SendBufsCounter - 1)
 				UpSeqCounter ++;
 				
 				break;
@@ -124,7 +128,8 @@ void UserSend(void)
 				if(Unregistered == Status)
 				{
 					DEBUG(2,"---Writing registered---\r\n");
-					HAL_Delay(40000);
+					i = 1;
+					HAL_Delay(5000);
 				}
 				else
 				HAL_Delay(300);	
@@ -132,10 +137,97 @@ void UserSend(void)
 			else
 				break;			
 		}
+		HAL_Delay(300);	
 	}
 	
 	free(ZetaSendBuf.Buf);
 }
+
+
+/*UserSendGps：发送GPS位置信息
+*参数：			   无
+*返回值：      无
+*/
+void UserSendGps(void)
+{
+	uint8_t len= 0;
+	
+	ZetaSendBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*49);
+	
+	ZetaSendBuf.Buf[0] = 0xff;
+	ZetaSendBuf.Buf[1] = 0x00;
+	
+	ZetaSendBuf.Buf[3] = 0x02;
+	
+	ZetaSendBuf.Buf[4] = (VERSIOS << 4); ///|充电状态
+	
+	/********************设备ID*****************/
+	memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
+	
+	memcpy1(&ZetaSendBuf.Buf[9], &SetGpsAck.PationBuf[0], 11); 
+	
+	memset(SetGpsAck.PationBuf, 0, 11);
+	
+//	Gps.GetPosition(&ZetaSendBuf.Buf[9]);
+	len += strlen((char *)ZetaSendBuf.Buf);
+	DEBUG(2,"ZetaSendBuf: ");
+	for(uint8_t i = 0; i < len; i++)
+	DEBUG(2,"%02X ",ZetaSendBuf.Buf[9+i]);
+	DEBUG(2,"\r\n");
+	
+	ZetaSendBuf.Buf[9 + len++] = (UpSeqCounter&0xff00)<<8; ///Seq
+	ZetaSendBuf.Buf[9 + len++] = (UpSeqCounter&0xff);
+	
+	ZetaSendBuf.Buf[9 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[9],len); ///CRC
+
+  len ++;
+	
+	ZetaSendBuf.Buf[2] = 0x09 + len; /// +sensor_len
+	ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
+	///UpSeqCounter ++;
+	
+	for(uint8_t i = 0; i < 3; i++)
+	{
+		
+		DEBUG(2,"start send data\r\n");
+		
+		for(uint8_t j = 0; j<ZetaSendBuf.Len; j++)
+		DEBUG(2,"%02X ",ZetaSendBuf.Buf[j]);
+		DEBUG(2,"\r\n");
+		
+		ZetaHandle.Send(&ZetaSendBuf);
+				
+		HAL_Delay(100);
+		ZetaState_t  Status = ZetaHandle.Recv(  );
+		
+		uint32_t overtime = HAL_GetTick(  );
+		while((DataAck != Status) && (HAL_GetTick(  ) - overtime < 200));
+		
+		if(DataAck == Status)
+		{			
+//			HAL_Delay(300);	
+//			UserCheckCmd(&UserZetaCheck[NETIME]); ///结合外部flash使用
+			UpSeqCounter ++;
+			
+			break;
+		}
+		else if(LenError != Status)
+		{
+			if(Unregistered == Status)
+			{
+				DEBUG(2,"---Writing registered---\r\n");
+				HAL_Delay(40000);
+			}
+			else
+			HAL_Delay(300);	
+		}
+		else
+			break;			
+	}
+	
+	free(ZetaSendBuf.Buf);
+}
+
 
 /*UserCheckCmd：用户查询Zeta：服务器查询下发
 *参数：					UserZetaCheckCmd：查询命令
@@ -170,7 +262,18 @@ void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 		if(UserZetaCheckCmd->Expect_retval == Status)
 			break;
 		else
-			HAL_Delay(300);
+		{			
+			if(Unregistered == Status)
+			{
+				DEBUG(2,"---Writing registered---\r\n");
+				HAL_Delay(5000);
+				i = 0;
+			}
+			else
+			{
+				HAL_Delay(300);
+			}
+		}
 	}
 	
 	memset(ZetaSendBuf.Buf, 0, ZetaSendBuf.Len);

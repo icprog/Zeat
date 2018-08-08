@@ -8,55 +8,59 @@
 
 
 #define MTK_COULD				"$PMTK103*30\r\n"
-#define MTK_HOST       			"$PMTK101*32\r\n"
+#define MTK_HOST       	"$PMTK101*32\r\n"
 
-#define MTK_POS_FIX				"$PMTK220,1000*1F\r\n" //  $PMTK220,3000*1D
+#define MTK_POS_FIX			"$PMTK220,1000*1F\r\n" //  $PMTK220,3000*1D
 #define MTK_GLL					"$PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0*28\r\n"
 
+SetGpsAck_t SetGpsAck = {false, false, false, false, false, false, 0, 0, 0};
+
+const Gps_t Gps = {GpsInit, GpsEnable, GpsDisable, GpsSet, GpsGetPosition};
 
 nmea_msg gpsx; 											//GPS信息
 
-void GPS_Init(void)
-{
+void GpsInit(void)
+{	
 	GPIO_InitTypeDef GPIO_Initure;
 	__HAL_RCC_GPIOB_CLK_ENABLE();           //开启GPIOB时钟
 
-	GPIO_Initure.Pin=GPS_IO_PIN;  
+	GPIO_Initure.Pin=GPS_Power_ON;  
 	GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  //推挽输出
 	GPIO_Initure.Pull=GPIO_PULLUP;          //上拉
 	GPIO_Initure.Speed=GPIO_SPEED_HIGH;     //高速
 	HAL_GPIO_Init(GPS_IO,&GPIO_Initure);
+	
+	MX_USART2_UART_Init(  ); 
 }
 
-void GPS_Enable(void)
+void GpsEnable(void)
 {
-	HAL_GPIO_WritePin(GPS_IO,GPS_IO_PIN,GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPS_IO,GPS_Power_ON,GPIO_PIN_SET);
 }
 
-void GPS_Disable(void)
+void GpsDisable(void)
 {
-    GPIO_InitTypeDef GPIO_Initure;
+  GPIO_InitTypeDef GPIO_Initure;
 	__HAL_RCC_GPIOB_CLK_ENABLE();           //开启GPIOB时钟
 
-	GPIO_Initure.Pin=GPS_IO_PIN;  
+	GPIO_Initure.Pin=GPS_Power_ON;  
 	GPIO_Initure.Mode=GPIO_MODE_OUTPUT_OD;  //推挽输出
 	GPIO_Initure.Pull=GPIO_NOPULL;          //上拉
 	GPIO_Initure.Speed=GPIO_SPEED_HIGH;     //高速
 	HAL_GPIO_Init(GPS_IO,&GPIO_Initure);
 
-	HAL_GPIO_WritePin(GPS_IO,GPS_IO_PIN,GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPS_IO,GPS_Power_ON,GPIO_PIN_SET);
 }
 
 
 /*
-*Gps_Set: 配置GPS
-*返回：成功：1  失败：0
+*GpsSet: 配置GPS
+*返回：  成功：1  失败：0
 */
-uint8_t Gps_Set(void)
+uint8_t GpsSet(void)
 {
-	GPS_Enable( );
-    PowerDisble_Led(  );
-    uint32_t GPS_TIME = 0;
+	Gps.Enable( );
+	uint32_t GPS_TIME = 0;
 	
 	do
 	{		
@@ -64,24 +68,19 @@ uint8_t Gps_Set(void)
 		HAL_UART_Transmit(&huart2, (uint8_t *)MTK_COULD, sizeof(MTK_COULD), 0xFFFF);
 		HAL_NVIC_EnableIRQ(USART2_IRQn);		
 		HAL_Delay(1000);
-        GPS_TIME ++;
+    GPS_TIME ++;
 		DEBUG(2,"line = %d\r\n",__LINE__);
 	}
-	while(!Set_Gps_Ack.START && ( GPS_TIME <= 3 ));
+	while(!SetGpsAck.Start && ( GPS_TIME <= 3 ));
     
-    Set_Gps_Ack.Get_PATION_TIME = HAL_GetTick();
-	
-	if(!Set_Gps_Ack.START && ( GPS_TIME > 3 ))
+	SetGpsAck.GetPationTime = HAL_GetTick();
+
+	if(!SetGpsAck.Start && ( GPS_TIME > 3 ))
 	{
-        if(LoRapp_SenSor_States.Hardware_Exist_GPS)
-        {
-            RF_Send_Data.GPS = 0x30; ///GPS模块异常
-            DEBUG(2,"Hardware_Exist_GPS ERROR\r\n");
-        }
-        
+		DEBUG_ERROR(2,"Hardware_Exist_GPS ERROR\r\n");
 		return 0;
 	}	
-	if(Set_Gps_Ack.START)
+	if(SetGpsAck.Start)
 	{
 		do
 		{
@@ -90,21 +89,19 @@ uint8_t Gps_Set(void)
 			HAL_NVIC_EnableIRQ(USART2_IRQn);		
 			HAL_Delay(200);	
 			DEBUG(3,"line = %d\r\n",__LINE__);
-		}while(!Set_Gps_Ack.GPGLL);
+		}while(!SetGpsAck.Gpll);
 		
 		do
 		{
+			SetGpsAck.Start = false;
+			SetGpsAck.Gpll = false;
 			HAL_NVIC_DisableIRQ(USART2_IRQn);
 			HAL_UART_Transmit(&huart2, (uint8_t *)MTK_POS_FIX, sizeof(MTK_POS_FIX), 0xFFFF);
 			HAL_NVIC_EnableIRQ(USART2_IRQn);	
 			HAL_Delay(200);	
 			DEBUG(3,"line = %d\r\n",__LINE__);
-		}while(!Set_Gps_Ack.POS_FIX);
+		}while(!SetGpsAck.Posfix);
 				
-		TimerStop( &LedTimer );
-		TimerSetValue( &LedTimer, 500000 );  ///GPS状态灯
-		TimerStart( &LedTimer );        
-        SetLedStates(GpsLocation); 
 		return 1;
 	}
 	
@@ -112,121 +109,67 @@ uint8_t Gps_Set(void)
 }
 
 /*
-*Get_Gps_Position: 获取GPS数据,并发送
-*返回：成功：1  失败：0
+*GpsGetPosition: 获取GPS数据,并发送
+*返回：					 成功：1  失败：0
 */
-void Get_Gps_Position(void)
+void GpsGetPosition(uint8_t *GpsBuf)
 {	
-	if((((LoRaMacGetUpLinkCounter( ) % (LoRapp_SenSor_States.Work_Time)) == 0) || Set_Gps_Ack.Get_PATION_Again) && !Set_Gps_Ack.START)  ///到达预计GPS上报时间，重新使能GPS模块
+	uint8_t len = 0;
+	uint32_t temp[4] = {gpsx.latitude,gpsx.nshemi,gpsx.longitude,gpsx.ewhemi};
+
+	if(SetGpsAck.GetPationAgain)  ///到达预计GPS上报时间，重新使能GPS模块
 	{
-		DEBUG(2,"line = %d time = %d\r\n",__LINE__, Set_Gps_Ack.GPS_OVER_TIME);
-		Set_Gps_Ack.GPS_DONE = false;
-		Set_Gps_Ack.START = false;
-		Set_Gps_Ack.POS_FIX = false;
-		Set_Gps_Ack.GPGLL	= false;      
-        Set_Gps_Ack.Get_PATION_Again = false;
-		GPS_Init(  );
-		Gps_Set(  );	
-        Set_Gps_Ack.GPS_OVER_TIME = HAL_GetTick( );
+		DEBUG(2,"line = %d time = %d\r\n",__LINE__, SetGpsAck.GpsOverTime);
+		SetGpsAck.GpsDone = false;
+		SetGpsAck.Start = false;
+		SetGpsAck.Posfix = false;
+		SetGpsAck.Gpll	= false;      
+		SetGpsAck.GetPationAgain = false;
+		Gps.Init(  );
+		Gps.Set(  );	
+		SetGpsAck.GpsOverTime = HAL_GetTick( );
 	}			
  
-     if(Set_Gps_Ack.Get_PATION && Set_Gps_Ack.START) ///判断是否有GPS、获取GPS信息  
-     {	        
-        /*****************关闭LED状态******************/
-        TimerStop( &LedTimer );
-        PowerDisble_Led(  );
-         
-        Set_Gps_Ack.Get_PATION = false; ///关闭GPS位置信息
-        ReportTimerEvent = true;
-        NMEA_GPGLL_Analysis(&gpsx, (uint8_t *)Set_Gps_Ack.GLL); ///经纬度  "$GPGLL,2233.1773,N,11356.7148,E,094100.210,A,A*5E\r\n"
-        DEBUG(3,"11---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude,gpsx.nshemi, (double)gpsx.longitude,gpsx.ewhemi);
-        DEBUG(2,"22---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude/100000,gpsx.nshemi, (double)gpsx.longitude/100000,gpsx.ewhemi);
-     
-        RF_Send_Data.Send_Buf[RF_Send_Data.RX_LEN] = 'J';
-        uint32_t temp[4] = {gpsx.latitude,gpsx.nshemi,gpsx.longitude,gpsx.ewhemi};
-        uint8_t i;
-        for(i = 0 ,RF_Send_Data.RX_LEN = 1; RF_Send_Data.RX_LEN <= 10; i++)
-        {
-            if(i%2==1)
-            {
-                RF_Send_Data.Send_Buf[RF_Send_Data.RX_LEN++] = (temp[i])&0xff;	///经纬字符
-            }					
-            else
-            {
-                RF_Send_Data.Send_Buf[RF_Send_Data.RX_LEN++] = (temp[i] >> 24)&0xff;
-                RF_Send_Data.Send_Buf[RF_Send_Data.RX_LEN++] = (temp[i] >> 16)&0xff;
-                RF_Send_Data.Send_Buf[RF_Send_Data.RX_LEN++] = (temp[i] >> 8)&0xff;
-                RF_Send_Data.Send_Buf[RF_Send_Data.RX_LEN++] = (temp[i])&0xff;			
-            }						
-        }	
-        do
-        {								
-             User_send(CONFIRMED, RF_Send_Data.Send_Buf);
-        }
-        while(!LoRapp_SenSor_States.loramac_evt_flag);
-        __disable_irq();
-        LoRapp_SenSor_States.loramac_evt_flag = 0;
-        __enable_irq();
-        
-        ReportTimerEvent = false;  
-        RF_Send_Data.Get_sensor = false;
-        Set_Gps_Ack.START = false;
-        
-        TimerStop( &ReportTimer );
-        TimerSetValue( &ReportTimer, 10000000 + randr( -1000000, 1000000 ) );
-        TimerStart( &ReportTimer );	
-        
-        RF_Send_Data.GPS = 0x10;		///定位成功
-        Set_Gps_Ack.GPS_DONE = true; ///GPS发送完成标记	 
-        system_time = HAL_GetTick( ); ///除掉GPS占用时间
-        gpsx.gpssta = 1;
-     } 
-     else if(((HAL_GetTick( ) - Set_Gps_Ack.GPS_OVER_TIME) > 10000) && (Set_Gps_Ack.START && !Set_Gps_Ack.Get_PATION ))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
-     {
-        DEBUG(2,"GPS_TIME22 : %d\r\n",HAL_GetTick( ) - Set_Gps_Ack.GPS_OVER_TIME);
-         
-        GPS_Disable(  ); ///关闭GPS
-         
-        Set_Gps_Ack.START = false;
+	if(SetGpsAck.GetPation && SetGpsAck.Posfix) ///判断是否有GPS、获取GPS信息  
+	{	        		 
+		SetGpsAck.GetPation = false; ///关闭GPS位置信息
+		NMEA_GPGLL_Analysis(&gpsx, (uint8_t *)SetGpsAck.GLL); ///经纬度  "$GPGLL,2233.1773,N,11356.7148,E,094100.210,A,A*5E\r\n"
+		DEBUG(3,"11---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude,gpsx.nshemi, (double)gpsx.longitude,gpsx.ewhemi);
+		DEBUG(2,"22---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude/100000,gpsx.nshemi, (double)gpsx.longitude/100000,gpsx.ewhemi);
+		
+		uint8_t i = 0;
+		for(len = 1; len < GPSLEN; i++)
+		{
+			if(i%2==1)
+			{
+				GpsBuf[len++] = (temp[i])&0xff;	///经纬字符
+			}					
+			else
+			{
+				GpsBuf[len++] = (temp[i] >> 24)&0xff;
+				GpsBuf[len++] = (temp[i] >> 16)&0xff;
+				GpsBuf[len++] = (temp[i] >> 8)&0xff;
+				GpsBuf[len++] = (temp[i])&0xff;			
+			}						
+		}					
+		SetGpsAck.GpsDone = true; ///GPS发送完成标记	 
+		gpsx.gpssta = 1;
+	} 
+	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 10000) && (SetGpsAck.Posfix && !SetGpsAck.GetPation ))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
+ {
+		DEBUG(2,"GPS_TIME22 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GpsOverTime);
+		 
+		Gps.Disable(  ); ///关闭GPS
+		 
+		SetGpsAck.Start = false;
 
-        memset(Set_Gps_Ack.GLL, 0, strlen(Set_Gps_Ack.GLL));
-        RF_Send_Data.GPS = 0x20; ///定位失败
-        Set_Gps_Ack.GPS_DONE = true; ///GPS发送完成标记	 
-        RF_Send_Data.Get_sensor = true;
-        ReportTimerEvent = true;
-        system_time = HAL_GetTick( ); ///除掉GPS占用时间 
-        gpsx.gpssta = 0;
-         
-        /*****************关闭LED状态******************/
-        TimerStop( &LedTimer );
-        PowerDisble_Led(  );
-     }
-     
-     else if(!Set_Gps_Ack.GPS_DONE && !Set_Gps_Ack.START)  ///不存在GPS：需要更改只上行一次数据
-     {
-        GPS_Disable(  ); ///关闭GPS
-
-        memset(Set_Gps_Ack.GLL, 0, strlen(Set_Gps_Ack.GLL));
-         
-         if(LoRapp_SenSor_States.Hardware_Exist_GPS)
-         {
-            RF_Send_Data.GPS = 0x30; ///GPS模块异常
-            DEBUG(2,"Hardware_Exist_GPS ERROR\r\n");
-         }
-         else
-        RF_Send_Data.GPS = 0x00; ///GPS没接入
-         
-        Set_Gps_Ack.GPS_DONE = true; ///GPS发送完成标记	
-        RF_Send_Data.Get_sensor = true;
-        ReportTimerEvent = true;
-        
-        HAL_GPIO_WritePin(LORA_LED, LORA_LED_PIN, GPIO_PIN_RESET); 
-        system_time = HAL_GetTick( ); ///除掉GPS占用时间
-
-        /*****************关闭LED状态******************/
-        TimerStop( &LedTimer );
-        PowerDisble_Led(  );        
-     }
+		memset(SetGpsAck.GLL, 0, strlen(SetGpsAck.GLL));
+		SetGpsAck.GpsDone = true; ///GPS发送完成标记	 
+		gpsx.gpssta = 0;	
+		
+		GpsBuf[len++] = 0;
+		
+	}
 }
 
 const uint32_t BAUD_id[9]={4800,9600,19200,38400,57600,115200,230400,460800,921600};//模块支持波特率数组

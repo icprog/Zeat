@@ -18,6 +18,8 @@
 #include "board.h"
 #include "Zeta.h"
 
+#define GPSEXIST					0x31
+
 typedef enum cmd_s
 {
 	MAC = 0,
@@ -28,8 +30,13 @@ typedef enum cmd_s
 
 typedef struct d_UserZeta
 {
+	/**************Zeta通讯命令************/
 	uint8_t 		Cmd;
+	
+	/**************Zeta通讯超时************/
 	uint32_t		Timeout;
+	
+	/**************Zeta通讯回复状态************/
 	ZetaState_t Expect_retval;
 }UserZeta_t;
 
@@ -39,7 +46,7 @@ extern uint8_t DeviceInfo[4];
 
 extern volatile uint16_t	UpSeqCounter;
 
-void UserZetaInit(void);
+void UserInit(void);
 
 void UserSend(void);
 

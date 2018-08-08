@@ -41,6 +41,9 @@ extern RTC_HandleTypeDef 				RtcHandle;
 	【6】：增加Rs485读取数据
 	【7】：解决Rs485打开扩展盒第一口时接收到多一个0x00数据，Sensors.QueryPinStaus中调用Rs485s.GetData：
 	       导致串口接收到多一个0x00
+	【8】：增加WWDG窗口看门狗
+	【9】：增加Timer
+	【10】：增加传感器异常过滤机制，使用SensorToLen是否为0判断传感器是否异常
 	
   *****************************************************************************************************************/
 /* variable functions ---------------------------------------------------------*/	
@@ -49,27 +52,26 @@ int main(void)
 {	
    BoardInitMcu(  );	
    DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
-	
-//	 UserCheckCmd(&UserZetaCheck[MAC]);
-//	
-//	 UserCheckCmd(&UserZetaCheck[COUNTER]);
-//	 
-//	 UserCheckCmd(&UserZetaCheck[RSSI]);
-//	
-//	 UserSetHeart(0x00);
+		
+	 UserCheckCmd(&UserZetaCheck[MAC]);
+
+	 UserCheckCmd(&UserZetaCheck[COUNTER]);
+
+	 UserCheckCmd(&UserZetaCheck[RSSI]);
+
+	 UserSetHeart(0x00);
 //	
 //	 UserSend(  );
 			
-	Sensors.QueryPinStaus(  );
+	 Sensors.QueryPinStaus(  );
 	 
    while (1)
-   {	
-//			UserSend(  );
-		
+   {		
 		 Sensors.Handle(  );
 		 UserSend(  );
 		 SetRtcAlarm(20);///4S误差	  
-		 UserIntoLowPower(  );		 
+		 UserIntoLowPower(  );		
+//			HAL_Delay(20000);
 	 }
 	 
 }

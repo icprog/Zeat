@@ -18,10 +18,10 @@
 	extern "C" {
 #endif	 
 		
-#define RS485_IDE       2     ///485接口ID+传感器标识
+#define RS485_IDE_LEN       		2     ///485接口ID+传感器标识占用长度
 		
-#define GET_CRC(__X__,DATA)    ((__X__)[1] = ((DATA & 0xff00) >> 8), (__X__)[0] = (DATA & 0x00ff))
-#define ARRAY(__X__)   (sizeof(__X__)/sizeof(__X__[0]))
+#define GET_CRC(__X__,DATA)    	((__X__)[1] = ((DATA & 0xff00) >> 8), (__X__)[0] = (DATA & 0x00ff))
+#define ARRAY(__X__)   					(sizeof(__X__)/sizeof(__X__[0]))
 		
 
 typedef enum

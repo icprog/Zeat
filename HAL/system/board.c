@@ -45,9 +45,7 @@ void BoardInitMcu( void )
 		
 	/***************串口初始化********************/
 	MX_USART1_UART_Init(  );  
-					
-	MX_USART2_UART_Init(  );
-		
+							
 	/****************ADC初始化*******************/
 	MX_ADC_Init(  );
 	
@@ -58,10 +56,17 @@ void BoardInitMcu( void )
 	/*******************开启RTC中断*******************/
 	HAL_NVIC_SetPriority(RTC_IRQn, 3, 0);
 	HAL_NVIC_EnableIRQ(RTC_IRQn);
+	
+//	MX_WWDG_Init(  );
+//	WWDG_NVIC_Init(  );
 			
-	UserZetaInit(  );
+//	TimerHwInit(  );
+	
+	UserInit(  );
 	
 	SensorsInit(  );
+	
+	ZetaHandle.PowerOn(  );
 }
 
 /*
@@ -90,6 +95,9 @@ void BoardDeInitMcu( void )
 //  HAL_I2C_DeInit(&hi2c2);
 //	hi2c2.State = HAL_I2C_STATE_RESET;
 //	
+	HAL_UART_DeInit(&hlpuart1);
+	hlpuart1.gState = HAL_UART_STATE_RESET;
+	
 	///关闭UART1时钟
   HAL_UART_DeInit(&huart1);
 	huart1.gState = HAL_UART_STATE_RESET;
@@ -113,7 +121,7 @@ void BoardDeInitMcu( void )
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 	HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
 					
-  GPIO_InitStructure.Pin = 0xEDFF;  /// PB9：CH_CE(ok)/PB5：485_DE/PB0: RESET/PB1: DIO0 保留充电IO配置
+  GPIO_InitStructure.Pin = 0xC1FF;  /// PB9：CH_CE(ok)/PB5：485_DE/PB0: RESET/PB1: DIO0 保留充电IO配置
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	
@@ -215,7 +223,7 @@ void SystemClockConfig( void )
   }
 
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_USART2
-                              |RCC_PERIPHCLK_I2C1;
+                              |RCC_PERIPHCLK_LPUART1;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
 	PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;

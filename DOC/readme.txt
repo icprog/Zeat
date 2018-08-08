@@ -113,3 +113,11 @@ SaveRs485s[index].MainBox.ExpendBox[ExpId].ExpenCheck
 	Sensors.MaBoxData 			= SensorMaBoxData;
 	
 0907183000000001 ///0730 0001  30: Zeta  31:Zeta+GPS	
+
+Program Size: Code=31544 RO-data=2412 RW-data=1532 ZI-data=7244  
+
+
+ZetaHandle.Interrupt
+
+		SaveRs485s[id].MainBox.SensorToLen = 0; ///传感器总长度		
+

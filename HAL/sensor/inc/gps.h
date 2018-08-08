@@ -5,16 +5,41 @@
 #include "timer.h"
 
 #define   GPSWORKTIME			  60e3  ///864e5  == 24H  GPS再次定位时间间隔
+#define 	GPSLEN						11
 
-extern TimerEvent_t GPSTimer;
+typedef struct
+{
+	bool 			Start;
+	bool 			Gpll;
+	bool 			Posfix;
+	bool 			GetPation;
+	bool 			GpsDone;
+  bool 			GetPationAgain;
+	char 			GLL[54];
+	uint8_t   PationBuf[11];
+	uint8_t   PosfixCounter;
+	uint32_t 	GetPationTime;
+	uint32_t 	GpsOverTime;
+}SetGpsAck_t;
 
-extern void OnGpsTimerEvent( void );
+typedef struct u_gps
+{
+	void 			(*Init)(void);
+	void 			(*Enable)(void);
+	void 			(*Disable)(void);
+	uint8_t		(*Set)(void);
+	void 			(*GetPosition)(uint8_t *GpsBuf);
+}Gps_t;
 
-void GPS_Init(void);
-void GPS_Enable(void);
-void GPS_Disable(void);
-uint8_t Gps_Set(void);
-void Get_Gps_Position(void);
+extern SetGpsAck_t SetGpsAck;
+
+extern const Gps_t Gps;
+
+void GpsInit(void);
+void GpsEnable(void);
+void GpsDisable(void);
+uint8_t GpsSet(void);
+void GpsGetPosition(uint8_t *GpsBuf);
 
 
 //GPS NMEA-0183协议重要参数结构体定义 

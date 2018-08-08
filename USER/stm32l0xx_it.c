@@ -44,6 +44,8 @@
 #include "rtc-board.h"
 #include "timer-board.h"
 #include "usart.h"
+#include "wwdg.h"
+#include "gps.h"
 
 /** @addtogroup STM32L0xx_HAL_Examples
   * @{
@@ -66,6 +68,8 @@
 /******************************************************************************/
 
 extern uint8_t aRxBuffer5[RXBUFFERSIZE];
+
+uint32_t Timer2_Counter = 0;
 
 /**
   * @brief   This function handles NMI exception.
@@ -119,8 +123,6 @@ void PendSV_Handler(void)
 
 uint32_t TimerOverTime = 0; ///timer2超时机制
 
-uint32_t Send_time;
-
 /**
   * @brief  This function handles SysTick Handler.
   * @param  None
@@ -131,7 +133,6 @@ void SysTick_Handler(void)
 	HAL_IncTick();
 	HAL_SYSTICK_IRQHandler();
 	TimerOverTime ++;
-	Send_time ++;
 }
 
 
@@ -141,6 +142,27 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32l0xx.s).                    */
 /******************************************************************************/
+
+/**
+* @brief This function handles TIM2 global interrupt.
+*/
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+	Timer2_Counter++;
+	
+	if(Timer2_Counter>1000)
+	{
+		DEBUG(2,"%s\r\n",__func__);
+		Gps.GetPosition( SetGpsAck.PationBuf );
+		Timer2_Counter = 0;
+	}
+  /* USER CODE END TIM2_IRQn 1 */
+}
 
 
 /**
@@ -224,7 +246,56 @@ void USART2_IRQHandler(void)
   /* USER CODE END USART2_IRQn 1 */
 }
 
+/**
+* @brief This function handles AES, RNG and LPUART1 interrupts / LPUART1 wake-up interrupt through EXTI line 28.
+*/
+void AES_RNG_LPUART1_IRQHandler(void)
+{
+  /* USER CODE BEGIN AES_RNG_LPUART1_IRQn 0 */
 
+  /* USER CODE END AES_RNG_LPUART1_IRQn 0 */
+  HAL_UART_IRQHandler(&hlpuart1);
+  /* USER CODE BEGIN AES_RNG_LPUART1_IRQn 1 */
+	uint32_t timeout = 0;
+
+	timeout = HAL_GetTick( );
+	while (HAL_UART_GetState(&hlpuart1)!=HAL_UART_STATE_READY)//等待就绪
+	{
+    if(HAL_GetTick( ) - timeout> 20) break;		///20ms超时处理
+	}
+     
+	timeout = HAL_GetTick( );
+	while(HAL_UART_Receive_IT(&hlpuart1, UART_RX_LPUART1.aRxBuffer, RXBUFFERSIZE)!=HAL_OK)//一次处理完成之后，重新开启中断并设置RxXferCount为1
+	{
+    if(HAL_GetTick( ) - timeout> 20) break;	 	///20ms超时处理	
+	}
+	DEBUG(3,"%s\r\n",__func__);
+
+  /* USER CODE END AES_RNG_LPUART1_IRQn 1 */
+}
+
+/**
+* @brief This function handles Window watchdog interrupt.
+*/
+
+void WWDG_IRQHandler(void)
+{
+  /* USER CODE BEGIN WWDG_IRQn 0 */
+
+  /* USER CODE END WWDG_IRQn 0 */
+  HAL_WWDG_IRQHandler(&hwwdg);
+  /* USER CODE BEGIN WWDG_IRQn 1 */
+
+	if(WdgTime<WDGMAX)
+	{
+		WdgTime++;
+		HAL_WWDG_Refresh(&hwwdg);
+	}
+	if(WdgTime>=100)
+		printf("%s\r\n",__func__);
+	
+  /* USER CODE END WWDG_IRQn 1 */
+}
 /**
   * @}
   */

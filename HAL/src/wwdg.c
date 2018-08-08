@@ -1,11 +1,16 @@
 /**
   ******************************************************************************
-  * File Name          : USART.h
+  * File Name          : WWDG.c
   * Description        : This file provides code for the configuration
-  *                      of the USART instances.
+  *                      of the WWDG instances.
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -31,84 +36,64 @@
   *
   ******************************************************************************
   */
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __usart_H
-#define __usart_H
-#ifdef __cplusplus
- extern "C" {
-#endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l0xx_hal.h"
+#include "wwdg.h"
 
-/* USER CODE BEGIN Includes */
-	 
-#include <stdbool.h>
-#include "FIFO_Uart.h"		 
-#include "debug.h"
-#include "gpio.h"	 
-#include "gps.h"	
- 
-	 
-/* USER CODE END Includes */
+/* USER CODE BEGIN 0 */
 
-extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart2;
-extern UART_HandleTypeDef huart4;	 
-extern UART_HandleTypeDef hlpuart1;
+uint16_t WdgTime = 0;
 
-/* USER CODE BEGIN Private defines */
+/* USER CODE END 0 */
 
-/* USER CODE END Private defines */
+WWDG_HandleTypeDef hwwdg;
 
-#define RXBUFFERSIZE   			1 //缓存大小
+/* WWDG init function */
+void MX_WWDG_Init(void)
+{
+  /*******************(PCLK1 (16MHz)/4096)/4) = 977HZ (1024us)*************************/
+	/*******************(~1024us * （127-63） = 66 ms)*************************/
+  hwwdg.Instance = WWDG;
+  hwwdg.Init.Prescaler = WWDG_PRESCALER_4;
+  hwwdg.Init.Window = 80;
+  hwwdg.Init.Counter = 127;
+  hwwdg.Init.EWIMode = WWDG_EWI_ENABLE;
+  if (HAL_WWDG_Init(&hwwdg) != HAL_OK)
+  {
+    Error_Handler(  );
+  }
 
-#define USART_REC_LEN  			516  	//定义最大接收字节数 516
-
-typedef struct{
-	
-	uint32_t rxtime;
-	
-	uint8_t USART_RX_BUF[USART_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
-	//接收状态
-	//bit15，	接收完成标志
-	//bit14，	接收到0x0d
-	//bit13~0，	接收到的有效字节数目
-	uint16_t USART_RX_Len;       //接收数据长度
-
-	uint8_t aRxBuffer[1];//HAL库使用的串口接收缓冲
-	
-	bool USART_TX_STATE;
-	
-	bool Rx_State;
-	
-}UART_RX;
-
-extern UART_RX UART_RX_DATA2;
-extern UART_RX UART_RX_LPUART1;
-	 
-extern UART_FIFO_Typedef_t usart_rs485;
-	 
-/* USER CODE END Private defines */
-
-extern void Error_Handler(void);
-
-void MX_USART1_UART_Init(void);
-void MX_USART2_UART_Init(void);
-void MX_USART4_UART_Init(void);
-void MX_LPUART1_UART_Init(void);
-
-
-/* USER CODE BEGIN Prototypes */
-
-void InitUartFifo(void);
-
-/* USER CODE END Prototypes */
-
-#ifdef __cplusplus
 }
-#endif
-#endif /*__ usart_H */
+
+void HAL_WWDG_MspInit(WWDG_HandleTypeDef* wwdgHandle)
+{
+
+  if(wwdgHandle->Instance==WWDG)
+  {
+  /* USER CODE BEGIN WWDG_MspInit 0 */
+
+  /* USER CODE END WWDG_MspInit 0 */
+    /* WWDG clock enable */
+    __HAL_RCC_WWDG_CLK_ENABLE();
+  /* USER CODE BEGIN WWDG_MspInit 1 */
+
+  /* USER CODE END WWDG_MspInit 1 */
+  }
+}
+ 
+
+/* USER CODE BEGIN 1 */
+
+/** NVIC Configuration
+*/
+void WWDG_NVIC_Init(void)
+{
+  /* WWDG_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(WWDG_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(WWDG_IRQn);
+}
+
+/* USER CODE END 1 */
 
 /**
   * @}

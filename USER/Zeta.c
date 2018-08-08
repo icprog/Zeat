@@ -12,13 +12,14 @@
 #include "usart.h"
 #include "Debug.h"
 
-Zeta_t 				ZetaRecviceBuf = {0, NULL, 0, Reset};
-Zeta_t 				ZetaSendBuf		 = {0, NULL, 0, Reset};
-ZetaTimer_t		ZetaTimer;
-ZetaHandle_t 	ZetaHandle;
+Zeta_t 							ZetaRecviceBuf = {0, NULL, 0, Reset};
+Zeta_t 							ZetaSendBuf		 = {0, NULL, 0, Reset};
+ZetaTimer_t					ZetaTimer;
+const ZetaHandle_t 	ZetaHandle = {ZetaInit, ZetaPowerOn, ZetaPowerOff, WakeupZetaEnable, WakeupZetaDisable, \
+																	ZetaInterrupt, ZetaSend, ZetaRecv, CalcCRC8, ZetaStatus};
 
 /*ZetaInit：初始化Zeta IO
-*参数：			无
+*参数：			无ZetaHandle.PowerOn
 *返回值：   无
 */
 void ZetaInit(void)
@@ -33,7 +34,7 @@ void ZetaInit(void)
 	GPIO_Initure.Pull=GPIO_PULLUP;
 	HAL_GPIO_Init(ZETAINT_IO,&GPIO_Initure);
 			
-	GPIO_Initure.Pin=ZETAWAKUP_PIN|ZETASTATU_PIN;  
+	GPIO_Initure.Pin=ZETAWAKUP_PIN|ZETAPOWER_PIN;  
 	GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  
 	GPIO_Initure.Pull=GPIO_PULLUP;          
 	GPIO_Initure.Speed=GPIO_SPEED_HIGH;     
@@ -50,6 +51,26 @@ void ZetaInit(void)
 	//中断线2-PC2
 	HAL_NVIC_SetPriority(EXTI0_1_IRQn,2,0);       //抢占优先级为2，子优先级为0
 	HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);   	
+	
+	MX_LPUART1_UART_Init(  ); 
+}
+
+/*ZetaPowerOn：打开Zeta电源
+*参数：			   无
+*返回值：      无
+*/
+void ZetaPowerOn(void)
+{
+	HAL_GPIO_WritePin(ZETAPOWER_IO,ZETAPOWER_PIN,GPIO_PIN_SET);	
+}
+
+/*ZetaPowerOff: 关闭Zeta电源
+*参数：			    无
+*返回值：       无
+*/
+void ZetaPowerOff(void)
+{
+	HAL_GPIO_WritePin(ZETAPOWER_IO,ZETAPOWER_PIN,GPIO_PIN_RESET);	
 }
 
 /*WakeupZetaEnable：唤醒Zeta,下降沿有效Status IO转换为高电平，1MS后串口可以使用
@@ -102,7 +123,7 @@ GPIO_PinState ZetaStatus(void)
 */
 void ZetaSend(Zeta_t *ZetaBuf)
 {
-	HAL_UART_Transmit(&huart2, ZetaBuf->Buf, ZetaBuf->Len, 0xFFFFFFFF);
+	HAL_UART_Transmit(&hlpuart1, ZetaBuf->Buf, ZetaBuf->Len, 0xFFFFFFFF);
 	ZetaRecviceBuf.States = Reset;
 }
 
@@ -112,16 +133,17 @@ void ZetaSend(Zeta_t *ZetaBuf)
 */
 ZetaState_t ZetaRecv(void)
 {
-	if( HAL_GetTick(  )-ZetaRecviceBuf.Uart_time > 20 && UART_RX_DATA2.Rx_State) 
+	if( HAL_GetTick(  )-ZetaRecviceBuf.Uart_time > 20 && UART_RX_LPUART1.Rx_State) 
 	{
-		UART_RX_DATA2.Rx_State = false;
-		ZetaRecviceBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*UART_RX_DATA2.USART_RX_Len);///需要分配空间，否则赋值失败
-		memcpy(ZetaRecviceBuf.Buf,UART_RX_DATA2.USART_RX_BUF,UART_RX_DATA2.USART_RX_Len);
-		ZetaRecviceBuf.Len = UART_RX_DATA2.USART_RX_Len;
+		UART_RX_LPUART1.Rx_State = false;
+		ZetaRecviceBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*UART_RX_LPUART1.USART_RX_Len);///需要分配空间，否则赋值失败
+		memcpy(ZetaRecviceBuf.Buf,UART_RX_LPUART1.USART_RX_BUF,UART_RX_LPUART1.USART_RX_Len);
+		ZetaRecviceBuf.Len = UART_RX_LPUART1.USART_RX_Len;
 		
-		memset(UART_RX_DATA2.USART_RX_BUF, 0, UART_RX_DATA2.USART_RX_Len);
-		UART_RX_DATA2.USART_RX_Len = 0;
+		memset(UART_RX_LPUART1.USART_RX_BUF, 0, UART_RX_LPUART1.USART_RX_Len);
+		UART_RX_LPUART1.USART_RX_Len = 0;
 		
+		DEBUG(2,"---ZetaRecviceBuf: ");
 		for(uint8_t i = 0; i < ZetaRecviceBuf.Len; i++)
 		printf("%02x ",ZetaRecviceBuf.Buf[i]);
 		DEBUG(2,"\r\n");

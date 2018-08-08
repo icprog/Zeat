@@ -25,7 +25,7 @@
 
 /********************GPS Power******************/
 #define  GPS_IO											GPIOB
-#define  GPS_Power_ON     					GPIO_PIN_7
+#define  GPS_Power_ON     					GPIO_PIN_12
 
 /********************485 UART******************/
 #define  USART4_IO									GPIOC
@@ -52,8 +52,12 @@
 #define Out_485_DE_Pin_GPIO_Port    GPIOA
 
 
-#define  GPS_IO						GPIOB
-#define  GPS_IO_PIN				GPIO_PIN_7
+#define OUT_CH_CE_GPIO_Port					GPIOC
+#define	OUT_CH_CE_Pin								GPIO_PIN_6
+
+#define IN_CH_STAT1_Pin							GPIO_PIN_8
+#define IN_CH_STAT2_Pin							GPIO_PIN_9
+#define IN_CH_PG_Pin								GPIO_PIN_7
 
 
 /*!

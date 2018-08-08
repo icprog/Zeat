@@ -22,7 +22,7 @@
 #define RS485_TO_RX()	 HAL_GPIO_WritePin(Out_485_DE_Pin_GPIO_Port,Out_485_DE_Pin_Pin, GPIO_PIN_RESET);// RS485总线切换到接收模式
 
 rs485_t Rs485s;
-
+	
 /*
  *	Rs485Init:		波特率9600，发送和接收都为DMA模式
  *	参数：			  无
@@ -170,7 +170,13 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
 //    DEBUG(2,"%02X ",sendData[i]);
 //    DEBUG(2,"\r\n");
     HAL_UART_Transmit(&huart4,sendData,len + 2,0xffff);				
-    RS485_TO_RX();
+    RS485_TO_RX(  );
+	
+		if(sendData[0] == 0xFD)
+		{
+			HAL_Delay(1000);
+		}
+		else
     HAL_Delay(NBI_RS485_REV_TIME_OUT);
     memset(Rs485s.Revbuff, 0, sizeof(Rs485s.Revbuff));
     uint8_t length = Rs485s.GetData(Rs485s.Revbuff,debuglevel);

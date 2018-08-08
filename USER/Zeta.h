@@ -17,16 +17,19 @@
 #include <stdint.h>
 #include "stm32l0xx_hal.h"
 
-#define  ZETAINT_IO						GPIOA
-#define  ZETAINT_PIN   				GPIO_PIN_0
+#define  ZETAINT_IO						GPIOB
+#define  ZETAINT_PIN   				GPIO_PIN_1
 
 #define  ZETAWAKUP_IO					GPIOB
-#define  ZETAWAKUP_PIN				GPIO_PIN_13
+#define  ZETAWAKUP_PIN				GPIO_PIN_0
 
 #define  ZETASTATU_IO					GPIOB
-#define  ZETASTATU_PIN				GPIO_PIN_14
+#define  ZETASTATU_PIN				GPIO_PIN_2
 
-#define  ZETAMAX							38
+#define  ZETAPOWER_IO					GPIOB
+#define  ZETAPOWER_PIN				GPIO_PIN_13
+
+#define  ZETAMAXLEN						38
 
 /*
 *ZetaState_t: Zeta×´Ì¬ÁÐ±í
@@ -96,6 +99,8 @@ typedef struct uZetaTimer
 typedef struct uZetaHandle
 {
 	void 					(*Init)(void);
+	void 					(*PowerOn)(void);
+	void 					(*PowerOff)(void);
 	void 					(*WakeupEnable)(void);
 	void 					(*WakeupDisable)(void);
 	void 					(*Interrupt)(void);
@@ -105,16 +110,19 @@ typedef struct uZetaHandle
 	GPIO_PinState (*Status)(void);
 }ZetaHandle_t;
 
-
 extern Zeta_t 			ZetaRecviceBuf;
 
 extern Zeta_t 			ZetaSendBuf;
 
 extern ZetaTimer_t	ZetaTimer;
 
-extern ZetaHandle_t ZetaHandle;
+extern const ZetaHandle_t ZetaHandle;
 
 void ZetaInit(void);
+
+void ZetaPowerOn(void);
+
+void ZetaPowerOff(void);
 
 void WakeupZetaEnable(void);
 

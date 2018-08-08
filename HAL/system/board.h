@@ -38,8 +38,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "stmflash.h"
 #include "power.h"
 #include "debug.h"
-#include "rtc-board.h"
+#include "timer-board.h"
 #include "Zeta.h"
+#include "wwdg.h"
 
 /*!
  * Unique Devices IDs register set ( STM32F1xxx )
