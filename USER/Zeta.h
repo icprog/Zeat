@@ -79,6 +79,7 @@ typedef struct uZeta
 {
 	uint8_t 		Len;
 	uint8_t			*Buf;
+	uint8_t			*RevBuf;
 	uint32_t    Uart_time;
 	ZetaState_t States;
 }Zeta_t;

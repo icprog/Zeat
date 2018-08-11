@@ -40,6 +40,12 @@ typedef struct d_UserZeta
 	ZetaState_t Expect_retval;
 }UserZeta_t;
 
+
+typedef struct f_User
+{
+	uint16_t SleepTime;
+}User_t;
+
 extern UserZeta_t UserZetaCheck[];
 
 extern uint8_t DeviceInfo[4];

@@ -56,21 +56,21 @@ int main(void)
 	 UserCheckCmd(&UserZetaCheck[MAC]);
 
 	 UserCheckCmd(&UserZetaCheck[COUNTER]);
-
+	
 	 UserCheckCmd(&UserZetaCheck[RSSI]);
 
 	 UserSetHeart(0x00);
-//	
-//	 UserSend(  );
-			
-	 Sensors.QueryPinStaus(  );
+				
+//	 Sensors.QueryPinStaus(  );
 	 
    while (1)
    {		
-		 Sensors.Handle(  );
-		 UserSend(  );
-		 SetRtcAlarm(40);///4SÎó²î	  
-		 UserIntoLowPower(  );		
+//		 Sensors.Handle(  );
+		 
+//		 UserSend(  );
+//		 DEBUG(2,"test power\r\n");
+////		 SetRtcAlarm(60);///4SÎó²î	  
+////		 UserIntoLowPower(  );		
 //			HAL_Delay(20000);
 	 }
 	 

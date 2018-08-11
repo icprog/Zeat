@@ -38,6 +38,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "stmflash.h"
 #include "power.h"
 #include "debug.h"
+#include "spi.h"
+#include "user_spi_flash.h"
 #include "timer-board.h"
 #include "Zeta.h"
 #include "wwdg.h"

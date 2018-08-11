@@ -49,6 +49,8 @@ void BoardInitMcu( void )
 	/****************ADC初始化*******************/
 	MX_ADC_Init(  );
 	
+	SPI1_Init(  );
+	
 	/*****************电源管理********************/
 //	InitPower(  );
 	RTC_Init(  );
@@ -86,6 +88,8 @@ void BoardDeInitMcu( void )
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_GPIOH_CLK_ENABLE();
 	
+	SpiFlashPowerDown( );
+	
 	/****************************************/
     /* Disable the Peripheral */	
 	HAL_ADC_MspInit(&hadc);  ///OK
@@ -112,16 +116,22 @@ void BoardDeInitMcu( void )
 	
 	/*******************关闭SPI*********************/
 		
-	GPIO_InitStructure.Pin = GPIO_PIN_All;   ///GPIO_PIN_All
+	GPIO_InitStructure.Pin = 0xF7FF;   ///GPIO_PIN_All
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG; ///low_power,其它较高
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
 
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure); 
+	
+	GPIO_InitStructure.Pin = GPIO_PIN_All;   ///GPIO_PIN_All
+	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG; ///low_power,其它较高
+	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
+
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 	HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
 					
-  GPIO_InitStructure.Pin = 0xC1FF;  /// PB9：CH_CE(ok)/PB5：485_DE/PB0: RESET/PB1: DIO0 保留充电IO配置
+  GPIO_InitStructure.Pin = 0xCFFF;  /// PB9：CH_CE(ok)/PB5：485_DE/PB0: RESET/PB1: DIO0 保留充电IO配置
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	

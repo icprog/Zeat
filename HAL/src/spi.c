@@ -57,7 +57,7 @@ void SPI1_NSS(void)
 	__HAL_RCC_GPIOD_CLK_ENABLE();			 ///开启外部时钟，RCC_OSC_IN RCC_OSC_OUT 否则SPI不工作
   __HAL_RCC_GPIOA_CLK_ENABLE();            ///开启GPIOB时钟
 	
-  GPIO_Initure.Pin=GPIO_PIN_4; //PA4
+  GPIO_Initure.Pin=GPIO_PIN_8; //PA4
   GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  //推挽输出
   GPIO_Initure.Pull=GPIO_PULLUP;          //上拉
   GPIO_Initure.Speed=GPIO_SPEED_HIGH;     //高速
@@ -122,7 +122,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 //    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7);
 	GPIO_InitTypeDef  GPIO_InitStruct;
 
-  GPIO_InitStruct.Pin       = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Pin       = GPIO_PIN_8|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
   GPIO_InitStruct.Mode      = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;

@@ -12,8 +12,8 @@
 #include "usart.h"
 #include "Debug.h"
 
-Zeta_t 							ZetaRecviceBuf = {0, NULL, 0, Reset};
-Zeta_t 							ZetaSendBuf		 = {0, NULL, 0, Reset};
+Zeta_t 							ZetaRecviceBuf = {0, NULL, NULL, 0, Reset};
+Zeta_t 							ZetaSendBuf		 = {0, NULL, NULL, 0, Reset};
 ZetaTimer_t					ZetaTimer;
 const ZetaHandle_t 	ZetaHandle = {ZetaInit, ZetaPowerOn, ZetaPowerOff, WakeupZetaEnable, WakeupZetaDisable, \
 																	ZetaInterrupt, ZetaSend, ZetaRecv, CalcCRC8, ZetaStatus};
@@ -29,9 +29,10 @@ void ZetaInit(void)
 	__HAL_RCC_GPIOA_CLK_ENABLE(); 
 	__HAL_RCC_GPIOB_CLK_ENABLE();       
 
+	///对于低电平触发中断，需要把GPIO设置为上拉，然后下降沿触发，反之高电平触发，反过来
 	GPIO_Initure.Pin=ZETAINT_PIN;  
 	GPIO_Initure.Mode=GPIO_MODE_IT_RISING;      			
-	GPIO_Initure.Pull=GPIO_PULLUP;
+	GPIO_Initure.Pull=GPIO_PULLDOWN;
 	HAL_GPIO_Init(ZETAINT_IO,&GPIO_Initure);
 			
 	GPIO_Initure.Pin=ZETAWAKUP_PIN|ZETAPOWER_PIN;  
@@ -44,7 +45,7 @@ void ZetaInit(void)
 	GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  
 	GPIO_Initure.Pull=GPIO_PULLUP;          
 	GPIO_Initure.Speed=GPIO_SPEED_HIGH;     
-	HAL_GPIO_Init(ZETAINT_IO,&GPIO_Initure);
+	HAL_GPIO_Init(ZETAPOWER_IO,&GPIO_Initure);
 	
 	GPIO_Initure.Pin=ZETASTATU_PIN;  
 	GPIO_Initure.Mode=GPIO_MODE_INPUT;  
@@ -52,7 +53,7 @@ void ZetaInit(void)
 	GPIO_Initure.Speed=GPIO_SPEED_HIGH;     
 	HAL_GPIO_Init(ZETASTATU_IO,&GPIO_Initure);
 	
-	HAL_GPIO_WritePin(ZETAINT_IO,ZETAWAKUP_PIN,GPIO_PIN_SET);	
+	HAL_GPIO_WritePin(ZETAWAKUP_IO,ZETAWAKUP_PIN,GPIO_PIN_SET);	
 	
 	//中断线2-PC2
 	HAL_NVIC_SetPriority(EXTI0_1_IRQn,2,0);       //抢占优先级为2，子优先级为0
@@ -85,9 +86,9 @@ void ZetaPowerOff(void)
 */
 void WakeupZetaEnable(void)
 {
-	HAL_GPIO_WritePin(ZETAINT_IO,ZETASTATU_PIN,  GPIO_PIN_SET);
+	HAL_GPIO_WritePin(ZETAWAKUP_IO,ZETASTATU_PIN,  GPIO_PIN_SET);
 	HAL_Delay(1);
-	HAL_GPIO_WritePin(ZETAINT_IO,ZETAWAKUP_PIN,  GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(ZETAWAKUP_IO,ZETAWAKUP_PIN,  GPIO_PIN_RESET);
 }
 
 /*WakeupZetaDisable：Zeta进入休眠
@@ -96,9 +97,9 @@ void WakeupZetaEnable(void)
 */
 void WakeupZetaDisable(void)
 {
-	HAL_GPIO_WritePin(ZETAINT_IO,ZETAWAKUP_PIN,  GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(ZETAWAKUP_IO,ZETAWAKUP_PIN,  GPIO_PIN_RESET);
 	HAL_Delay(1);
-	HAL_GPIO_WritePin(ZETAINT_IO,ZETAWAKUP_PIN,GPIO_PIN_SET);
+	HAL_GPIO_WritePin(ZETAWAKUP_IO,ZETAWAKUP_PIN,GPIO_PIN_SET);
 }
 
 /*ZetaInterrupt：Zeta接收数据脉冲
@@ -113,6 +114,37 @@ void ZetaInterrupt(void)
 	
 	DEBUG(2,"%s\r\n",__func__);
 }
+
+/*ZetaDownCommand：Zeta下行命令处理
+*参数：					 	 下行数据
+*返回值：   		 	 无
+*/
+uint16_t ZetaDownCommand(uint8_t *RevBuf)
+{
+	uint16_t data = 0;
+	
+	switch( RevBuf[0] )
+	{
+		case 0xA2: ///修改采样周期
+			if( 0x00 == ZetaHandle.CRC8( RevBuf,4 ) )
+			{
+				data |= RevBuf[1] << 4;
+				data |= RevBuf[2];
+				
+				////data write in flash
+			}
+			
+		free(RevBuf);
+
+		break;
+		
+		default:
+			break;
+	
+	}
+	return data;
+}
+
 
 /*ZetaStatus：Zeta串口状态
 *参数：				无
@@ -143,7 +175,8 @@ ZetaState_t ZetaRecv(void)
 	{
 		UART_RX_LPUART1.Rx_State = false;
 		ZetaRecviceBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*UART_RX_LPUART1.USART_RX_Len);///需要分配空间，否则赋值失败
-		memcpy(ZetaRecviceBuf.Buf,UART_RX_LPUART1.USART_RX_BUF,UART_RX_LPUART1.USART_RX_Len);
+		ZetaRecviceBuf.RevBuf = (uint8_t*)malloc(sizeof(uint8_t)*UART_RX_LPUART1.USART_RX_Len-4);///需要分配空间，否则赋值失败
+		memcpy1(ZetaRecviceBuf.Buf,UART_RX_LPUART1.USART_RX_BUF,UART_RX_LPUART1.USART_RX_Len);
 		ZetaRecviceBuf.Len = UART_RX_LPUART1.USART_RX_Len;
 		
 		memset(UART_RX_LPUART1.USART_RX_BUF, 0, UART_RX_LPUART1.USART_RX_Len);
@@ -180,7 +213,16 @@ ZetaState_t ZetaRecv(void)
 			ZetaRecviceBuf.States = Payload;
 		}
 		
-		////下行控制数据处理:FF 00 08 30 23 45 67 89：发送数据周期、唤醒MCU发送等 
+		////下行控制数据处理:FF 00 08 30 23 45 67 89：发送数据周期、唤醒MCU发送等 ff 00 len 30 data
+		
+		if( ZetaRecviceBuf.Buf[0] == 0xFF && ZetaRecviceBuf.Buf[1] == 0x00 && ZetaRecviceBuf.Buf[3] == 0x30 )
+		{
+			memcpy1(ZetaRecviceBuf.RevBuf, &ZetaRecviceBuf.Buf[4],ZetaRecviceBuf.Len-4);
+
+			for(uint8_t i = 4; i < ZetaRecviceBuf.Len; i++)
+			printf("%02x ",ZetaRecviceBuf.RevBuf[i]);
+			DEBUG(2,"\r\n");
+		}
 		
 		DEBUG(3,"States: %02x\r\n",ZetaRecviceBuf.States);
 		memset(ZetaRecviceBuf.Buf, 0, ZetaRecviceBuf.Len);

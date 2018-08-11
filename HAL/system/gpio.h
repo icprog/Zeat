@@ -58,6 +58,9 @@
 #define IN_CH_STAT2_Pin							GPIO_PIN_7
 #define IN_CH_PG_Pin								GPIO_PIN_8
 
+/***********************F;ASH IO≈‰÷√***************************/
+#define FLASH_SPI_CS_PORT           GPIOA
+#define FLASH_SPI_CS_PIN            GPIO_PIN_8
 
 /*!
  * \brief GPIO≥ı ºªØ

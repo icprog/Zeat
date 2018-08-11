@@ -17,6 +17,7 @@
 
 volatile uint16_t	UpSeqCounter = 1; 
 
+
 UserZeta_t UserZetaCheck[] = {
 	{0x10, 1500, Payload}, ///查询mac
 	{0x11, 1000, Payload}, ///查询网络时间
@@ -66,6 +67,8 @@ void UserSend(void)
 	
 	/********************设备ID*****************/
 	memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
+	
+	SendBufsCounter = 1;
 			
 	for(uint8_t SedId = 0; SedId <= SendBufsCounter - 1; SedId++)
 	{
@@ -84,16 +87,10 @@ void UserSend(void)
 		ZetaSendBuf.Buf[9 + SendBufs[SedId].Len++] = (UpSeqCounter&0xff);
 		
 		ZetaSendBuf.Buf[9 + SendBufs[SedId].Len++] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[9],SendBufs[SedId].Len); ///CRC
-
-//	memcpy(&ZetaSendBuf.Buf[4],"1234567890123456789012345678901234567890123456789",49);
-//	
-//	ZetaSendBuf.Buf[2] = 0x04 + 49;
 	
 		ZetaSendBuf.Buf[2] = 0x09 + SendBufs[SedId].Len; /// +sensor_len
 		ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
-		
-		SendBufs[SendBufsCounter].Len = 0;
-				
+						
 		for(uint8_t i = 0; i < 3; i++)
 		{
 			
@@ -104,15 +101,17 @@ void UserSend(void)
 			DEBUG(2,"\r\n");
 			
 			ZetaHandle.Send(&ZetaSendBuf);
-					
+			
+			/********************缓存清除*******************/
+			memset(&ZetaSendBuf.Buf[9], 0, ZetaSendBuf.Len);
+			SendBufs[SedId].Len = 0;
+			
 			HAL_Delay(100);
 			ZetaState_t  Status = ZetaHandle.Recv(  );
 			
 			uint32_t overtime = HAL_GetTick(  );
 			while((DataAck != Status) && (HAL_GetTick(  ) - overtime < 200));
-			
-			DEBUG(2,"Status = %02x\r\n",Status);
-			
+						
 			if(DataAck == Status)
 			{			
 	//			HAL_Delay(300);	
@@ -120,7 +119,6 @@ void UserSend(void)
 				
 				if(SedId == SendBufsCounter - 1)
 				UpSeqCounter ++;
-				
 				break;
 			}
 			else if(LenError != Status)

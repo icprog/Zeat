@@ -84,7 +84,6 @@ void Rs485OpenPin(int index)
 		HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
 	}
 	HAL_GPIO_WritePin(GPIOB,pin << index ,GPIO_PIN_SET);
-	DEBUG(2,"Rs485OpenPin = %04x\r\n",pin << index);
 }
 
 
@@ -99,7 +98,6 @@ void Rs485ClsoePin(void)
 	for(int i = 0 ; i < 2 ; i ++)
 	{			
      HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
-		 DEBUG(2,"Rs485ClsoePin = %04x\r\n",pin << i);
   }
 }
 
