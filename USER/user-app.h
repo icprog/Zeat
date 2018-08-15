@@ -20,6 +20,8 @@
 
 #define GPSEXIST					0x31
 
+#define ACKCOM						0x9F
+
 typedef enum cmd_s
 {
 	MAC = 0,
@@ -43,7 +45,9 @@ typedef struct d_UserZeta
 
 typedef struct f_User
 {
-	uint16_t SleepTime;
+	uint8_t 	BatState;
+	uint16_t 	SleepTime;
+	bool 			Ack;
 }User_t;
 
 extern UserZeta_t UserZetaCheck[];
@@ -52,9 +56,15 @@ extern uint8_t DeviceInfo[4];
 
 extern volatile uint16_t	UpSeqCounter;
 
+extern User_t User;
+
 void UserInit(void);
 
-void UserSend(void);
+void UserSend(Zeta_t *SendBuf, uint8_t SedId);
+
+void UserSendSensor(void);
+
+void UserDownCommand(void);
 
 void UserCheckCmd(UserZeta_t *UserZetaCheckCmd);
 

@@ -122,5 +122,4 @@ ZetaHandle.Interrupt
 		SaveRs485s[id].MainBox.SensorToLen = 0; ///传感器总长度		
 		
 
-.\Objects\Zetav03.axf: Error: L6218E: Undefined symbol huart4 (referred from board.o).
-.\Objects\Zetav03.axf: Error: L6218E: Undefined symbol MX_USART4_UART_Init (referred from rs485.o).
+09 07 18 30 00 00 00 02

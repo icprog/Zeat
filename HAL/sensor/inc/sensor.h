@@ -296,8 +296,6 @@ uint8_t OpenExpenBox(uint8_t ExpId);
 
 void RS485CmdPackage(char mode);
 
-void memcpy1( uint8_t *dst, const uint8_t *src, uint16_t size );
-
 #ifdef __cplusplus
 }
 #endif

@@ -79,7 +79,7 @@ void Rs485PinInit(void)
 void Rs485OpenPin(int index)
 {
 	uint16_t pin =  RS485PIN_0;
-	for(uint8_t i = 0 ; i < 2 ; i ++)
+	for(uint8_t i = 0 ; i < 3 ; i ++)
 	{			
 		HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
 	}
@@ -94,8 +94,8 @@ void Rs485OpenPin(int index)
  */
 void Rs485ClsoePin(void)
 {
-	uint16_t pin = GPIO_PIN_0;
-	for(int i = 0 ; i < 2 ; i ++)
+	uint16_t pin = RS485PIN_0;
+	for(int i = 0 ; i < 3 ; i ++)
 	{			
      HAL_GPIO_WritePin(GPIOB,pin << i,GPIO_PIN_RESET);
   }
@@ -134,18 +134,15 @@ uint8_t Rs485GetData(uint8_t *data, uint8_t debuglevel)
 	uint8_t ch = 0;
 	uint8_t length = 0;
 	    
+	DEBUG(debuglevel,"----get data----");
+
 	while(FIFO_UartReadByte(&usart_rs485,&ch) == HAL_OK)	
 	{			
 		data[length] = ch;		
-		length++;
+		DEBUG(debuglevel,"%02X ",data[length]);	
+	  length++;
 	}
-	if(length>0)
-	{
-		DEBUG(debuglevel,"----get data----");
-		for(uint8_t i = 0; i< length; i++)
-		DEBUG(debuglevel,"%02X ",data[i]);
-		DEBUG(debuglevel,"\r\n");
-	}
+	DEBUG(debuglevel,"\r\n");
 	return length;
 }
 
@@ -160,6 +157,7 @@ uint8_t Rs485GetData(uint8_t *data, uint8_t debuglevel)
  */
 uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t time_out)
 {	
+		uint8_t temp[20] = 0;
     RS485_TO_TX();		 
     Rs485s.Crc16(sendData,len);
 		
@@ -169,8 +167,11 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
 //    for(int i = 0; i < len+2; i++)
 //    DEBUG(2,"%02X ",sendData[i]);
 //    DEBUG(2,"\r\n");
-    HAL_UART_Transmit(&huart5,sendData,len + 2,0xffff);				
+    HAL_UART_Transmit(&huart5,sendData,len + 2,0xffff);		
+	
     RS485_TO_RX(  );
+	
+	  memset(Rs485s.Revbuff, 0, 20);
 	
 		if(sendData[0] == 0xFD)
 		{
@@ -178,8 +179,10 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
 		}
 		else
     HAL_Delay(NBI_RS485_REV_TIME_OUT);
-    memset(Rs485s.Revbuff, 0, sizeof(Rs485s.Revbuff));
-    uint8_t length = Rs485s.GetData(Rs485s.Revbuff,debuglevel);
+						
+    uint8_t length = Rs485s.GetData(temp,debuglevel);
+		
+		memcpy1(Rs485s.Revbuff,temp,length);
     
     char crcH = Rs485s.Revbuff[length-1];
     char crcL = Rs485s.Revbuff[length-2];
@@ -234,6 +237,21 @@ uint16_t CalcCRC16(uint8_t *data, uint8_t len)
 		}
 	}
 	GET_CRC(&(data[len]), result);
+	
 	return result;
 }
 
+/*
+*memcpy1：	数据拷贝
+*dst：			拷贝目标
+*src:				拷贝源地址
+*size:			数据大小
+*返回：			无
+*/
+void memcpy1( uint8_t *dst, const uint8_t *src, uint16_t size )
+{
+	while( size-- )
+	{
+		*dst++ = *src++;
+	}
+}

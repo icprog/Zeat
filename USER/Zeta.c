@@ -12,11 +12,11 @@
 #include "usart.h"
 #include "Debug.h"
 
-Zeta_t 							ZetaRecviceBuf = {0, NULL, NULL, 0, Reset};
-Zeta_t 							ZetaSendBuf		 = {0, NULL, NULL, 0, Reset};
+Zeta_t 							ZetaRecviceBuf = {0, {0}, {0}, 0, Reset};
+Zeta_t 							ZetaSendBuf		 = {0, {0}, {0}, 0, Reset};
 ZetaTimer_t					ZetaTimer;
 const ZetaHandle_t 	ZetaHandle = {ZetaInit, ZetaPowerOn, ZetaPowerOff, WakeupZetaEnable, WakeupZetaDisable, \
-																	ZetaInterrupt, ZetaSend, ZetaRecv, CalcCRC8, ZetaStatus};
+																	ZetaInterrupt, ZetaSend, ZetaRecv, CalcCRC8, ZetaStatus, ZetaDownCommand};
 
 /*ZetaInit：初始化Zeta IO
 *参数：			无ZetaHandle.PowerOn
@@ -119,30 +119,33 @@ void ZetaInterrupt(void)
 *参数：					 	 下行数据
 *返回值：   		 	 无
 */
-uint16_t ZetaDownCommand(uint8_t *RevBuf)
+uint8_t ZetaDownCommand(uint8_t *RevBuf)
 {
-	uint16_t data = 0;
+	uint8_t state = 0xFF;
 	
 	switch( RevBuf[0] )
 	{
 		case 0xA2: ///修改采样周期
 			if( 0x00 == ZetaHandle.CRC8( RevBuf,4 ) )
 			{
+				uint16_t data = 0;
 				data |= RevBuf[1] << 4;
 				data |= RevBuf[2];
 				
-				////data write in flash
+			  User.SleepTime = data;
+			
+				////data write in flash			
+				state = FlashWrite16( SLEEP_ADDR, &User.SleepTime, 1 );
 			}
 			
-		free(RevBuf);
-
 		break;
 		
 		default:
 			break;
-	
 	}
-	return data;
+	
+	DEBUG_APP(2,"state = %02x\r\n",state);
+	return state;
 }
 
 
@@ -174,12 +177,19 @@ ZetaState_t ZetaRecv(void)
 	if( HAL_GetTick(  )-ZetaRecviceBuf.Uart_time > 20 && UART_RX_LPUART1.Rx_State) 
 	{
 		UART_RX_LPUART1.Rx_State = false;
-		ZetaRecviceBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*UART_RX_LPUART1.USART_RX_Len);///需要分配空间，否则赋值失败
-		ZetaRecviceBuf.RevBuf = (uint8_t*)malloc(sizeof(uint8_t)*UART_RX_LPUART1.USART_RX_Len-4);///需要分配空间，否则赋值失败
+		
 		memcpy1(ZetaRecviceBuf.Buf,UART_RX_LPUART1.USART_RX_BUF,UART_RX_LPUART1.USART_RX_Len);
 		ZetaRecviceBuf.Len = UART_RX_LPUART1.USART_RX_Len;
 		
+		for(uint8_t i = 0; i < ZetaRecviceBuf.Len; i++)
+		{
+			printf("%02x ",UART_RX_LPUART1.USART_RX_BUF[i]);
+		}
+		DEBUG(2,"\r\n");
+
+		
 		memset(UART_RX_LPUART1.USART_RX_BUF, 0, UART_RX_LPUART1.USART_RX_Len);
+		
 		UART_RX_LPUART1.USART_RX_Len = 0;
 		
 		DEBUG(2,"---ZetaRecviceBuf: ");
@@ -219,17 +229,14 @@ ZetaState_t ZetaRecv(void)
 		{
 			memcpy1(ZetaRecviceBuf.RevBuf, &ZetaRecviceBuf.Buf[4],ZetaRecviceBuf.Len-4);
 
-			for(uint8_t i = 4; i < ZetaRecviceBuf.Len; i++)
+			for(uint8_t i = 0; i < ZetaRecviceBuf.Len - 4; i++)
 			printf("%02x ",ZetaRecviceBuf.RevBuf[i]);
 			DEBUG(2,"\r\n");
 		}
-		
+
 		DEBUG(3,"States: %02x\r\n",ZetaRecviceBuf.States);
 		memset(ZetaRecviceBuf.Buf, 0, ZetaRecviceBuf.Len);
 		ZetaRecviceBuf.Len = 0;
-
-		free(ZetaRecviceBuf.Buf);
-
 	}
 		return ZetaRecviceBuf.States;
 }
@@ -260,3 +267,4 @@ uint8_t CalcCRC8(uint8_t *ptr, uint8_t len)
 	DEBUG_APP(2,"crc8 = %02X",crc);
 	return (crc); 
 }
+

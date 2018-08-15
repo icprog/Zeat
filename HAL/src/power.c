@@ -81,7 +81,6 @@ uint8_t CheckBattery(void)
 	return Battery;
 }
 
-uint8_t CheckBatState = 0x03;
 
 uint8_t ReadBattery(void)
 {
@@ -103,15 +102,15 @@ uint8_t ReadBattery(void)
 		 switch( (s2<<1) | s1 )
     {
         case 0x01:
-            CheckBatState = 0x01;
+						User.BatState = 0x01;
             DEBUG(2,"11充电完成\r\n");
 				break;
         case 0x02:
-            CheckBatState = 0x02;
+            User.BatState = 0x02;
             DEBUG(2,"11正在充电\r\n");
         break;
         default:
-            CheckBatState = 0x03;
+            User.BatState = 0x03;
             DEBUG(2,"11未充电\r\n");
 				break;
     }

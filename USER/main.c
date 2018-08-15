@@ -60,18 +60,36 @@ int main(void)
 	 UserCheckCmd(&UserZetaCheck[RSSI]);
 
 	 UserSetHeart(0x00);
-				
-//	 Sensors.QueryPinStaus(  );
+	
+	if(FlashRead16(SLEEP_ADDR)==0||FlashRead32(SLEEP_ADDR)==0xffff)
+	{
+			uint16_t time = 5;//默认300秒，加上发送过程大概20秒
+			FlashWrite16(SLEEP_ADDR,&time,1);
+	}
+
+//	uint8_t data[3] = {0xa2, 0x00, 0x01};		//0x11
+
+	 Sensors.QueryPinStaus(  );
 	 
    while (1)
    {		
-//		 Sensors.Handle(  );
+		 Sensors.Handle(  );
 		 
-//		 UserSend(  );
-//		 DEBUG(2,"test power\r\n");
-////		 SetRtcAlarm(60);///4S误差	  
-////		 UserIntoLowPower(  );		
-//			HAL_Delay(20000);
+		 UserSendSensor(  );
+		 DEBUG(2,"test power\r\n");
+		 
+		 User.SleepTime =	FlashRead16(SLEEP_ADDR);
+//		 SetRtcAlarm(20);///4S误差	  (User.SleepTime*60)
+//		 UserIntoLowPower(  );		
+			HAL_Delay(20000);
+		  
+		 if( User.Ack )
+		 {
+				User.Ack = false;
+			  UserDownCommand(  );
+		 }
+		 	HAL_Delay(10000);
+		 
 	 }
 	 
 }

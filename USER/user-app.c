@@ -25,6 +25,8 @@ UserZeta_t UserZetaCheck[] = {
 	{0x13, 1000, Payload}, ///查询网络质量
 };
 
+User_t User = {0, 0, false};
+
 uint8_t DeviceInfo[4] = {0};
 
 /*UserInit：	用户调用初始化
@@ -50,14 +52,58 @@ void UserInit(void)
 *参数：			无
 *返回值：   无
 */
-void UserSend(void)
+void UserSend(Zeta_t *SendBuf, uint8_t SedId)
 {
-	//获取传感器数据
-	
-	//发送数据
-	
-	ZetaSendBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*49);
-	
+	for(uint8_t i = 0; i < 3; i++)
+	{
+		
+		DEBUG(2,"start send data\r\n");
+		
+		for(uint8_t j = 0; j<SendBuf->Len; j++)
+		DEBUG(2,"%02X ",SendBuf->Buf[j]);
+		DEBUG(2,"\r\n");
+		
+		ZetaHandle.Send(SendBuf);
+		
+		HAL_Delay(100);
+		ZetaState_t  Status = ZetaHandle.Recv(  );
+		
+		uint32_t overtime = HAL_GetTick(  );
+		while((DataAck != Status) && (HAL_GetTick(  ) - overtime < 200));
+					
+		if(DataAck == Status)
+		{			
+//			HAL_Delay(300);	
+//			UserCheckCmd(&UserZetaCheck[NETIME]); ///结合外部flash使用
+			
+			if(SedId == SendBufsCounter - 1)
+			UpSeqCounter ++;
+			break;
+		}
+		else if(LenError != Status)
+		{
+			if(Unregistered == Status)
+			{
+				DEBUG(2,"---Writing registered---\r\n");
+				i = 1;
+				HAL_Delay(5000);
+			}
+			else
+			HAL_Delay(300);	
+		}
+		else
+			break;			
+	}
+}
+
+
+/*UserSendSensor：用户调用Zeta发送传感器数据
+*						
+*参数：						无
+*返回值：   			无
+*/
+void UserSendSensor(void)
+{	
 	ZetaSendBuf.Buf[0] = 0xff;
 	ZetaSendBuf.Buf[1] = 0x00;
 	
@@ -67,12 +113,12 @@ void UserSend(void)
 	
 	/********************设备ID*****************/
 	memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
-	
-	SendBufsCounter = 1;
-			
+				
 	for(uint8_t SedId = 0; SedId <= SendBufsCounter - 1; SedId++)
 	{
 		memcpy1(&ZetaSendBuf.Buf[9], SendBufs[SedId].Buf, SendBufs[SedId].Len); ///payload
+		
+		ZetaSendBuf.Buf[4] |= User.BatState;
 				
 		ZetaSendBuf.Buf[9] += 1; 
 		
@@ -90,57 +136,17 @@ void UserSend(void)
 	
 		ZetaSendBuf.Buf[2] = 0x09 + SendBufs[SedId].Len; /// +sensor_len
 		ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
+		
+		UserSend(&ZetaSendBuf, SedId);
 						
-		for(uint8_t i = 0; i < 3; i++)
-		{
-			
-			DEBUG(2,"start send data\r\n");
-			
-			for(uint8_t j = 0; j<ZetaSendBuf.Len; j++)
-			DEBUG(2,"%02X ",ZetaSendBuf.Buf[j]);
-			DEBUG(2,"\r\n");
-			
-			ZetaHandle.Send(&ZetaSendBuf);
-			
-			/********************缓存清除*******************/
-			memset(&ZetaSendBuf.Buf[9], 0, ZetaSendBuf.Len);
-			SendBufs[SedId].Len = 0;
-			
-			HAL_Delay(100);
-			ZetaState_t  Status = ZetaHandle.Recv(  );
-			
-			uint32_t overtime = HAL_GetTick(  );
-			while((DataAck != Status) && (HAL_GetTick(  ) - overtime < 200));
-						
-			if(DataAck == Status)
-			{			
-	//			HAL_Delay(300);	
-	//			UserCheckCmd(&UserZetaCheck[NETIME]); ///结合外部flash使用
-				
-				if(SedId == SendBufsCounter - 1)
-				UpSeqCounter ++;
-				break;
-			}
-			else if(LenError != Status)
-			{
-				if(Unregistered == Status)
-				{
-					DEBUG(2,"---Writing registered---\r\n");
-					i = 1;
-					HAL_Delay(5000);
-				}
-				else
-				HAL_Delay(300);	
-			}
-			else
-				break;			
-		}
+		/********************缓存清除*******************/
+		memset(&ZetaSendBuf.Buf[9], 0, ZetaSendBuf.Len);
+		SendBufs[SedId].Len = 0; ///payload清零		
+		
 		HAL_Delay(300);	
 	}
-	
-	free(ZetaSendBuf.Buf);
-}
 
+}
 
 /*UserSendGps：发送GPS位置信息
 *参数：			   无
@@ -149,9 +155,7 @@ void UserSend(void)
 void UserSendGps(void)
 {
 	uint8_t len= 0;
-	
-	ZetaSendBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*49);
-	
+		
 	ZetaSendBuf.Buf[0] = 0xff;
 	ZetaSendBuf.Buf[1] = 0x00;
 	
@@ -164,6 +168,8 @@ void UserSendGps(void)
 	
 	memcpy1(&ZetaSendBuf.Buf[9], &SetGpsAck.PationBuf[0], 11); 
 	
+	ZetaSendBuf.Buf[4] |= User.BatState;
+
 	memset(SetGpsAck.PationBuf, 0, 11);
 	
 //	Gps.GetPosition(&ZetaSendBuf.Buf[9]);
@@ -179,53 +185,72 @@ void UserSendGps(void)
 	ZetaSendBuf.Buf[9 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[9],len); ///CRC
 
   len ++;
-	
+		
 	ZetaSendBuf.Buf[2] = 0x09 + len; /// +sensor_len
 	ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
 	///UpSeqCounter ++;
 	
-	for(uint8_t i = 0; i < 3; i++)
-	{
-		
-		DEBUG(2,"start send data\r\n");
-		
-		for(uint8_t j = 0; j<ZetaSendBuf.Len; j++)
-		DEBUG(2,"%02X ",ZetaSendBuf.Buf[j]);
-		DEBUG(2,"\r\n");
-		
-		ZetaHandle.Send(&ZetaSendBuf);
-				
-		HAL_Delay(100);
-		ZetaState_t  Status = ZetaHandle.Recv(  );
-		
-		uint32_t overtime = HAL_GetTick(  );
-		while((DataAck != Status) && (HAL_GetTick(  ) - overtime < 200));
-		
-		if(DataAck == Status)
-		{			
-//			HAL_Delay(300);	
-//			UserCheckCmd(&UserZetaCheck[NETIME]); ///结合外部flash使用
-			UpSeqCounter ++;
-			
-			break;
-		}
-		else if(LenError != Status)
-		{
-			if(Unregistered == Status)
-			{
-				DEBUG(2,"---Writing registered---\r\n");
-				HAL_Delay(40000);
-			}
-			else
-			HAL_Delay(300);	
-		}
-		else
-			break;			
-	}
+	SendBufsCounter  = 1;
+	UserSend(&ZetaSendBuf, 0);
 	
-	free(ZetaSendBuf.Buf);
+	/********************缓存清除*******************/
+	memset(&ZetaSendBuf.Buf[9], 0, ZetaSendBuf.Len);
+	
+	SendBufsCounter = 0;
 }
 
+void UserDownCommand(void)
+{
+	uint8_t DoneState = 0;
+	uint8_t len= 0;
+
+  DoneState = ZetaHandle.DownCommand(ZetaRecviceBuf.RevBuf);
+	
+	ZetaSendBuf.Buf[0] = 0xff;
+	ZetaSendBuf.Buf[1] = 0x00;
+	
+	ZetaSendBuf.Buf[3] = 0x02;
+	
+	ZetaSendBuf.Buf[4] = (VERSIOS << 4); ///|充电状态
+	
+	/********************设备ID*****************/
+	memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
+	
+	ZetaSendBuf.Buf[9] = ReadBattery(  );
+	
+	ZetaSendBuf.Buf[4] |= User.BatState;
+	
+	SendBufsCounter  = 1;
+
+	if(0x01 == DoneState)
+	{
+		ZetaSendBuf.Buf[9 + len++] = ACKCOM;
+		ZetaSendBuf.Buf[9 + len++] = 0x01;
+		ZetaSendBuf.Buf[9 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[9 + len],len); ///CRC
+		
+		len++;
+		
+		ZetaSendBuf.Len = 0x09+len;
+		
+		ZetaSendBuf.Buf[2] = 0x09+len;
+		UserSend(&ZetaSendBuf, 0);
+	}
+	else if(0x00 == DoneState)
+	{
+		ZetaSendBuf.Buf[9 + len++] = ACKCOM;
+		ZetaSendBuf.Buf[9 + len++] = 0x02;
+		ZetaSendBuf.Buf[9 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[9 + len],len); ///CRC
+		
+		len++;	
+		ZetaSendBuf.Len = 0x09+len;
+		
+		UserSend(&ZetaSendBuf, 0);
+	}
+	memset(&ZetaSendBuf.Buf[9], 0, ZetaSendBuf.Len);
+	memset(ZetaRecviceBuf.RevBuf, 0, strlen(ZetaRecviceBuf.RevBuf)); 
+	SendBufsCounter = 0;
+
+}
 
 /*UserCheckCmd：用户查询Zeta：服务器查询下发
 *参数：					UserZetaCheckCmd：查询命令
@@ -234,9 +259,7 @@ void UserSendGps(void)
 void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 {	
 	uint8_t temp[3] = {0xff, 0x00, 0x04};
-	
-	ZetaSendBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*4);
-	
+		
 	memcpy(&ZetaSendBuf.Buf[0],&temp[0],3);
 	
 	ZetaSendBuf.Buf[3] = UserZetaCheckCmd->Cmd;
@@ -276,7 +299,6 @@ void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 	
 	memset(ZetaSendBuf.Buf, 0, ZetaSendBuf.Len);
 	memset(ZetaRecviceBuf.Buf, 0, ZetaRecviceBuf.Len);
-	free(ZetaSendBuf.Buf);   
 }
 
 /*UserSetHeart：用户设置Zeta心跳
@@ -286,9 +308,7 @@ void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 void UserSetHeart(uint8_t mode)
 {	
 	uint8_t temp[4] = {0xff, 0x00, 0x05, 0x22};
-	
-	ZetaSendBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*5);
-	
+		
 	memcpy(&ZetaSendBuf.Buf[0],&temp[0],4);
 	
 	ZetaSendBuf.Buf[4] = mode;
@@ -319,7 +339,6 @@ void UserSetHeart(uint8_t mode)
 	
 	memset(ZetaSendBuf.Buf, 0, ZetaSendBuf.Len);
 	memset(ZetaRecviceBuf.Buf, 0, ZetaRecviceBuf.Len);
-	free(ZetaSendBuf.Buf);   
 }
 
 /*UserSetTimer：设置Zeta定时器时间
@@ -330,7 +349,6 @@ void UserSetTimer(ZetaTimer_t Timer)
 {
 	uint8_t temp[4] = {0xff, 0x00, 0x0f, 0x20};
 	
-	ZetaSendBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*15);
 	
 	memcpy(ZetaSendBuf.Buf,temp,4);
 	
@@ -354,7 +372,6 @@ void UserSetTimer(ZetaTimer_t Timer)
 	
 	memset(ZetaSendBuf.Buf, 0, ZetaSendBuf.Len);
 	memset(ZetaRecviceBuf.Buf, 0, ZetaRecviceBuf.Len);
-	free(ZetaSendBuf.Buf);
 }
 
 /*UserCloseTimer：关闭Zeta定时器
@@ -365,8 +382,6 @@ void UserCloseTimer(ZetaTimer_t Timer)
 {
 	uint8_t temp[4] = {0xff, 0x00, 0x05, 0x21};
 	
-	ZetaSendBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*5);
-
 	memcpy(ZetaSendBuf.Buf,temp,4);
 	
 	ZetaSendBuf.Buf[4] = Timer.TimerID;
@@ -389,7 +404,6 @@ void UserCloseTimer(ZetaTimer_t Timer)
 	
 	memset(ZetaSendBuf.Buf, 0, ZetaSendBuf.Len);
 	memset(ZetaRecviceBuf.Buf, 0, ZetaRecviceBuf.Len);
-	free(ZetaSendBuf.Buf);
 }
 
 /*
@@ -435,6 +449,11 @@ void UserGetAddID(void)
 	
 	DeviceInfo[2] = DevTemp[6];
 	DeviceInfo[3] = DevTemp[7];
+	
+	for(uint8_t i = 0; i < 8; i++)
+	DEBUG(2,"%02x ",DevTemp[i]);
+	DEBUG(2,"\r\n");
+
 	
 	DEBUG(2,"DEV: ");
 	for(uint8_t i = 0; i < 4; i++)

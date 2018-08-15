@@ -34,7 +34,7 @@ CheckRs485_t CheckRs485s[] = {
 	{0x13, 0x13,				0x0000, 		0x0002,  				6,					9, 		RS485_IDE_LEN+4,		200*1,		"" ,			"" ,		"Water-EC"},  ///水EC
 	{0x14, 0x14,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		200*1,		"" ,			"" ,		"Water-T" },  ///水温
 	{0x15, 0x15,				0x0000, 		0x0002,  				6,					7, 		RS485_IDE_LEN+2,		200*1,		"" ,			"" ,		"Water-K+"},	///水钾+
-	{0xFD, 0x18,				0x0000, 		0x0004,  				6,				 13, 		RS485_IDE_LEN+8,		500*1,	  "" ,			"" ,		"Air-Ill" },	///空气温湿度、光照
+	{0xFD, 0x18,				0x0000, 		0x0004,  				6,				 13, 		RS485_IDE_LEN+8,		1000*1.3,	  "" ,		"" ,		"Air-Ill" },	///空气温湿度、光照
 };
 
 SaveRs485_t  SaveRs485s[3];
@@ -204,7 +204,7 @@ void SensorDataProces(void)
 				SendBufs[SendBufsCounter].Buf[0] = SendBufsCounter;
 				
 				/********************电量*****************/
-				SendBufs[SendBufsCounter].Buf[1] = CheckBattery(  );
+				SendBufs[SendBufsCounter].Buf[1] = ReadBattery(  );
 				
 				/********************传感器个数*****************/
 				SendBufs[SendBufsCounter].Buf[2] = Index/2;
@@ -273,11 +273,12 @@ void SensorDataProces(void)
 					}
 					else
 					{					
+						
 						/********************分包第几帧*****************/
 						SendBufs[SendBufsCounter].Buf[0] = SendBufsCounter;
 						
 						/********************电量*****************/
-						SendBufs[SendBufsCounter].Buf[1] = CheckBattery(  );
+						SendBufs[SendBufsCounter].Buf[1] = ReadBattery(  );
 						
 						/********************传感器个数*****************/
 						SendBufs[SendBufsCounter].Buf[2] = Index/2;
@@ -329,7 +330,7 @@ void SensorDataProces(void)
 		SendBufs[SendBufsCounter].Buf[0] = SendBufsCounter;
 		
 		/********************电量*****************/
-		SendBufs[SendBufsCounter].Buf[1] = CheckBattery(  );
+		SendBufs[SendBufsCounter].Buf[1] = ReadBattery(  );
 		
 		/********************传感器个数*****************/
 		SendBufs[SendBufsCounter].Buf[2] = Index/2;
@@ -745,18 +746,24 @@ HAL_StatusTypeDef SensorExpenData(uint8_t index)
 
 	for(Exid = 0; Exid < 5; Exid++)
 	{
-		ex_box ++;
 		/***********************判断对应485接口是否接入传感器***********************************/
 		if( SaveRs485s[index].MainBox.ExpendBox[Exid].ExpenCheck ) 
-		{			
+		{					
+			ex_box ++;
 			/***********************打开扩展盒接口状态***********************************/
 			if(CheckRs485s[EXPENDBOX].RevDataLen != OpenExpenBox(Exid))
 			{
-				HAL_Delay(100);		
+				
+				DEBUG_ERROR(2,"111main port = %d, exbox port=%d RevDataLen = %d sensor open faile",main_box,ex_box,CheckRs485s[EXPENDBOX].RevDataLen);	
+				HAL_Delay(200);		
 
 				if(CheckRs485s[EXPENDBOX].RevDataLen != OpenExpenBox(Exid))
 				{
-					DEBUG_ERROR(2,"main port = %d, exbox port=%d sensor open faile",main_box,ex_box);			
+					
+					DEBUG_ERROR(2,"222main port = %d, exbox port=%d sensor open faile",main_box,ex_box);	
+					
+					Sensors.Counter ++;
+					SaveRs485s[index].MainBox.ExpendBox[Exid].SensorToLen = 0;					
 					continue;
 				}
 			}
@@ -784,8 +791,7 @@ HAL_StatusTypeDef SensorExpenData(uint8_t index)
 			else
 			{
 				Sensors.Counter ++;
-				
-				SaveRs485s[index].MainBox.ExpendBox[Exid].SensorToLen = CheckRs485s[SaveRs485s[index].MainBox.CheckIndex].SensorToLen;
+				SaveRs485s[index].MainBox.ExpendBox[Exid].SensorToLen = CheckRs485s[SaveRs485s[index].MainBox.ExpendBox[Exid].CheckIndex].SensorToLen;
 			
 				memset(SaveRs485s[index].MainBox.ExpendBox[Exid].DataBuff,0,len);
 				memcpy1(SaveRs485s[index].MainBox.ExpendBox[Exid].DataBuff,Rs485s.Revbuff,len);
@@ -806,7 +812,7 @@ HAL_StatusTypeDef SensorExpenData(uint8_t index)
 	
 	//关闭 扩展盒
 	OpenExpendBoxbuff[5] = 0x00;
-	len = Rs485s.Cmd(OpenExpendBoxbuff,7, NODEBUG, 100);		
+	len = Rs485s.Cmd(OpenExpendBoxbuff,7, 2, 100);		//NODEBUG
 	if(len == 0)
 	{
 		DEBUG_ERROR(2,"close expend box falie");		
@@ -838,8 +844,9 @@ uint8_t OpenExpenBox(uint8_t ExpId)
 		temp = ExpId;				
 	}
 	OpenExpendBoxbuff[5] = 0x01 << temp;
-	len = Rs485s.Cmd(OpenExpendBoxbuff,7, NODEBUG, 100);
+	len = Rs485s.Cmd(OpenExpendBoxbuff,7, 2, 100); //NODEBUG
 
+	DEBUG_APP(2,"len %d",len);
 	return len;
 }
 
@@ -867,17 +874,4 @@ void RS485CmdPackage(char mode)
 	}
 }
 
-/*
-*memcpy1：	数据拷贝
-*dst：			拷贝目标
-*src:				拷贝源地址
-*size:			数据大小
-*返回：			无
-*/
-void memcpy1( uint8_t *dst, const uint8_t *src, uint16_t size )
-{
-	while( size-- )
-	{
-		*dst++ = *src++;
-	}
-}
+
