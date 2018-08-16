@@ -62,11 +62,11 @@ void BoardInitMcu( void )
 //	MX_WWDG_Init(  );
 //	WWDG_NVIC_Init(  );
 			
-//	TimerHwInit(  );
-	
-	UserInit(  );
-	
+	TimerHwInit(  );
+		
 	SensorsInit(  );
+	
+	ZetaHandle.Init(  );
 	
 	ZetaHandle.PowerOn(  );
 }
