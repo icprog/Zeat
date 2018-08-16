@@ -2603,6 +2603,16 @@
               <FileType>1</FileType>
               <FilePath>..\HAL\src\timer-board.c</FilePath>
             </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HAL\src\spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_spi_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HAL\src\user_spi_flash.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
