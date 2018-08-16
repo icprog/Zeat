@@ -25,8 +25,8 @@ CheckRs485_t CheckRs485s[] = {
 	{0x06, 0x06,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		500*1,		"" ,			"" ,		"ST_GH"		},	///光合有效
 	{0x07, 0x07,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		"ST_Y/MW"	},  ///叶面温度
 	{0x08, 0x08,				0x0001, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		"ST_YMS"	},  ///叶面湿度
-	{0x0C, 0x03,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		200*1,		"" ,			"" ,		"ST-TW"		},  ///土壤温度
 	{0x0D, 0x0D,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		"ST-EC"		},  ///EC
+	{0x0C, 0x03,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		200*1,		"" ,			"" ,		"ST-TW"		},  ///土壤温度
 	{0x0E, 0x0E,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*10,	"" ,			"" ,		"ST_CO2"	},	///CO2				
 //	{0x0F, 0x24,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		"ST_AP"		},///气象站：大气压				
 	{0x11, 0x11,				0x0000, 		0x0001,  				6,					9, 		RS485_IDE_LEN+4,		200*1,	  "" ,			"" ,		"OXY"			},  ///水溶氧 1000*120
@@ -488,7 +488,7 @@ Rstype_t SensorQueryType(int PortId)
 		uint32_t startTime = HAL_GetTick();
 
 //		for(int i = 0 ; i < ARRAY(CheckRs485s) ; i ++)
-		for(int i = 4 ; i < 6 ; i ++) ///只查询叶面传感器
+		for(int i = 4 ; i < 7 ; i ++) ///只查询叶面传感器
 		{			
 			len = Rs485s.Cmd(CheckRs485s[i].SendBuff, CheckRs485s[i].SendDataLen, NODEBUG, CheckRs485s[i].TimeOut);
 			while(HAL_GetTick() - startTime < CheckRs485s[i].TimeOut && len != CheckRs485s[i].RevDataLen)
@@ -631,7 +631,7 @@ HAL_StatusTypeDef SensorExpBoxAddr(int index)
 				int i;
 				
 //				for( i = 0 ; i < ARRAY(CheckRs485s) ; i ++)
-				for(int i = 4 ; i < 6 ; i ++) ///只查询叶面传感器
+				for(int i = 4 ; i < 7 ; i ++) ///只查询叶面传感器
 				{
 					len = Rs485s.Cmd(CheckRs485s[i].SendBuff,CheckRs485s[i].SendDataLen, NODEBUG, CheckRs485s[i].TimeOut);
 				
@@ -812,7 +812,7 @@ HAL_StatusTypeDef SensorExpenData(uint8_t index)
 	
 	//关闭 扩展盒
 	OpenExpendBoxbuff[5] = 0x00;
-	len = Rs485s.Cmd(OpenExpendBoxbuff,7, 2, 100);		//NODEBUG
+	len = Rs485s.Cmd(OpenExpendBoxbuff,7, NODEBUG, 100);		
 	if(len == 0)
 	{
 		DEBUG_ERROR(2,"close expend box falie");		
@@ -844,9 +844,8 @@ uint8_t OpenExpenBox(uint8_t ExpId)
 		temp = ExpId;				
 	}
 	OpenExpendBoxbuff[5] = 0x01 << temp;
-	len = Rs485s.Cmd(OpenExpendBoxbuff,7, 2, 100); //NODEBUG
+	len = Rs485s.Cmd(OpenExpendBoxbuff,7, NODEBUG, 100); 
 
-	DEBUG_APP(2,"len %d",len);
 	return len;
 }
 

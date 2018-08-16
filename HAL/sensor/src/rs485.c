@@ -157,7 +157,7 @@ uint8_t Rs485GetData(uint8_t *data, uint8_t debuglevel)
  */
 uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t time_out)
 {	
-		uint8_t temp[20] = 0;
+		uint8_t temp[20] = {0};
     RS485_TO_TX();		 
     Rs485s.Crc16(sendData,len);
 		

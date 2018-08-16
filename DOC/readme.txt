@@ -48,78 +48,25 @@ I2C							|					  		|
 
 
 
-1：实现下发更改参数功能：具备唤醒MCU
+版本说明：
+【1】：ZETA-V0.7
+优化功能：
+【1】：增加GPS定位
+【2】：增加Zeta下行更改上报周期跟GPS重新定位命令
 
-2：周期上报数据
+【1】：ZETA-V0.6
 
-3：第一次上电获取是否注册：0xff 0x00 0x04 0x43：没注册
-
-.\Objects\watcherPRO_V2.2: Error: L6200E: Symbol UserZetaData multiply defined (by power.o and usart.o).
-
-
-ff 00 0e 02 68 65 6c 6c 6f 77 6f 72 6c 64
-
-
-
-
-
-尊敬的管理员：
-??? 您好！
-??? 登录信息已经变更如下：
-??? 用户名：nbcx
-??? 密码：ca722db37e1a10f6
-
-??? 您可在登录后，于页面的右上角进行密码修改,为了您的账号安全,请勿使用过于简单的密码。
-
-??? 为了您更好的使用体验，我们推荐您使用Google Chrome浏览器
-
-??? 信息管理系统地址:?http://www.zeta-alliance.com:25450/teamcms/homePage
+优化功能：
+【1】：实现基本通讯
+【2】：增加Zeta下行数据脉冲触发
+【3】：增加主控休眠机制
+【4】：增加Zeta下行数据INT触发MCU
+【5】：增加RTC休眠唤醒
+【6】：增加Rs485读取数据
+【7】：解决Rs485打开扩展盒第一口时接收到多一个0x00数据，Sensors.QueryPinStaus中调用Rs485s.GetData：
+	   导致串口接收到多一个0x00
+【8】：增加WWDG窗口看门狗
+【9】：增加Timer
+【10】：增加传感器异常过滤机制，使用SensorToLen是否为0判断传感器是否异常
 
 
-
-unsigned char crc_high_first(unsigned char *ptr, unsigned char len)
-{
-    unsigned char i; 
-    unsigned char crc=0x00； /* 计算的初始crc值 */ 
-
-    while(len--)
-    {
-        crc ^= *ptr++;  /* 每次先与需要计算的数据异或,计算完指向下一数据 */  
-        for (i=8; i>0; --i)   /* 下面这段计算过程与计算一个字节crc一样 */  
-        { 
-            if (crc & 0x80)
-                crc = (crc << 1) ^ 0x31;
-            else
-                crc = (crc << 1);
-        }
-    }
-
-    return (crc); 
-}
-
-
-Program Size: Code=70778 RO-data=3770 RW-data=2640 ZI-data=6984  
-
-Program Size: Code=22556 RO-data=1712 RW-data=1468 ZI-data=6836 
-
-Program Size: Code=25316 RO-data=1408 RW-data=2376 ZI-data=7208  
-
-Program Size: Code=72574 RO-data=2282 RW-data=836 ZI-data=6140  
-
-Program Size: Code=20212 RO-data=340 RW-data=116 ZI-data=3172  
-
-SaveRs485s[index].MainBox.ExpendBox[ExpId].ExpenCheck
-
-	Sensors.MaBoxData 			= SensorMaBoxData;
-	
-0907183000000001 ///0730 0001  30: Zeta  31:Zeta+GPS	
-
-Program Size: Code=31544 RO-data=2412 RW-data=1532 ZI-data=7244  
-
-
-ZetaHandle.Interrupt
-
-		SaveRs485s[id].MainBox.SensorToLen = 0; ///传感器总长度		
-		
-
-09 07 18 30 00 00 00 02

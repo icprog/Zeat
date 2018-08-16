@@ -58,9 +58,11 @@ extern volatile uint16_t	UpSeqCounter;
 
 extern User_t User;
 
-void UserInit(void);
+void UserCheckSensors(void);
 
-void UserSend(Zeta_t *SendBuf, uint8_t SedId);
+void UserSend(Zeta_t *SendBuf);
+
+void UserSendGps(uint8_t *GpsBuf);
 
 void UserSendSensor(void);
 

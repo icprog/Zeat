@@ -139,12 +139,19 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 			}
 			
 		break;
+			
+		case 0xA3: ///重新上报GPS位置信息
+			if( 0x00 == ZetaHandle.CRC8( RevBuf,2 ) )
+			{
+				HAL_TIM_Base_Start_IT(&htim2);
+				SetGpsAck.GetPationAgain = true;
+			}
+		break;
 		
 		default:
 			break;
 	}
 	
-	DEBUG_APP(2,"state = %02x\r\n",state);
 	return state;
 }
 
@@ -263,8 +270,6 @@ uint8_t CalcCRC8(uint8_t *ptr, uint8_t len)
 			crc = (crc << 1);
 		}
 	}
-	
-	DEBUG_APP(2,"crc8 = %02X",crc);
 	return (crc); 
 }
 

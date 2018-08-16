@@ -157,10 +157,11 @@ void TIM2_IRQHandler(void)
 	
 	if(Timer2_Counter>1000)
 	{
-		DEBUG(2,"%s\r\n",__func__);
+		DEBUG(3,"%s\r\n",__func__);
 		Gps.GetPosition( SetGpsAck.PationBuf );
 		Timer2_Counter = 0;
 	}
+		
   /* USER CODE END TIM2_IRQn 1 */
 }
 
