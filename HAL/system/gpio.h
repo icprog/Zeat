@@ -54,11 +54,11 @@
 #define OUT_CH_CE_GPIO_Port					GPIOB
 #define	OUT_CH_CE_Pin								GPIO_PIN_9
 
-#define IN_CH_STAT1_Pin							GPIO_PIN_8
-#define IN_CH_STAT2_Pin							GPIO_PIN_7
+#define IN_CH_STAT1_Pin							GPIO_PIN_7
+#define IN_CH_STAT2_Pin							GPIO_PIN_6
 #define IN_CH_PG_Pin								GPIO_PIN_8
 
-/***********************F;ASH IO≈‰÷√***************************/
+/***********************FLASH IO≈‰÷√***************************/
 #define FLASH_SPI_CS_PORT           GPIOA
 #define FLASH_SPI_CS_PIN            GPIO_PIN_8
 

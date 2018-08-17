@@ -125,7 +125,7 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 	
 	switch( RevBuf[0] )
 	{
-		case 0xA2: ///修改采样周期
+		case 0xA0: ///修改采样周期
 			if( 0x00 == ZetaHandle.CRC8( RevBuf,4 ) )
 			{
 				uint16_t data = 0;
@@ -140,11 +140,12 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 			
 		break;
 			
-		case 0xA3: ///重新上报GPS位置信息
-			if( 0x00 == ZetaHandle.CRC8( RevBuf,2 ) )
+		case 0xA1: ///重新上报GPS位置信息
+			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
 			{
 				HAL_TIM_Base_Start_IT(&htim2);
 				SetGpsAck.GetPationAgain = true;
+				state = 0x01;
 			}
 		break;
 		
@@ -270,6 +271,8 @@ uint8_t CalcCRC8(uint8_t *ptr, uint8_t len)
 			crc = (crc << 1);
 		}
 	}
+	
+	DEBUG_APP(3,"crc = %02x\r\n",crc);
 	return (crc); 
 }
 

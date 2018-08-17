@@ -33,6 +33,8 @@ void BatteryInit(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(OUT_CH_CE_GPIO_Port, &GPIO_InitStruct);
+	
+	BatEnableCharge(  );
 }
 
 /*

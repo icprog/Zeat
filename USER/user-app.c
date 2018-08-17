@@ -42,6 +42,8 @@ void UserCheckSensors(void)
 		HAL_TIM_Base_Start_IT(&htim2);
 
 		Gps.Init(  );
+		
+		DEBUG(2,"111TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
 		Gps.Set(  );
 	}
 	
@@ -77,9 +79,6 @@ void UserSend(Zeta_t *SendBuf)
 		{			
 //			HAL_Delay(300);	
 //			UserCheckCmd(&UserZetaCheck[NETIME]); ///结合外部flash使用
-			
-//			if(SedId == SendBufsCounter - 1)
-//			UpSeqCounter ++;
 			break;
 		}
 		else if(LenError != Status)
@@ -154,14 +153,18 @@ void UserSendSensor(void)
 }
 
 /*UserSendGps：发送GPS位置信息
-*参数：			   GPSbuf
+*参数：			   无
 *返回值：      无
 */
-void UserSendGps(uint8_t *GpsBuf)
+void UserSendGps(void)
 {
 	uint8_t len= 0;
+	uint32_t overtime  = 0;
 		
-	while(!SetGpsAck.GpsDone && (SetGpsAck.GetPation == PATIONNULL));
+	while( SetGpsAck.GetPation == PATIONNULL );
+	
+	overtime = HAL_GetTick();
+	while(!SetGpsAck.GpsDone && (HAL_GetTick()-overtime <3000));
 	if(SetGpsAck.GpsDone)
 	{
 		SetGpsAck.GpsDone = false;
@@ -175,28 +178,31 @@ void UserSendGps(uint8_t *GpsBuf)
 		/********************设备ID*****************/
 		memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
 		
-		ZetaSendBuf.Buf[9] = 0x01; //帧数
+		ZetaSendBuf.Buf[9] = 0x11; //帧数
+				
+		len += SetGpsAck.Len;
 		
-		memcpy1(&ZetaSendBuf.Buf[10], &SetGpsAck.PationBuf[0], 11); 
+		DEBUG_APP(2,"len = %02X ",len);
+		
+		memcpy1(&ZetaSendBuf.Buf[10], &SetGpsAck.PationBuf[0], len); 
 		
 		ZetaSendBuf.Buf[4] |= User.BatState;
 
 		memset(SetGpsAck.PationBuf, 0, 11);
 		
-		len += strlen((char *)ZetaSendBuf.Buf);
 		DEBUG(2,"ZetaSendBuf: ");
 		for(uint8_t i = 0; i < len; i++)
-		DEBUG(2,"%02X ",ZetaSendBuf.Buf[9+i]);
+		DEBUG(2,"%02X ",ZetaSendBuf.Buf[10+i]);
 		DEBUG(2,"\r\n");
 		
-		ZetaSendBuf.Buf[9 + len++] = (UpSeqCounter&0xff00)<<8; ///Seq
-		ZetaSendBuf.Buf[9 + len++] = (UpSeqCounter&0xff);
+		ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff00)<<8; ///Seq
+		ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff);
 		
-		ZetaSendBuf.Buf[9 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[9],len); ///CRC
+		ZetaSendBuf.Buf[10 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[10],len); ///CRC
 
 		len ++;
 			
-		ZetaSendBuf.Buf[2] = 0x09 + len; /// +sensor_len
+		ZetaSendBuf.Buf[2] = 0x0A + len; /// +sensor_len
 		ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
 		
 		UserSend(&ZetaSendBuf);
@@ -204,7 +210,7 @@ void UserSendGps(uint8_t *GpsBuf)
 		UpSeqCounter ++;
 		
 		/********************缓存清除*******************/
-		memset(&ZetaSendBuf.Buf[9], 0, ZetaSendBuf.Len);
+		memset(&ZetaSendBuf.Buf[10], 0, ZetaSendBuf.Len);
 		
 	}
 }
@@ -219,6 +225,8 @@ void UserDownCommand(void)
 	uint8_t len= 0;
 
   DoneState = ZetaHandle.DownCommand(ZetaRecviceBuf.RevBuf);
+	
+	DEBUG_APP(2,"DoneState = %d",DoneState);
 		
 	ZetaSendBuf.Buf[0] = 0xff;
 	ZetaSendBuf.Buf[1] = 0x00;
@@ -229,41 +237,49 @@ void UserDownCommand(void)
 
 	/********************设备ID*****************/
 	memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
-		
-	ZetaSendBuf.Buf[9] = ReadBattery(  );
 	
+	ZetaSendBuf.Buf[9] = 0x11;
+			
 	ZetaSendBuf.Buf[4] |= User.BatState;
 	
 	if(0x01 == DoneState)
 	{
-		ZetaSendBuf.Buf[9 + len++] = ACKCOM;
-		ZetaSendBuf.Buf[9 + len++] = 0x01;
-		ZetaSendBuf.Buf[9 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[9 + len],len); ///CRC
+		ZetaSendBuf.Buf[10 + len++] = ACKCOM;
+		ZetaSendBuf.Buf[10 + len++] = 0x01;
 		
+		ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff00)<<8; ///Seq
+		ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff);
+
+		ZetaSendBuf.Buf[10 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[10],len); ///CRC
+			
 		len++;
 		
-		ZetaSendBuf.Len = 0x09+len;
+		ZetaSendBuf.Len = 0x0A+len;
 		
-		ZetaSendBuf.Buf[2] = 0x09+len;
+		ZetaSendBuf.Buf[2] = 0x0A+len;
 		UserSend(&ZetaSendBuf);
 		
 		UpSeqCounter ++;
 	}
-	else if(0x00 == DoneState)
+	else if(0xff == DoneState)
 	{
-		ZetaSendBuf.Buf[9 + len++] = ACKCOM;
-		ZetaSendBuf.Buf[9 + len++] = 0x02;
-		ZetaSendBuf.Buf[9 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[9 + len],len); ///CRC
+		ZetaSendBuf.Buf[10 + len++] = ACKCOM;
+		ZetaSendBuf.Buf[10 + len++] = 0x02;
+		
+		ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff00)<<8; ///Seq
+		ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff);
+
+		ZetaSendBuf.Buf[10 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[10],len); ///CRC
 		
 		len++;	
-		ZetaSendBuf.Len = 0x09+len;
+		ZetaSendBuf.Len = 0x0A+len;
 		
 		UserSend(&ZetaSendBuf);
 		
 		UpSeqCounter ++;
 	}
-	memset(&ZetaSendBuf.Buf[9], 0, ZetaSendBuf.Len);
-	memset(ZetaRecviceBuf.RevBuf, 0, strlen(ZetaRecviceBuf.RevBuf)); 
+	memset(&ZetaSendBuf.Buf[10], 0, ZetaSendBuf.Len);
+	memset(ZetaRecviceBuf.RevBuf, 0, sizeof(ZetaRecviceBuf.RevBuf)/sizeof(ZetaRecviceBuf.RevBuf[0])); 
 }
 
 /*UserCheckCmd：用户查询Zeta：服务器查询下发

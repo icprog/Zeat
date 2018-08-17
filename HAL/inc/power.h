@@ -18,6 +18,10 @@ uint8_t CheckBattery(void);
 
 uint8_t ReadBattery(void);
 
+void BatEnableCharge(void);
+
+void BatDisableCharge(void);
+
 #endif /* __POWER_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

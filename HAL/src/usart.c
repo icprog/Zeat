@@ -353,14 +353,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 				if(UART_RX_DATA2.USART_RX_BUF[UART_RX_DATA2.USART_RX_Len-6] == 'A')
 				{
-					DEBUG(2,"GPS_TIME11 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GetPationTime);
+					DEBUG(3,"GPS_TIME11 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GetPationTime);
 					SetGpsAck.PosfixCounter++;
 					
-					if(SetGpsAck.PosfixCounter>=30)
+					if(SetGpsAck.PosfixCounter>=20)
 					{
-							SetGpsAck.GetPation = PATIONDONE;
 							Gps.Disable(  );
 							SetGpsAck.PosfixCounter = 0;
+						  SetGpsAck.GetPation = PATIONDONE;
 					}
 					
 					memcpy(SetGpsAck.GLL, UART_RX_DATA2.USART_RX_BUF, UART_RX_DATA2.USART_RX_Len);

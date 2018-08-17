@@ -13,7 +13,7 @@
 #define MTK_POS_FIX			"$PMTK220,1000*1F\r\n" //  $PMTK220,3000*1D
 #define MTK_GLL					"$PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0*28\r\n"
 
-SetGpsAck_t SetGpsAck = {false, false, false, false, false, {0}, PATIONNULL, {0}, 0, 0, 0};
+SetGpsAck_t SetGpsAck = {false, false, false, false, false, {0}, PATIONNULL, 0, {0}, 0, 0, 0};
 
 const Gps_t Gps = {GpsInit, GpsEnable, GpsDisable, GpsSet, GpsGetPosition};
 
@@ -31,6 +31,8 @@ void GpsInit(void)
 	HAL_GPIO_Init(GPS_IO,&GPIO_Initure);
 	
 	MX_USART2_UART_Init(  ); 
+	
+	SetGpsAck.GetPationAgain = false;
 }
 
 void GpsEnable(void)
@@ -113,9 +115,8 @@ uint8_t GpsSet(void)
 void GpsGetPosition(uint8_t *GpsBuf)
 {	
 	uint8_t len = 0;
-	uint32_t temp[4] = {gpsx.latitude,gpsx.nshemi,gpsx.longitude,gpsx.ewhemi};
 	
-	GpsBuf[len++] = 0XA3; //GPS
+	GpsBuf[len++] = 0XFD; //GPS
 
 	if(SetGpsAck.GetPationAgain)  ///到达预计GPS上报时间，重新使能GPS模块
 	{
@@ -132,9 +133,12 @@ void GpsGetPosition(uint8_t *GpsBuf)
  
 	if(( SetGpsAck.GetPation == PATIONDONE )&& SetGpsAck.Posfix) ///判断是否有GPS、获取GPS信息  
 	{	        		 
+		NMEA_GPGLL_Analysis(&gpsx, (uint8_t *)SetGpsAck.GLL); ///经纬度  "$GPGLL,2233.1773,N,11356.7148,E,094100.210,A,A*5E\r\n"
+
 		DEBUG(3,"11---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude,gpsx.nshemi, (double)gpsx.longitude,gpsx.ewhemi);
 		DEBUG(2,"22---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude/100000,gpsx.nshemi, (double)gpsx.longitude/100000,gpsx.ewhemi);
-		
+		uint32_t temp[4] = {gpsx.latitude,gpsx.nshemi,gpsx.longitude,gpsx.ewhemi};
+
 		uint8_t i = 0;
 		
 		for(; len < GPSLEN; i++)
@@ -153,13 +157,12 @@ void GpsGetPosition(uint8_t *GpsBuf)
 		}					
 		SetGpsAck.GpsDone = true; ///GPS发送完成标记	 
 		gpsx.gpssta = 1;
-		
+		SetGpsAck.Len = len;
+
 		HAL_TIM_Base_Stop_IT(&htim2);
 	} 
-	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 80000) && SetGpsAck.Posfix )  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
- {
-		SetGpsAck.GetPation = PATIONFAIL;
-	 
+	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 30000) && SetGpsAck.Posfix && (SetGpsAck.GetPation == PATIONNULL))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
+ {	 
 		DEBUG(2,"GPS_TIME22 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GpsOverTime);
 		 
 		Gps.Disable(  ); ///关闭GPS
@@ -171,6 +174,10 @@ void GpsGetPosition(uint8_t *GpsBuf)
 		gpsx.gpssta = 0;	
 		
 		GpsBuf[len++] = 0x01;
+	 
+		SetGpsAck.Len = len;
+	 
+	 	SetGpsAck.GetPation = PATIONFAIL;
 		
 	  HAL_TIM_Base_Stop_IT(&htim2);
 	}

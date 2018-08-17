@@ -70,3 +70,21 @@ I2C							|					  		|
 【10】：增加传感器异常过滤机制，使用SensorToLen是否为0判断传感器是否异常
 
 
+
+
+strlen与sizeof区别
+sizeof是求数据类型所占的空间大小,而strlen是求字符串的长度，字符串以/0结尾
+
+
+
+Counter:0,GLL--$GPGLL,2233.0257,N,11356.5984,E,033621.000,A,A*5C
+$GPGLL,2233.0257,N,11356.5984,E,033621.000,A,A*5C
+App:..\HAL\sensor\src\gps.c,line : 134,GetPation = 1 Posfix = 1
+22---22.55042 N, 113.94331 E
+App:..\HAL\sensor\src\gps.c,line : 150,len = 6, N = 4e, C = N
+App:..\HAL\sensor\src\gps.c,line : 150,len = 11, N = 45, C = E
+App:..\USER\user-app.c,line : 185,len = 0B 
+ZetaSendBuf: FD 00 22 68 C2 4E 00 AD DD 1B 45 
+start send data
+FF 00 18 02 13 07 31 00 02 11 FD 00 22 68 C2 4E 00 AD DD 1B 45 00 02 F9 
+ff 00 04 01 

@@ -38,7 +38,7 @@ int main(void)
 	 UserCheckSensors(  );
 
    DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
-		
+			 	 		
 #if 1
 		
 	 UserCheckCmd(&UserZetaCheck[MAC]);
@@ -49,22 +49,31 @@ int main(void)
 
 	 UserSetHeart(0x00);
 	
-	if(FlashRead16(SLEEP_ADDR)==0||FlashRead32(SLEEP_ADDR)==0xffff)
+	 if(FlashRead16(SLEEP_ADDR)==0||FlashRead32(SLEEP_ADDR)==0xffff)
 	{
-			uint16_t time = 1;//默认300秒，加上发送过程大概20秒
-			FlashWrite16(SLEEP_ADDR,&time,1);
-	}
+		uint16_t time = 1;//默认300秒，加上发送过程大概20秒
+		FlashWrite16(SLEEP_ADDR,&time,1);
+	 }
+	
+	 uint8_t data[2] = {0xa1,0x00};
+	 uint8_t temp = ZetaHandle.CRC8( data,2 );  //0x0b
+	 
+	 DEBUG_APP(2,"temp = %02x",temp);
 	 
    while (1)
    {				 
 		 UserSendSensor(  );
 		 
 		 ////上报GPS信息
-		 UserSendGps( SetGpsAck.PationBuf );
+		 UserSendGps(  );  ///SetGpsAck.PationBuf
 		 
-		 User.SleepTime =	FlashRead16(SLEEP_ADDR);
-		 SetRtcAlarm(User.SleepTime*60);///4S误差	  (User.SleepTime*60)
-		 UserIntoLowPower(  );		
+		 if(SetGpsAck.GetPation != PATIONNULL)
+		 {
+			 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
+			 User.SleepTime =	FlashRead16(SLEEP_ADDR);
+			 SetRtcAlarm(User.SleepTime*60);///4S误差	  (User.SleepTime*60)
+			 UserIntoLowPower(  );
+		 }			 
 	 }
 #endif
 	 

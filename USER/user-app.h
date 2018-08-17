@@ -20,7 +20,7 @@
 
 #define GPSEXIST					0x31
 
-#define ACKCOM						0x9F
+#define ACKCOM						0xFE
 
 typedef enum cmd_s
 {
@@ -62,7 +62,7 @@ void UserCheckSensors(void);
 
 void UserSend(Zeta_t *SendBuf);
 
-void UserSendGps(uint8_t *GpsBuf);
+void UserSendGps(void);
 
 void UserSendSensor(void);
 

@@ -20,6 +20,7 @@ typedef struct
   bool 			GetPationAgain;
 	char 			GLL[54];
 	uint8_t 	GetPation;
+	uint8_t		Len;
 	uint8_t   PationBuf[11];
 	uint8_t   PosfixCounter;
 	uint32_t 	GetPationTime;
