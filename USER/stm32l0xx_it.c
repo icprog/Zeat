@@ -155,13 +155,14 @@ void TIM2_IRQHandler(void)
   /* USER CODE BEGIN TIM2_IRQn 1 */
 	Timer2_Counter++;
 	
-	if(Timer2_Counter>1000)
+	if(Timer2_Counter>1000 && SetGpsAck.GetPation == PATIONNULL)
 	{
 		DEBUG(3,"%s\r\n",__func__);
 		Gps.GetPosition( SetGpsAck.PationBuf );
 		Timer2_Counter = 0;
 	}
-		
+	
+	LedDisplay(  );
   /* USER CODE END TIM2_IRQn 1 */
 }
 

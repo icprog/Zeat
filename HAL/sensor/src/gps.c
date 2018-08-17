@@ -128,6 +128,8 @@ void GpsGetPosition(uint8_t *GpsBuf)
 		SetGpsAck.GetPation = PATIONNULL;
 		Gps.Init(  );
 		Gps.Set(  );	
+		
+		SetLedStates(GpsLocation);
 		SetGpsAck.GpsOverTime = HAL_GetTick( );
 	}			
  
@@ -159,9 +161,10 @@ void GpsGetPosition(uint8_t *GpsBuf)
 		gpsx.gpssta = 1;
 		SetGpsAck.Len = len;
 
-		HAL_TIM_Base_Stop_IT(&htim2);
+		SetLedStates(NoneCare);
+		
 	} 
-	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 30000) && SetGpsAck.Posfix && (SetGpsAck.GetPation == PATIONNULL))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
+	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 180000) && SetGpsAck.Posfix && (SetGpsAck.GetPation == PATIONNULL))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
  {	 
 		DEBUG(2,"GPS_TIME22 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GpsOverTime);
 		 
@@ -178,8 +181,9 @@ void GpsGetPosition(uint8_t *GpsBuf)
 		SetGpsAck.Len = len;
 	 
 	 	SetGpsAck.GetPation = PATIONFAIL;
+	 
+		SetLedStates(NoneCare);
 		
-	  HAL_TIM_Base_Stop_IT(&htim2);
 	}
 }
 

@@ -162,7 +162,7 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
     Rs485s.Crc16(sendData,len);
 		
   	HAL_Delay(time_out);
-		DEBUG_APP(3,"time_out %d",time_out);
+//		DEBUG_APP(3,"time_out %d",time_out);
 //    DEBUG(2,"---send : ");
 //    for(int i = 0; i < len+2; i++)
 //    DEBUG(2,"%02X ",sendData[i]);
@@ -202,6 +202,8 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
  */
 void Rs485Print(uint8_t *buff,int len, uint8_t DebugLive)
 {
+	DEBUG(DebugLive,"----get data----");
+
 	for(int i = 0 ; i < len ; i++)
 	{
 		DEBUG(DebugLive,"%02X ",buff[i]);

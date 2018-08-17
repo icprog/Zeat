@@ -36,11 +36,10 @@ int main(void)
    BoardInitMcu(  );
 	
 	 UserCheckSensors(  );
-
-   DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
-			 	 		
+	
 #if 1
-		
+   DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
+			 	 				
 	 UserCheckCmd(&UserZetaCheck[MAC]);
 
 	 UserCheckCmd(&UserZetaCheck[COUNTER]);
@@ -59,7 +58,7 @@ int main(void)
 	 uint8_t temp = ZetaHandle.CRC8( data,2 );  //0x0b
 	 
 	 DEBUG_APP(2,"temp = %02x",temp);
-	 
+	 	 
    while (1)
    {				 
 		 UserSendSensor(  );
@@ -67,16 +66,16 @@ int main(void)
 		 ////上报GPS信息
 		 UserSendGps(  );  ///SetGpsAck.PationBuf
 		 
-		 if(SetGpsAck.GetPation != PATIONNULL)
+		 if(GetLedStates(  ) == NoneCare)
 		 {
 			 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
 			 User.SleepTime =	FlashRead16(SLEEP_ADDR);
 			 SetRtcAlarm(User.SleepTime*60);///4S误差	  (User.SleepTime*60)
 			 UserIntoLowPower(  );
-		 }			 
+		 }		
+//			HAL_Delay(20000);
 	 }
-#endif
-	 
+#endif 
 }
 
 

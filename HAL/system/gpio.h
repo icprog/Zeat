@@ -62,50 +62,9 @@
 #define FLASH_SPI_CS_PORT           GPIOA
 #define FLASH_SPI_CS_PIN            GPIO_PIN_8
 
-/*!
- * \brief GPIO初始化
- * \param SX1276 RESET引脚初始化---PB13
- * \retval None
- */
-void SX1276GPIO_Init(void);
 
-void SenSor_Close(void);
-
-/**
-  * @brief GPIO初始化
-  * @param  LoRa电源控制  HOST_2_Lora_DFU_EN引脚初始化---PB12 
-  * @retval None
-  */
-void LoRaPower_Init(void);
-
-/*!
- * \brief GPIO IRQ Initialization
- *
- */
-void SX1276EXTI_Init(void);
-
-
-/*!
- * \brief Writes the given value to the GPIO output
- *
- * \param [IN] obj   Pointer to the GPIO object
- * \param [IN] value New GPIO output value
- */
-void GpioWrite( GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState );
-
-/*!
- * \brief Toggle the value to the GPIO output
- *
- * \param [IN] obj   Pointer to the GPIO object
- */
-void GpioToggle( GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin );
-
-/*!
- * \brief Reads the current GPIO input value
- *
- * \param [IN] obj Pointer to the GPIO object
- * \retval value   Current GPIO input value
- */
-uint32_t GpioRead( GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin );
+/***********************MCU LED***************************/
+#define LED_PORT          				 	GPIOC
+#define LED_PIN            				 	GPIO_PIN_13
 
 #endif // __GPIO_H__

@@ -34,11 +34,11 @@ void TimerHwInit( void )
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig);
    
-//  if(HAL_TIM_Base_Start_IT(&htim2) != HAL_OK)
-//  {
-//	/* Starting Error */
-//	 Error_Handler( );
-//  }
+  if(HAL_TIM_Base_Start_IT(&htim2) != HAL_OK)
+  {
+	/* Starting Error */
+	 Error_Handler( );
+  }
   /* TIM2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(TIM2_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(TIM2_IRQn);

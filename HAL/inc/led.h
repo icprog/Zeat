@@ -18,29 +18,29 @@
 typedef enum ledStates
 {
     NoneCare = 0,
-    GpsLocation,
-    SendSucess,
-    SendFail,
-    Receive,
+    GpsLocation = 1,
+    SendSucess = 2,
+    SendFail = 3,
+    Receive = 4,
 }LedStates_t;
 
 extern LedStates_t LedStates;
 
-extern TimerEvent_t LedTimer;
-
-void OnLedTimerEvent( void );
+extern LedStates_t LedSaveState;
 
 void SetLedStates(uint8_t States);
 
-uint8_t GetLedStates(void);
+LedStates_t GetLedStates(void);
 
-void PowerEnable_Led(void);
+void LedInit(void);
 
-void PowerDisble_Led(void);
+void LedOn(void);
 
-void SendDone_Led(void);
+void LedOff(void);
 
-void Error_Led(void);
+void LedToggle(void);
+
+void LedDisplay(void);
 
 
 #endif /* __LED_H */

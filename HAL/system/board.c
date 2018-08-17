@@ -59,6 +59,8 @@ void BoardInitMcu( void )
 	HAL_NVIC_SetPriority(RTC_IRQn, 3, 0);
 	HAL_NVIC_EnableIRQ(RTC_IRQn);
 	
+	LedInit(  );
+	
 //	MX_WWDG_Init(  );
 //	WWDG_NVIC_Init(  );
 			

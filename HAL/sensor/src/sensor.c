@@ -34,7 +34,7 @@ CheckRs485_t CheckRs485s[] = {
 	{0x13, 0x13,				0x0000, 		0x0002,  				6,					9, 		RS485_IDE_LEN+4,		200*1,		"" ,			"" ,		"Water-EC"},  ///水EC
 	{0x14, 0x14,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		200*1,		"" ,			"" ,		"Water-T" },  ///水温
 	{0x15, 0x15,				0x0000, 		0x0002,  				6,					7, 		RS485_IDE_LEN+2,		200*1,		"" ,			"" ,		"Water-K+"},	///水钾+
-	{0xFD, 0x18,				0x0000, 		0x0004,  				6,				 13, 		RS485_IDE_LEN+8,		1000*1.3,	  "" ,		"" ,		"Air-Ill" },	///空气温湿度、光照
+	{0xFD, 0x18,				0x0000, 		0x0004,  				6,				 13, 		RS485_IDE_LEN+8,		1000*1,	  "" ,		  "" ,		"Air-Ill" },	///空气温湿度、光照
 };
 
 SaveRs485_t  SaveRs485s[3];
@@ -111,7 +111,8 @@ HAL_StatusTypeDef SensorGetData(int id)
 void SensorHandle(void)
 {			
 	Rs485s.PowerOn(  );
-	
+	Rs485s.GetData(NULL,NODEBUG);  ///过滤作用：防止12V电源开启不稳定
+
 	for(uint8_t id = 0; id < NBI_RS485_PIN_COUNT; id++)
 	{
 		if(Sensors.GetRs485Type( id ) != RS485_NONE)
@@ -385,6 +386,8 @@ HAL_StatusTypeDef SensorQueryPinStaus(void)
 	
 	RS485CmdPackage(NBI_RS485_SEARCH_CODE);///获取预存485命令缓存
 	
+	Rs485s.GetData(NULL,NODEBUG);  ///过滤作用：防止12V电源开启不稳定
+	
 	for(int id = 0; id < NBI_RS485_PIN_COUNT ; id++)
 	{	
 		WdgTime = 0;
@@ -427,11 +430,11 @@ Rstype_t SensorQueryType(int PortId)
 
 	SaveRs485s[PortId].Type = RS485_NONE;
 	
-	int len = Rs485s.Cmd(ExpendBoxbuff,7, NODEBUG,1000);   // 地址广播：get expend return data 	
+	int len = Rs485s.Cmd(ExpendBoxbuff,7, 2,1000);   // 地址广播：get expend return data 	
 	
 	memcpy1(repbuff,Rs485s.Revbuff,len);
 		
-	Rs485s.Print(repbuff, len, 3);
+	Rs485s.Print(repbuff, len, NODEBUG); ///NODEBUG
   ///判断广播回复地址：扩展盒地址应答
 	
 	if(len == CheckRs485s[EXPENDBOX].RevDataLen && repbuff[3] == 0) //扩展盒的地址 为0
