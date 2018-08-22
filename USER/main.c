@@ -33,11 +33,20 @@ extern RTC_HandleTypeDef 				RtcHandle;
 
 int main(void)
 {	
+	 uint32_t SensorTime = 0;
+	 uint32_t OverTime = 0;
+	 uint32_t SleepTime = 0;
+	
    BoardInitMcu(  );
 	
-	 UserCheckSensors(  );
+	 LedOn(  );
 	
-#if 1
+	 UserReadFlash(  );
+	
+	 UserCheckSensors(  );
+		
+	 LedOff(  );
+	
    DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
 			 	 				
 	 UserCheckCmd(&UserZetaCheck[MAC]);
@@ -47,35 +56,51 @@ int main(void)
 	 UserCheckCmd(&UserZetaCheck[RSSI]);
 
 	 UserSetHeart(0x00);
-	
-	 if(FlashRead16(SLEEP_ADDR)==0||FlashRead32(SLEEP_ADDR)==0xffff)
-	{
-		uint16_t time = 1;//默认300秒，加上发送过程大概20秒
-		FlashWrite16(SLEEP_ADDR,&time,1);
-	 }
-	
-	 uint8_t data[2] = {0xa1,0x00};
-	 uint8_t temp = ZetaHandle.CRC8( data,2 );  //0x0b
+	 	 
+//	 uint8_t data[3] = {0xa0, 0x00, 0x05};
+//	 uint8_t temp = ZetaHandle.CRC8( data,3 );  // 0x59
+//	 
+//	 DEBUG_APP(2,"temp = %02x",temp);
 	 
-	 DEBUG_APP(2,"temp = %02x",temp);
+	 User.SleepTime =	FlashRead32(SLEEP_ADDR);
 	 	 
    while (1)
-   {				 
+   {	
+
+#if 1		 
+		 SensorTime = HAL_GetTick(  );
+		
 		 UserSendSensor(  );
+		 		 
+		 OverTime = HAL_GetTick(  ) - SensorTime;
+		 
+		 OverTime /= 1000;
+		 		 
+		 DEBUG_APP(2,"User.SleepTime = %d OverTime = %d\r\n",User.SleepTime,OverTime);
+		 		 
+		 if(OverTime>User.SleepTime * 60)
+		 {
+				SleepTime = 60;
+		 }
+		 else		
+		 {
+				SleepTime = User.SleepTime * 60 - OverTime;
+		 }
 		 
 		 ////上报GPS信息
-		 UserSendGps(  );  ///SetGpsAck.PationBuf
+		 UserSendGps(  ); 
+
+#else
 		 
-		 if(GetLedStates(  ) == NoneCare)
-		 {
-			 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
-			 User.SleepTime =	FlashRead16(SLEEP_ADDR);
-			 SetRtcAlarm(User.SleepTime*60);///4S误差	  (User.SleepTime*60)
-			 UserIntoLowPower(  );
-		 }		
-//			HAL_Delay(20000);
+		 UserSendTest(  );
+		 HAL_Delay(4000);
+
+#endif
+		 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
+		 SetRtcAlarm(SleepTime);///4S误差	  (User.SleepTime*60) 
+		 UserIntoLowPower(  );
+
 	 }
-#endif 
 }
 
 

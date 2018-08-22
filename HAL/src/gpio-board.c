@@ -67,12 +67,11 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
     {
 			case GPIO_PIN_1:		
 			ZetaHandle.Interrupt(  );	
-			
-			HAL_Delay(1000);
-			RestLedStates(LedSaveState);
-			
+				
+			LedRev( 10 ); ///接收到数据快闪2S
+						
 			UserDownCommand(  );
-			
+						
 			default	:
 				break;
     }

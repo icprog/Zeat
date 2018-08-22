@@ -2,8 +2,6 @@
 #include "debug.h"
 #include "delay.h"
 
-uint32_t FLASH_BUF [ FLASH_PAGE_SIZE/4 ]={0};
-
 /*
  *	FlashReadPage:		读取1页数据
  *	参数PageAddr：		页地址
@@ -47,12 +45,23 @@ uint8_t FlashWritePage( uint32_t PageAddr, uint32_t *pPageBuffer)
 	EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
 	EraseInitStruct.PageAddress = PageAddr;
 	EraseInitStruct.NbPages     = 1;
-//	DEBUG("PageAddr:%x\r\n",PageAddr);
-	if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK)
+//	printf("PageAddr:%x\r\n",PageAddr);
+	
+	for(uint8_t i = 0; i < 10; i ++)
 	{
-		DEBUG(3,"ERASE FLASH ERROR: %x\r\n",HAL_FLASH_GetError());
-		HAL_FLASH_Lock();
-		return 0;
+		if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK)
+		{
+			printf("ERASE FLASH ERROR: %x i = %d\r\n",HAL_FLASH_GetError(), i);
+			HAL_Delay(50);
+			if(i == 9)
+			{
+				HAL_FLASH_Lock();
+
+				return 0;
+			}
+		}
+		else
+			break;
 	}
 	
 	Address=PageAddr;
@@ -65,7 +74,7 @@ uint8_t FlashWritePage( uint32_t PageAddr, uint32_t *pPageBuffer)
 		}
 		else
 		{
-			DEBUG(3,"Write Flash Error\r\n");
+			printf("Write Flash Error\r\n");
 			HAL_FLASH_Lock();
 			return 0;
 		}
@@ -82,6 +91,7 @@ uint8_t FlashWritePage( uint32_t PageAddr, uint32_t *pPageBuffer)
  */
 uint8_t FlashWrite32( uint32_t WriteAddr, uint32_t * pBuffer, uint16_t NumToWrite )
 {
+	uint32_t FLASH_BUF [ FLASH_PAGE_SIZE/4 ]={0};
 	uint32_t PageAdd;	//WriteAddr对应的页地址
 	uint32_t OffSet;	//页地址的偏移  PageAdd+OffSet=WriteAddr
 	uint16_t i=0;
@@ -123,6 +133,7 @@ uint8_t FlashWrite32( uint32_t WriteAddr, uint32_t * pBuffer, uint16_t NumToWrit
  */
 uint8_t FlashWrite16( uint32_t WriteAddr, uint16_t * pBuffer, uint16_t NumToWrite )
 {
+	uint32_t FLASH_BUF [ FLASH_PAGE_SIZE/4 ];
 	uint32_t PageAdd;	//WriteAddr对应的页地址
 	uint32_t OffSet;	//页地址的偏移  PageAdd+OffSet=WriteAddr
 //	uint16_t i;
@@ -213,27 +224,13 @@ uint16_t FlashReadChar(uint32_t ReadAddr,char* pBuffer,uint16_t NumToRead)
 	uint16_t i;
 	for(i=0;i<NumToRead;i++)
 	{
-		pBuffer[i]=READ_FLASH(ReadAddr);
-		ReadAddr+=2;
+		*pBuffer=FlashRead8(ReadAddr);
+		if(*pBuffer=='\0')
+			return i;
+		pBuffer++;
+		ReadAddr++;
 	}
 	return 0;
-}
-
-/*
- * STMFLASH_Read：	从指定地址开始读出指定长度的数据
- * ReadAddr:		起始地址(此地址必须为2的倍数!!)
- * pBuffer:			要写入的数据指针
- * NumToRead：		读出半字（16位）数
- * 返回值：			无
- */ 
-void STMFLASH_Read(uint32_t ReadAddr,uint16_t *pBuffer,uint16_t NumToRead)   	
-{
-	uint16_t i;
-	for(i=0;i<NumToRead;i++)
-	{
-		pBuffer[i]=READ_FLASH(ReadAddr);//读取2个字节.
-		ReadAddr+=2;//偏移2个字节.	
-	}
 }
 /*
  *	FlashRead16More:	读取多个2字节(16位)数据
@@ -264,9 +261,9 @@ void SetFlag(FlagType flag)
 {
 	uint32_t temp = (0x000000001U<<(uint8_t)flag);
 	temp=FLAG|temp;
-	//DEBUG("Set Flag before:%x\r\n",FLAG);
+	//printf("Set Flag before:%x\r\n",FLAG);
 	FlashWrite32(FLAG_ADD,&temp,1);
-	DEBUG(3,"Flag after Set:%x\r\n",FLAG);
+	printf("Flag after Set:%x\r\n",FLAG);
 }
 /*
  *	CleanFlag:			修改FLAG_ADD地址的值，清除相关标志位
@@ -277,9 +274,9 @@ void CleanFlag(FlagType flag)
 {
 	uint32_t temp = (0x000000001U<<(uint8_t)flag);
 	temp=FLAG&(~temp);
-	//DEBUG("Clean Flag before:%x\r\n",FLAG);
+	//printf("Clean Flag before:%x\r\n",FLAG);
 	FlashWrite32(FLAG_ADD,&temp,1);
-	DEBUG(3,"Flag after Clean:%x\r\n",FLAG);
+	printf("Flag after Clean:%x\r\n",FLAG);
 }
 /*
  *	CheckFlag:			查询相关标志位是否被标志
@@ -289,5 +286,23 @@ void CleanFlag(FlagType flag)
 uint8_t CheckFlag(FlagType flag)
 {
 	uint32_t temp = (0x000000001U<<(uint8_t)flag);
-	return (FLAG&temp)>0?1:0;
+	return FLAG&temp;
 }
+
+/*
+ *	ReadSerialNumber:	从flash读取序列号
+ * 	device_id:			设备ID
+ *	stream:				数据流
+ *	server_add:			服务器IP地址
+ *	server_port:		服务器端口
+ *	返回值：				读取成功则返回0，否则返回1
+ */
+//uint8_t ReadSerialNumber(char *device_id,char *stream,char *server_addr,char *server_port)
+//{
+//	
+//	FlashReadChar(SERVER_ADDR,server_addr,SERVER_SIZE);  
+//	FlashReadChar(SERVER_PORT_ADDR,server_port,SERVER_PORT_SIZE);  
+//	FlashReadChar(DEVICE_ID_ADDR,device_id,DEVICE_ID_SIZE);
+//	FlashReadChar(STREAM_ADDR,stream,STREAM_SIZE);
+//	return 0;
+//}

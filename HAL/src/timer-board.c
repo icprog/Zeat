@@ -21,9 +21,9 @@ void TimerHwInit( void )
   TIM_MasterConfigTypeDef sMasterConfig;
 
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 15;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_DOWN;
-  htim2.Init.Period = 999;
+  htim2.Init.Prescaler = 15999;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 49;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   HAL_TIM_Base_Init(&htim2);
 
@@ -36,11 +36,11 @@ void TimerHwInit( void )
    
   if(HAL_TIM_Base_Start_IT(&htim2) != HAL_OK)
   {
-	/* Starting Error */
-	 Error_Handler( );
+		/* Starting Error */
+		 Error_Handler( );
   }
   /* TIM2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(TIM2_IRQn, 6, 0);
+  HAL_NVIC_SetPriority(TIM2_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(TIM2_IRQn);
 }
 

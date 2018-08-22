@@ -46,7 +46,7 @@ typedef struct d_UserZeta
 typedef struct f_User
 {
 	uint8_t 	BatState;
-	uint16_t 	SleepTime;
+	uint32_t 	SleepTime;
 	bool 			Ack;
 }User_t;
 
@@ -63,6 +63,8 @@ void UserCheckSensors(void);
 void UserSend(Zeta_t *SendBuf);
 
 void UserSendGps(void);
+
+void UserSendTest(void);
 
 void UserSendSensor(void);
 
@@ -81,6 +83,8 @@ void UserIntoLowPower(void);
 void UserGetAddID(void);
 
 void String_Conversion(char *str, uint8_t *src, uint8_t len);
+
+void UserReadFlash(void);
 
 #endif /* __USER_APP_H */
 

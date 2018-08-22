@@ -153,17 +153,22 @@ void TIM2_IRQHandler(void)
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
+	  /* USER CODE END TIM2_IRQn 1 */
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
 	Timer2_Counter++;
 	
-	if(Timer2_Counter>1000 && SetGpsAck.GetPation == PATIONNULL)
+	if(Timer2_Counter>20 && SetGpsAck.GetPation == PATIONNULL)
 	{
 		DEBUG(3,"%s\r\n",__func__);
 		Gps.GetPosition( SetGpsAck.PationBuf );
+		
+		LedDisplay(  );
 		Timer2_Counter = 0;
 	}
-	
-	LedDisplay(  );
-  /* USER CODE END TIM2_IRQn 1 */
+
 }
 
 

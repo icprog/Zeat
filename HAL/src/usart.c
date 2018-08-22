@@ -138,7 +138,7 @@ void MX_USART5_UART_Init(void)
   {
     Error_Handler();
   }
-	HAL_NVIC_SetPriority(USART4_5_IRQn, 3, 0);
+	HAL_NVIC_SetPriority(USART4_5_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(USART4_5_IRQn);
 }
 

@@ -63,9 +63,7 @@ void BoardInitMcu( void )
 	
 //	MX_WWDG_Init(  );
 //	WWDG_NVIC_Init(  );
-			
-	TimerHwInit(  );
-		
+					
 	SensorsInit(  );
 	
 	ZetaHandle.Init(  );
@@ -115,6 +113,10 @@ void BoardDeInitMcu( void )
 	///πÿ±’UART5 ±÷”
 	HAL_UART_DeInit(&huart5);
 	huart5.gState = HAL_UART_STATE_RESET;
+	
+//	HAL_TIM_Base_MspInit(&htim2);
+//	htim2.State = HAL_TIM_STATE_RESET;
+
 	
 	/*******************πÿ±’SPI*********************/
 		
@@ -238,13 +240,12 @@ void SystemClockConfig( void )
                               |RCC_PERIPHCLK_LPUART1;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
 	PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+	PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
-
-	delay_init(16);
 	
     /**Configure the Systick interrupt time 1ms
     */

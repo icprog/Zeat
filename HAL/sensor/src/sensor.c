@@ -122,7 +122,7 @@ void SensorHandle(void)
 			id--;
 
 			Rs485s.OpenPin(id);
-			HAL_Delay(1000);
+			HAL_Delay(1500);
 			
 			Sensors.GetData(id);			
 		}
@@ -178,7 +178,7 @@ void SensorDataProces(void)
 		{
 			Len += SaveRs485s[PortId].MainBox.SensorToLen;
 			
-			if(Len <= ZETAMAXLEN) ///作为读取传感器数据是异常标志
+			if(Len <= ZetaSendBuf.MaxLen) ///作为读取传感器数据是异常标志
 			{
 					DEBUG_APP(2, "-----SensorToLen : %d----",SaveRs485s[PortId].MainBox.SensorToLen);
 
@@ -250,7 +250,7 @@ void SensorDataProces(void)
 			
 					DEBUG_APP(3,"PortId = %d, ExId = %d Len = %d SensorToLen = %d",PortId,ExId,Len, \
 					SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen);
-					if(Len <= ZETAMAXLEN)
+					if(Len <= ZetaSendBuf.MaxLen)
 					{
 						if(SaveRs485s[PortId].MainBox.ExpendBox[ExId].SensorToLen != 0)
 						{
@@ -390,19 +390,15 @@ HAL_StatusTypeDef SensorQueryPinStaus(void)
 	
 	for(int id = 0; id < NBI_RS485_PIN_COUNT ; id++)
 	{	
-		WdgTime = 0;
 		
 		//遍历plus的6个口，分别是什么
 		//打开io口	
 		Rs485s.OpenPin(id);
-		HAL_Delay(1000);
+		HAL_Delay(1500);
 		//判断是什么口，并且获取其中传感器的地址
 		if(Sensors.QueryType(id) != RS485_NONE) 
 		{			
 			DEBUG_APP(3,"pin %02x: find device\r\n",id);
-			
-			if(WdgTime>=70) ///4S清除WWDG
-				WdgTime = 0;		
 		}		
 		else 
 		{

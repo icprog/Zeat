@@ -14,17 +14,14 @@
 
 LedStates_t LedStates;
 
-LedStates_t LedSaveState;
-
+/*
+*设置LED状态
+*/
 void SetLedStates(LedStates_t States)
-{
-	LedSaveState = GetLedStates(  );
-	
-	DEBUG_APP(2,"LedSaveState = %d",LedSaveState);
-
+{	
 	LedStates = States;
 	
-	DEBUG_APP(2,"LedStates = %d",LedStates);
+	DEBUG_APP(3,"LedStates = %d",LedStates);
 }
 
 /*
@@ -37,6 +34,9 @@ void RestLedStates(LedStates_t States)
 	DEBUG_APP(2,"RestLedStates = %d",LedStates);
 }
 
+/*
+*获取LED状态
+*/
 LedStates_t GetLedStates(void)
 {
 	LedStates_t States;
@@ -46,6 +46,9 @@ LedStates_t GetLedStates(void)
 	return States;
 }
 
+/*
+*LED初始化
+*/
 void LedInit(void)
 {
 	GPIO_InitTypeDef GPIO_Initure;
@@ -62,80 +65,121 @@ void LedInit(void)
 	LedOff(  );
 }
 
+/*
+*LED亮
+*/
 void LedOn(void)
 {
 	HAL_GPIO_WritePin(LED_PORT,LED_PIN,GPIO_PIN_SET);
 }
 
+/*
+*LED灭
+*/
 void LedOff(void)
 {
 	HAL_GPIO_WritePin(LED_PORT,LED_PIN,GPIO_PIN_RESET);
 }
 
+/*
+*LED翻转
+*/
 void LedToggle(void)
 {
 	HAL_GPIO_TogglePin(LED_PORT,LED_PIN);
 }
 
-uint32_t LedTime = 0;
-uint8_t  LedCounter = 0;
+/*
+*发送数据成功LED状态
+*/
+void LedSendSucess(int8_t Counter)
+{
+	if(GetLedStates(  ) == GpsLocation)  ///还原定位定时器
+	HAL_TIM_Base_Stop_IT(&htim2);   ///定位过程关闭定时器，防止LED状态干扰
+		
+	for( int8_t i = Counter; i > 0; i -- )
+	{
+		LedToggle(  );
+		HAL_Delay(500);
+	}
+	LedOff(  );
+	
+	if(GetLedStates(  ) == GpsLocation)  ///还原定位定时器
+	{
+		HAL_TIM_Base_Start_IT(&htim2);
+	}
+
+}
+
+/*
+*发送数据失败LED状态
+*/
+void LedSendFail(int8_t Counter)
+{
+	if(GetLedStates(  ) == GpsLocation)  ///还原定位定时器
+	HAL_TIM_Base_Stop_IT(&htim2);   ///定位过程关闭定时器，防止LED状态干扰
+
+	for( int8_t i = Counter; i > 0; i -- )
+	{
+		LedOn(  );
+		HAL_Delay(1000);
+		LedOff(  );
+		HAL_Delay(200);
+	}
+	
+	if(GetLedStates(  ) == GpsLocation)  ///还原定位定时器
+	{
+		HAL_TIM_Base_Start_IT(&htim2);
+		DEBUG_APP(2,"----Start_IT----");
+	}
+}
+
+/*
+*接收数据LED状态
+*/
+void LedRev(int8_t Counter)
+{
+	if(GetLedStates(  ) == GpsLocation)  ///还原定位定时器
+	HAL_TIM_Base_Stop_IT(&htim2);   ///定位过程关闭定时器，防止LED状态干扰
+	
+	for( int8_t i = Counter; i > 0; i -- )
+	{
+		LedToggle(  );
+		HAL_Delay(200);
+	}
+	LedOff(  );
+	
+	if(GetLedStates(  ) == GpsLocation)  ///还原定位定时器
+	{
+		HAL_TIM_Base_Start_IT(&htim2);
+		DEBUG_APP(3,"----Start_IT----");
+	}
+}
+
+/*
+*LED处理
+*/
 void LedDisplay(void)
 {
-	LedTime++;
 	
 	switch(GetLedStates(  ))
 	{
 		case GpsLocation:
 			
-			if(1000 <= LedTime)
-			{
-				DEBUG_APP(2,"LedStates = %d",GpsLocation);
-				LedToggle(  );	
-				LedTime = 0;
-			}
+					DEBUG_APP(3,"LedStates = %d",GpsLocation);
+					LedToggle(  );	
 			
 		break;
 		
 		case SendSucess:
 			
-			if(500 <= LedTime)
-			{
-				DEBUG_APP(3,"LedStates = %d",SendSucess);
-
-				LedToggle(  );	
-				LedTime = 0;
-				
-				LedCounter ++;
-			}
-			
 		break;
 		
 		case SendFail:   ////长亮1S，短灭200ms
-			 if( LedTime <= 1000)
-       {
-          LedOn(  );
-       }
-       else if( LedTime <= 1200)
-       {				 				
-				  LedOff(  );
-					LedTime = 0;	
-					LedCounter++;			 
-       }
-			 
-			 if(LedCounter == 4)
-			 {
-					SetLedStates(NoneCare);
-			 }
 			
 		break;
 		
 		case Receive:
-			if(200 <= LedTime)
-			{
-				LedToggle(  );
-				LedTime = 0;
-				LedCounter ++;
-			}
 			
 		break;
 		

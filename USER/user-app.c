@@ -28,7 +28,7 @@ UserZeta_t UserZetaCheck[] = {
 
 User_t User = {0, 0, false};
 
-uint8_t DeviceInfo[4] = {0};
+static uint8_t DeviceInfo[4] = {0};
 
 /*UserCheckSensors：	用户查询传感器信息
 *参数：								无
@@ -46,6 +46,8 @@ void UserCheckSensors(void)
 		Gps.Set(  );
 		
 		SetLedStates(GpsLocation);
+		
+		SetGpsAck.GetPation = PATIONNULL;
 	}
 	
 	Sensors.QueryPinStaus(  );
@@ -80,8 +82,6 @@ void UserSend(Zeta_t *SendBuf)
 		{			
 //			HAL_Delay(300);	
 //			UserCheckCmd(&UserZetaCheck[NETIME]); ///结合外部flash使用
-			
-			SetLedStates(SendSucess);
 			break;
 		}
 		else if(LenError != Status)
@@ -97,7 +97,7 @@ void UserSend(Zeta_t *SendBuf)
 		}
 		else
 		{		
-			SetLedStates(SendFail);
+			LedSendFail(5);    ///发送失败闪烁6S
 			break;		
 		}			
 	}
@@ -147,18 +147,16 @@ void UserSendSensor(void)
 		ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
 		
 		UserSend(&ZetaSendBuf);
+		
+		HAL_Delay(500);
 						
 		/********************缓存清除*******************/
 		memset(&ZetaSendBuf.Buf[9], 0, ZetaSendBuf.Len);
-		SendBufs[SedId].Len = 0; ///payload清零		
-		
-		HAL_Delay(4000);	///等待接收
-		
-		RestLedStates(LedSaveState);
-		
+		SendBufs[SedId].Len = 0; ///payload清零						
 	}
 	UpSeqCounter ++;
-	LedOff(  );
+	
+	LedSendSucess(8);   ///每包数据间隔4S
 }
 
 /*UserSendGps：发送GPS位置信息
@@ -171,11 +169,16 @@ void UserSendGps(void)
 	uint32_t overtime  = 0;
 		
 	if(GPSEXIST == DeviceInfo[1])
-	{
+	{			
+		DEBUG_APP(2,"11SetGpsAck.GetPation = %d",SetGpsAck.GetPation);
+
 		while( SetGpsAck.GetPation == PATIONNULL );
 		
+		DEBUG_APP(2,"SetGpsAck.GetPation = %d",SetGpsAck.GetPation);
+		
 		overtime = HAL_GetTick();
-		while(!SetGpsAck.GpsDone && (HAL_GetTick()-overtime <3000));
+		while(!SetGpsAck.GpsDone && (HAL_GetTick( ) - overtime <3000));
+		
 		if(SetGpsAck.GpsDone)
 		{
 			SetGpsAck.GpsDone = false;
@@ -220,11 +223,64 @@ void UserSendGps(void)
 			
 			UpSeqCounter ++;
 			
+			LedSendSucess(8);   ///每包数据间隔4S
+			
 			/********************缓存清除*******************/
 			memset(&ZetaSendBuf.Buf[10], 0, ZetaSendBuf.Len);
-			HAL_Delay(3000);
 		}
 	}
+}
+
+/*UserSendTest：测试Zeta发送数据
+*参数：			    无
+*返回值：       无
+*/
+void UserSendTest(void)
+{
+	uint8_t len= 3;
+		
+	ZetaSendBuf.Buf[0] = 0xff;
+	ZetaSendBuf.Buf[1] = 0x00;
+	
+	ZetaSendBuf.Buf[3] = 0x02;
+	
+	ZetaSendBuf.Buf[4] = (VERSIOS << 4); ///|充电状态
+	
+	/********************设备ID*****************/
+	memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
+	
+	ZetaSendBuf.Buf[9] = 0x11; //帧数
+			
+	uint8_t data[3] = {1,2,3};			
+	memcpy1(&ZetaSendBuf.Buf[10], &data[0], len); 
+	
+	ZetaSendBuf.Buf[4] |= User.BatState;
+
+	memset(SetGpsAck.PationBuf, 0, 11);
+	
+	DEBUG(2,"ZetaSendBuf: ");
+	for(uint8_t i = 0; i < len; i++)
+	DEBUG(2,"%02X ",ZetaSendBuf.Buf[10+i]);
+	DEBUG(2,"\r\n");
+	
+	ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff00)<<8; ///Seq
+	ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff);
+	
+	ZetaSendBuf.Buf[10 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[10],len); ///CRC
+
+	len ++;
+		
+	ZetaSendBuf.Buf[2] = 0x0A + len; /// +sensor_len
+	ZetaSendBuf.Len = ZetaSendBuf.Buf[2];
+	
+	UserSend(&ZetaSendBuf);
+	
+	UpSeqCounter ++;
+	
+	LedSendSucess(8);   ///每包数据间隔4S
+	
+	/********************缓存清除*******************/
+	memset(&ZetaSendBuf.Buf[10], 0, ZetaSendBuf.Len);
 }
 
 /*UserDownCommand：下行应答
@@ -235,9 +291,9 @@ void UserDownCommand(void)
 {
 	uint8_t DoneState = 0;
 	uint8_t len= 0;
-
-  DoneState = ZetaHandle.DownCommand(ZetaRecviceBuf.RevBuf);
 	
+  DoneState = ZetaHandle.DownCommand(ZetaRecviceBuf.RevBuf);
+		
 	DEBUG_APP(2,"DoneState = %d",DoneState);
 		
 	ZetaSendBuf.Buf[0] = 0xff;
@@ -271,6 +327,8 @@ void UserDownCommand(void)
 		ZetaSendBuf.Buf[2] = 0x0A+len;
 		UserSend(&ZetaSendBuf);
 		
+		LedSendSucess(8);   ///每包数据间隔4S
+		
 		UpSeqCounter ++;
 	}
 	else if(0xff == DoneState)
@@ -287,6 +345,8 @@ void UserDownCommand(void)
 		ZetaSendBuf.Len = 0x0A+len;
 		
 		UserSend(&ZetaSendBuf);
+		
+		LedSendSucess(8);   ///每包数据间隔4S
 		
 		UpSeqCounter ++;
 	}
@@ -481,7 +541,7 @@ void UserGetAddID(void)
 	static char String_Buffer[33] = {0}; ///读取flash写入字符串
 	static uint8_t DevTemp[8] = {0};
 
-	STMFLASH_Read(DEV_ADDR,(uint16_t*)String_Buffer,DEV_ADDR_SIZE/2);         ////DEV
+	FlashRead16More(DEV_ADDR,(uint16_t*)String_Buffer,DEV_ADDR_SIZE/2);         ////DEV
 	
 	String_Conversion(String_Buffer, DevTemp, DEV_ADDR_SIZE);  
 
@@ -518,4 +578,38 @@ void String_Conversion(char *str, uint8_t *src, uint8_t len)
 	sscanf(str+i*2,"%2X",&v);
 	src[i]=(uint8_t)v;
  }
+}
+
+
+void UserReadFlash(void)
+{
+	
+	uint32_t data = FlashRead32(SLEEP_ADDR);
+		 
+	DEBUG_APP(2,"User.SleepTime = %d \r\n",data);
+
+	 if(FlashRead32(SLEEP_ADDR)==0||FlashRead32(SLEEP_ADDR)==0xffffffff)
+	{
+			uint32_t time = 2;//默认5min
+			FlashWrite32(SLEEP_ADDR,&time,1);			
+	 }
+	
+	 if(FlashRead32(MAXLEN_ADDR)==0||FlashRead32(MAXLEN_ADDR)==0xffffffff)
+	 {
+			ZetaSendBuf.MaxLen = 38;
+	 }
+	 else
+	 {
+			ZetaSendBuf.MaxLen = FlashRead16(MAXLEN_ADDR);
+		 	DEBUG_APP(2,"ZetaSendBuf.MaxLen = %d",ZetaSendBuf.MaxLen);
+		 
+			char String_Buffer[2] = {0};
+			
+			FlashRead16More(MAXLEN_ADDR, (uint16_t *)String_Buffer,	MAXLEN_ADDR_SIZE/2);           
+			String_Conversion(String_Buffer, &ZetaSendBuf.MaxLen, MAXLEN_ADDR_SIZE);
+
+		  ZetaSendBuf.MaxLen -= FIXLEN;
+		 
+			DEBUG_APP(2,"ZetaSendBuf.MaxLen = %d",ZetaSendBuf.MaxLen);
+	 }
 }

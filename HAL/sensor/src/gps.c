@@ -13,7 +13,7 @@
 #define MTK_POS_FIX			"$PMTK220,1000*1F\r\n" //  $PMTK220,3000*1D
 #define MTK_GLL					"$PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0*28\r\n"
 
-SetGpsAck_t SetGpsAck = {false, false, false, false, false, {0}, PATIONNULL, 0, {0}, 0, 0, 0};
+SetGpsAck_t SetGpsAck = {false, false, false, false, {0}, PATIONNULL, 0, {0}, 0, 0, 0};
 
 const Gps_t Gps = {GpsInit, GpsEnable, GpsDisable, GpsSet, GpsGetPosition};
 
@@ -32,7 +32,7 @@ void GpsInit(void)
 	
 	MX_USART2_UART_Init(  ); 
 	
-	SetGpsAck.GetPationAgain = false;
+	TimerHwInit(  );
 }
 
 void GpsEnable(void)
@@ -116,22 +116,7 @@ void GpsGetPosition(uint8_t *GpsBuf)
 {	
 	uint8_t len = 0;
 	
-	GpsBuf[len++] = 0XFD; //GPS
-
-	if(SetGpsAck.GetPationAgain)  ///到达预计GPS上报时间，重新使能GPS模块
-	{
-		DEBUG(2,"line = %d time = %d\r\n",__LINE__, SetGpsAck.GpsOverTime);
-		SetGpsAck.Start = false;
-		SetGpsAck.Posfix = false;
-		SetGpsAck.Gpll	= false;      
-		SetGpsAck.GetPationAgain = false;
-		SetGpsAck.GetPation = PATIONNULL;
-		Gps.Init(  );
-		Gps.Set(  );	
-		
-		SetLedStates(GpsLocation);
-		SetGpsAck.GpsOverTime = HAL_GetTick( );
-	}			
+	GpsBuf[len++] = 0XFD; //GPS	
  
 	if(( SetGpsAck.GetPation == PATIONDONE )&& SetGpsAck.Posfix) ///判断是否有GPS、获取GPS信息  
 	{	        		 
@@ -163,28 +148,51 @@ void GpsGetPosition(uint8_t *GpsBuf)
 
 		SetLedStates(NoneCare);
 		
+		HAL_TIM_Base_Stop_IT(&htim2);
+				
 	} 
-	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 180000) && SetGpsAck.Posfix && (SetGpsAck.GetPation == PATIONNULL))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
+	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 60000) && SetGpsAck.Posfix && (SetGpsAck.GetPation == PATIONNULL))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
  {	 
 		DEBUG(2,"GPS_TIME22 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GpsOverTime);
 		 
+		SetGpsAck.GetPation = PATIONFAIL;
+
 		Gps.Disable(  ); ///关闭GPS
 		 
 		SetGpsAck.Start = false;
 
 		memset(SetGpsAck.GLL, 0, strlen(SetGpsAck.GLL));
+	 
 		SetGpsAck.GpsDone = true; ///GPS发送完成标记	 
 		gpsx.gpssta = 0;	
 		
 		GpsBuf[len++] = 0x01;
 	 
 		SetGpsAck.Len = len;
-	 
-	 	SetGpsAck.GetPation = PATIONFAIL;
-	 
+	 	 
 		SetLedStates(NoneCare);
-		
+	 	HAL_TIM_Base_Stop_IT(&htim2);
 	}
+}
+
+/*
+*GpsGetPositionAgain: GPS再次定位
+*返回：					 			成功：1  失败：0
+*/
+void GpsGetPositionAgain(void)
+{
+		SetGpsAck.Start = false;
+		SetGpsAck.Posfix = false;
+		SetGpsAck.Gpll	= false;      
+		SetGpsAck.GetPation = PATIONNULL;
+		Gps.Init(  );
+		Gps.Set(  );	
+		
+		SetLedStates(GpsLocation);
+
+		SetGpsAck.GpsOverTime = HAL_GetTick( );
+	
+		HAL_TIM_Base_Start_IT(&htim2);
 }
 
 const uint32_t BAUD_id[9]={4800,9600,19200,38400,57600,115200,230400,460800,921600};//模块支持波特率数组

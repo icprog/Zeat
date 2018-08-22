@@ -17,7 +17,6 @@ typedef struct
 	bool 			Gpll;
 	bool 			Posfix;
 	bool 			GpsDone;
-  bool 			GetPationAgain;
 	char 			GLL[54];
 	uint8_t 	GetPation;
 	uint8_t		Len;
@@ -45,6 +44,8 @@ void GpsEnable(void);
 void GpsDisable(void);
 uint8_t GpsSet(void);
 void GpsGetPosition(uint8_t *GpsBuf);
+
+void GpsGetPositionAgain(void);
 
 
 //GPS NMEA-0183协议重要参数结构体定义 

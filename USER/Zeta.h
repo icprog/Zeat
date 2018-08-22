@@ -31,6 +31,8 @@
 
 #define  ZETAMAXLEN						38
 
+#define  FIXLEN								11
+
 /*
 *ZetaState_t: Zeta×´Ì¬ÁÐ±í
 */
@@ -78,6 +80,7 @@ typedef enum uZetaState
 typedef struct uZeta
 {
 	uint8_t 		Len;
+	uint8_t			MaxLen;
 	uint8_t			Buf[50];
 	uint8_t			RevBuf[10];
 	uint32_t    Uart_time;

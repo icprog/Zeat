@@ -40,6 +40,12 @@ void LedOff(void);
 
 void LedToggle(void);
 
+void LedSendSucess(int8_t Counter);
+
+void LedSendFail(int8_t Counter);
+
+void LedRev(int8_t Counter);
+
 void LedDisplay(void);
 
 

@@ -2,37 +2,18 @@
 #define __STMFLASH_H__
 
 #include "stm32l0xx_hal.h"
-										
-#define STM32_FLASH_SIZE 							128	 	 		//所选STM32的FLASH容量大小(单位为K)
-#define STM32_FLASH_BASE 							0x08000000 		//flash基地址
-									 							  
-#define READ_FLASH(faddr)							(*(volatile uint16_t*)faddr) 	
-#define STMFLASH_ReadWord(faddr)			(*(volatile uint32_t*)faddr) 	
-					  
-#if STM32_FLASH_SIZE<256							
-#define STM_SECTOR_SIZE 							1024 			//中等容量flash的型号页面大小是1024字节
-#else												
-#define STM_SECTOR_SIZE 							2048 			//大容量flash的型号页面大小是2048字节
-#endif												
-															
-#define UNLOCK_FLASH()								{FLASH->KEYR=0X45670123;FLASH->KEYR=0XCDEF89AB;}//FLASH解锁
-#define LOCK_FLASH()									(FLASH->CR|=1<<7)								//FLASH上锁
-#define FLASH_STATUS 									(FLASH->SR)										//FLASH状态寄存器
-#define FLASH_DONE										0
-#define FLASH_BUSY										1
-#define FLASH_PROGRAM_ERROR						1<<2
-#define FLASH_WRITE_ERROR							1<<4
-#define FLASH_TIMEOUT									0xee
-#define FLASH_ERROR										0xff	
 
-#define DEV_ADDR                      0x0801F3E8        ////UID 0x0801F3E8 ---- 0x0801F3FA
-#define DEV_ADDR_SIZE                 0x12
+#define DEV_ADDR					0x0801ffe0			//数据流存储地址
+#define DEV_ADDR_SIZE			0x12				//数据流占用存储空间
 
-#define SLEEP_ADDR										0x0801F3D4
-#define SLEEP_ADDR_SIZE               0x01
+#define SLEEP_ADDR				0x0801ffc0			//ID存储地址 
+#define SLEEP_ADDR_SIZE		0x04				//ID占用存储空间
 
-#define FLAG_ADD											0x0801fd10			//备份寄存器的代替位置，用于记录各种标识位
-#define	FLAG_ADD_SIZE									0x10
+#define MAXLEN_ADDR				0x0801ffbc			//ID存储地址
+#define MAXLEN_ADDR_SIZE	0x01				//ID占用存储空间
+
+#define FLAG_ADD					0x0801fd10			//备份寄存器的代替位置，用于记录各种标识位
+#define	FLAG_ADD_SIZE			0x10
 
 
 #define FLAG	FlashRead32(FLAG_ADD)		
@@ -46,7 +27,7 @@ typedef enum FLAGTYPE						//标志类型,最大值为31
 	GET_LOCATION,							//获取位置信息
 	UPDATE_SUCCEED,
 	UPDATE_FAIL,
-  CLOSE_IWDG,                             //关闭独立看门狗，也是进入休眠的标志位
+  CLOSE_IWDG,                             //关闭独立看门狗
 	END_OF_FLAGTYPE
 }FlagType;
 
@@ -109,10 +90,6 @@ uint8_t FlashRead8(uint32_t ReadAddr );
  *	返回值：		实际读取到的字符长度,读取错误返回0
  */
 uint16_t FlashReadChar(uint32_t ReadAddr,char* pBuffer,uint16_t NumToRead);
-
-
-void STMFLASH_Read(uint32_t ReadAddr,uint16_t *pBuffer,uint16_t NumToRead);   	
-
 /*
  *	FlashRead16More:	读取多个2字节(16位)数据
  *	参数ReadAddr：	该数据在Flash中的地址
@@ -152,7 +129,6 @@ void CleanFlag(FlagType flag);
  *	返回值：			被标志返回>0的值，未标志返回0
  */
 uint8_t CheckFlag(FlagType flag);
- 
 
 #endif	
 

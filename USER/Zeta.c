@@ -12,8 +12,8 @@
 #include "usart.h"
 #include "Debug.h"
 
-Zeta_t 							ZetaRecviceBuf = {0, {0}, {0}, 0, Reset};
-Zeta_t 							ZetaSendBuf		 = {0, {0}, {0}, 0, Reset};
+Zeta_t 							ZetaRecviceBuf = {0, 0, {0}, {0}, 0, Reset};
+Zeta_t 							ZetaSendBuf		 = {0, 0, {0}, {0}, 0, Reset};
 ZetaTimer_t					ZetaTimer;
 const ZetaHandle_t 	ZetaHandle = {ZetaInit, ZetaPowerOn, ZetaPowerOff, WakeupZetaEnable, WakeupZetaDisable, \
 																	ZetaInterrupt, ZetaSend, ZetaRecv, CalcCRC8, ZetaStatus, ZetaDownCommand};
@@ -111,7 +111,6 @@ void ZetaInterrupt(void)
 	///读取数据
 	HAL_Delay(80); ///延时 = Zeta串口稳定接收数据 + 串口超时时间
 	
-	SetLedStates(Receive);
 	ZetaHandle.Recv(  );
 	
 	DEBUG(2,"%s\r\n",__func__);
@@ -130,14 +129,17 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 		case 0xA0: ///修改采样周期
 			if( 0x00 == ZetaHandle.CRC8( RevBuf,4 ) )
 			{
-				uint16_t data = 0;
+				uint32_t data = 0;
 				data |= RevBuf[1] << 4;
 				data |= RevBuf[2];
-				
-			  User.SleepTime = data;
-			
+								
 				////data write in flash			
-				state = FlashWrite16( SLEEP_ADDR, &User.SleepTime, 1 );
+				state = FlashWrite32( SLEEP_ADDR, &data, 1 );
+								
+				User.SleepTime =	FlashRead32(SLEEP_ADDR);
+								
+				DEBUG_APP(2,"----data----%d User.SleepTime = %d",data,User.SleepTime);
+
 			}
 			
 		break;
@@ -145,8 +147,7 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 		case 0xA1: ///重新上报GPS位置信息
 			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
 			{
-				HAL_TIM_Base_Start_IT(&htim2);
-				SetGpsAck.GetPationAgain = true;
+				GpsGetPositionAgain(  );
 				state = 0x01;
 			}
 		break;
