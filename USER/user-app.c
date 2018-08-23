@@ -513,7 +513,9 @@ void UserCloseTimer(ZetaTimer_t Timer)
  *	返回值: 					无
  */
 void UserIntoLowPower(void)
-{	       
+{	  
+		DEBUG_APP(2,"Goto Sleep Mode");
+	
     BoardDeInitMcu( ); ///关闭时钟线
     
     // Disable the Power Voltage Detector

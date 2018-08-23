@@ -52,7 +52,8 @@ void BoardInitMcu( void )
 	SPI1_Init(  );
 	
 	/*****************电源管理********************/
-//	InitPower(  );
+	BatteryInit(  );
+	
 	RTC_Init(  );
 	
 	/*******************开启RTC中断*******************/

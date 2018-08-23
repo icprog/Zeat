@@ -151,7 +151,7 @@ void GpsGetPosition(uint8_t *GpsBuf)
 		HAL_TIM_Base_Stop_IT(&htim2);
 				
 	} 
-	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 60000) && SetGpsAck.Posfix && (SetGpsAck.GetPation == PATIONNULL))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
+	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 300000) && SetGpsAck.Posfix && (SetGpsAck.GetPation == PATIONNULL))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
  {	 
 		DEBUG(2,"GPS_TIME22 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GpsOverTime);
 		 

@@ -204,6 +204,10 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 	{
 			BoardInitMcu( );
 			DEBUG(2,"wkup low-power now\r\n");
+		
+		if(CheckBattery(  ) == 3)
+		UserIntoLowPower(  );
+
 	}
     /** enable irq */
 	__enable_irq( );

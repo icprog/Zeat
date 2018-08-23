@@ -1,8 +1,8 @@
 /*
 **************************************************************************************************************
-*	@file	power.c
-*	@author Ysheng
-*	@version V0.0.1
+*	@file			power.c
+*	@author 	Jason
+*	@version 	V0.0.1
 *	@date    
 *	@brief ÑÓÊ±º¯Êý
 ***************************************************************************************************************
@@ -92,6 +92,9 @@ uint8_t ReadBattery(void)
 		HAL_Delay(1000);
 	
 		uint8_t  Battery = CheckBattery(  );
+	
+		if(Battery == 3)
+		UserIntoLowPower(  );
 	
 		BatEnableCharge(  );
 		

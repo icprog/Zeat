@@ -94,3 +94,17 @@ ZetaSendBuf: FD 00 22 68 C2 4E 00 AD DD 1B 45
 start send data
 FF 00 18 02 13 07 31 00 02 11 FD 00 22 68 C2 4E 00 AD DD 1B 45 00 02 F9 
 ff 00 04 01 
+
+
+
+尊敬的管理员：
+??? 您好！
+??? 登录信息已经变更如下：
+??? 用户名：nbcx
+??? 密码：ca722db37e1a10f6
+
+??? 您可在登录后，于页面的右上角进行密码修改,为了您的账号安全,请勿使用过于简单的密码。
+
+??? 为了您更好的使用体验，我们推荐您使用Google Chrome浏览器
+
+??? 信息管理系统地址:?http://www.zeta-alliance.com:25450/teamcms/homePage

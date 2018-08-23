@@ -1,8 +1,8 @@
 /*
 **************************************************************************************************************
-*	@file	power.h
-*	@author Ysheng
-*	@version V0.0.1
+*	@file			power.h
+*	@author 	Jason
+*	@version 	V0.0.1
 *	@date    
 *	@brief	ÑÓÊ±º¯Êý
 ***************************************************************************************************************
@@ -13,6 +13,8 @@
 #define __POWER_H
 
 #include <stdint.h>
+
+void BatteryInit(void);
 
 uint8_t CheckBattery(void);
 

@@ -67,7 +67,7 @@ int main(void)
    while (1)
    {	
 
-#if 1		 
+#if 1	 
 		 SensorTime = HAL_GetTick(  );
 		
 		 UserSendSensor(  );
@@ -92,7 +92,8 @@ int main(void)
 
 #else
 		 
-		 UserSendTest(  );
+//		 UserSendTest(  );
+		 ReadBattery(  );
 		 HAL_Delay(4000);
 
 #endif
