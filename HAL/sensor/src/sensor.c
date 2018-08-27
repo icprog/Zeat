@@ -446,7 +446,7 @@ Rstype_t SensorQueryType(int PortId)
 		
 		Sensors.ExpBoxAddr( PortId );
           
-		DEBUG_APP(2,"sensor get expen box address success PortId : %d",id);	
+		DEBUG_APP(2,"sensor get expen box address success PortId : 0x%02x",id);	
 	}
 	else if(len >5) ///非扩展盒地址应答
 	{				
@@ -597,7 +597,7 @@ HAL_StatusTypeDef SensorExpBoxAddr(int index)
 			
 			if(len >5) ///广播应答
 			{				
-				DEBUG_APP(2,"siganal ok and has rpy addr = %x",repbuff[3]);		
+				DEBUG_APP(2,"siganal ok and has rpy addr = 0x%02x",repbuff[3]);		
 				int i = 0;
 
 				////判断接口对应接入485传感器地址，记录

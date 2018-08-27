@@ -175,7 +175,7 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
 	
 		if(sendData[0] == 0xFD)
 		{
-			HAL_Delay(1000);
+			HAL_Delay(200);
 		}
 		else
     HAL_Delay(NBI_RS485_REV_TIME_OUT);

@@ -61,6 +61,8 @@ void UserCheckSensors(void)
 */
 void UserSend(Zeta_t *SendBuf)
 {
+	uint8_t ApplyCounter = 0;
+	
 	for(uint8_t i = 0; i < 3; i++)
 	{
 		
@@ -88,9 +90,16 @@ void UserSend(Zeta_t *SendBuf)
 		{			
 			if(Unregistered == Status)
 			{
+				ApplyCounter ++;
 				DEBUG(2,"---Writing registered---\r\n");
 				i = 1;
 				HAL_Delay(5000);
+				
+				if(ApplyCounter == 12)  ///1min超时操作进入休眠
+				{
+					SetRtcAlarm(User.SleepTime*60); 
+					UserIntoLowPower(  );
+				}
 			}
 			else
 			HAL_Delay(300);	
@@ -361,6 +370,7 @@ void UserDownCommand(void)
 void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 {	
 	uint8_t temp[3] = {0xff, 0x00, 0x04};
+	uint8_t ApplyCounter = 0;
 		
 	memcpy(&ZetaSendBuf.Buf[0],&temp[0],3);
 	
@@ -388,9 +398,16 @@ void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 		{			
 			if(Unregistered == Status)
 			{
+				ApplyCounter ++;
 				DEBUG(2,"---Writing registered---\r\n");
 				HAL_Delay(5000);
 				i = 0;
+				
+				if(ApplyCounter == 12)  ///1min超时操作
+				{
+					SetRtcAlarm(User.SleepTime*60); 
+					UserIntoLowPower(  );
+				}
 			}
 			else
 			{
