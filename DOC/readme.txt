@@ -49,6 +49,18 @@ I2C							|					  		|
 
 
 版本说明：
+
+
+【0】：ZETA-V1.0
+优化功能：
+【1】：LED说明：
+A：上电获取查询传感器电源指示灯：长亮----查询传感器----灭
+B：GPS定位：1000ms(亮)------1000ms(灭)
+C：发送数据失败回应入网失败：1000ms(亮)----200ms(灭)
+D：发送数据成功：500ms(亮)----500ms(灭)
+E：接收数据成功：200ms(亮)----200ms(灭)
+
+
 【0】：ZETA-V0.9
 优化功能：
 【1】：增加Zeta入网超时1min进入休眠机制，防止长期入网操作
@@ -80,25 +92,8 @@ I2C							|					  		|
 	   
 
 
-
-
 strlen与sizeof区别
 sizeof是求数据类型所占的空间大小,而strlen是求字符串的长度，字符串以/0结尾
-
-
-
-Counter:0,GLL--$GPGLL,2233.0257,N,11356.5984,E,033621.000,A,A*5C
-$GPGLL,2233.0257,N,11356.5984,E,033621.000,A,A*5C
-App:..\HAL\sensor\src\gps.c,line : 134,GetPation = 1 Posfix = 1
-22---22.55042 N, 113.94331 E
-App:..\HAL\sensor\src\gps.c,line : 150,len = 6, N = 4e, C = N
-App:..\HAL\sensor\src\gps.c,line : 150,len = 11, N = 45, C = E
-App:..\USER\user-app.c,line : 185,len = 0B 
-ZetaSendBuf: FD 00 22 68 C2 4E 00 AD DD 1B 45 
-start send data
-FF 00 18 02 13 07 31 00 02 11 FD 00 22 68 C2 4E 00 AD DD 1B 45 00 02 F9 
-ff 00 04 01 
-
 
 
 尊敬的管理员：

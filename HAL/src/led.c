@@ -116,21 +116,12 @@ void LedSendSucess(int8_t Counter)
 */
 void LedSendFail(int8_t Counter)
 {
-	if(GetLedStates(  ) == GpsLocation)  ///还原定位定时器
-	HAL_TIM_Base_Stop_IT(&htim2);   ///定位过程关闭定时器，防止LED状态干扰
-
 	for( int8_t i = Counter; i > 0; i -- )
 	{
 		LedOn(  );
 		HAL_Delay(1000);
 		LedOff(  );
 		HAL_Delay(200);
-	}
-	
-	if(GetLedStates(  ) == GpsLocation)  ///还原定位定时器
-	{
-		HAL_TIM_Base_Start_IT(&htim2);
-		DEBUG_APP(2,"----Start_IT----");
 	}
 }
 

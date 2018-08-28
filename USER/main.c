@@ -32,11 +32,7 @@ extern RTC_HandleTypeDef 				RtcHandle;
 /* variable functions ---------------------------------------------------------*/	
 
 int main(void)
-{	
-	 uint32_t SensorTime = 0;
-	 uint32_t OverTime = 0;
-	 uint32_t SleepTime = 0;
-	
+{		
    BoardInitMcu(  );
 	
 	 LedOn(  );
@@ -44,9 +40,7 @@ int main(void)
 	 UserReadFlash(  );
 	
 	 UserCheckSensors(  );
-		
-	 LedOff(  );
-	
+			
    DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
 			 	 				
 	 UserCheckCmd(&UserZetaCheck[MAC]);
@@ -66,15 +60,8 @@ int main(void)
 	 	 
    while (1)
    {	
-
-#if 1	 
-		 SensorTime = HAL_GetTick(  );
 		
 		 UserSendSensor(  );
-		 		 
-		 OverTime = HAL_GetTick(  ) - SensorTime;
-		 
-		 OverTime /= 1000;
 		 		 
 		 DEBUG_APP(2,"User.SleepTime = %d OverTime = %d\r\n",User.SleepTime,OverTime);
 		 		 
@@ -90,13 +77,6 @@ int main(void)
 		 ////上报GPS信息
 		 UserSendGps(  ); 
 
-#else
-		 
-//		 UserSendTest(  );
-		 ReadBattery(  );
-		 HAL_Delay(4000);
-
-#endif
 		 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
 		 SetRtcAlarm(SleepTime);///4S误差	  (User.SleepTime*60) 
 		 UserIntoLowPower(  );
