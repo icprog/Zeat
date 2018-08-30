@@ -25,7 +25,7 @@ CheckRs485_t CheckRs485s[] = {
 	{0x06, 0x06,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		500*1,		"" ,			"" ,		   "ST_GH"},	///光合有效
 	{0x07, 0x07,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		 "ST_Y/MW"},  ///叶面温度
 	{0x08, 0x08,				0x0001, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		  "ST_YMS"},  ///叶面湿度
-	{0x17, 0x17,				0x0015, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		500,			"" ,			"" ,		   "WH_EC"},  ///威海土壤EC
+	{0x17, 0x17,				0x0015, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*4,			"" ,			"" ,		   "WH_EC"},  ///威海土壤EC
 	{0x0C, 0x03,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		200*1,		"" ,			"" ,		   "ST-TW"},  ///土壤温度
 	{0x0D, 0x0D,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		   "ST-EC"},  ///EC
 	{0x0E, 0x0E,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*10,	"" ,			"" ,		  "ST_CO2"},	///CO2		
@@ -181,7 +181,7 @@ void SensorDataProces(void)
 			
 			if(Len <= ZetaSendBuf.MaxLen) ///作为读取传感器数据是异常标志
 			{
-					DEBUG_APP(2, "-----SensorToLen : %d----",SaveRs485s[PortId].MainBox.SensorToLen);
+					DEBUG_APP(3, "-----SensorToLen : %d----",SaveRs485s[PortId].MainBox.SensorToLen);
 
 				if(SaveRs485s[PortId].MainBox.SensorToLen != 0)
 				{
@@ -499,7 +499,7 @@ Rstype_t SensorQueryType(int PortId)
 			if(len == CheckRs485s[i].RevDataLen)
 			{
 				//找到了
-				DEBUG_APP(2,"device had find:%02x",CheckRs485s[i].Addr);
+				DEBUG_APP(2,"device had find:0x%02x",CheckRs485s[i].Addr);
 												
 				SaveRs485s[PortId].MainBox.Index = id;
 				SaveRs485s[PortId].MainBox.CheckIndex = i; ///记录查询下标

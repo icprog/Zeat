@@ -31,6 +31,7 @@ void BoardInitMcu( void )
 		__HAL_RCC_GPIOA_CLK_ENABLE(); ///开启时钟
 										
 		McuInitialized = true;
+		
 	} 
 	else
 	{
@@ -95,11 +96,7 @@ void BoardDeInitMcu( void )
     /* Disable the Peripheral */	
 	HAL_ADC_MspInit(&hadc);  ///OK
 	hadc.State = HAL_ADC_STATE_RESET;
-//	
-//	 /* Disable the selected I2C peripheral */
-//  HAL_I2C_DeInit(&hi2c2);
-//	hi2c2.State = HAL_I2C_STATE_RESET;
-//	
+
 	HAL_UART_DeInit(&hlpuart1);
 	hlpuart1.gState = HAL_UART_STATE_RESET;
 	
@@ -115,13 +112,13 @@ void BoardDeInitMcu( void )
 	HAL_UART_DeInit(&huart5);
 	huart5.gState = HAL_UART_STATE_RESET;
 	
-//	HAL_TIM_Base_MspInit(&htim2);
-//	htim2.State = HAL_TIM_STATE_RESET;
+	HAL_TIM_Base_MspInit(&htim2);
+	htim2.State = HAL_TIM_STATE_RESET;
 
 	
 	/*******************关闭SPI*********************/
 		
-	GPIO_InitStructure.Pin = 0xF7FF;   ///GPIO_PIN_All
+	GPIO_InitStructure.Pin = 0xF7FF;   ///GPIO_PIN_ll
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG; ///low_power,其它较高
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;

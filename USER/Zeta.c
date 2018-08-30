@@ -54,10 +54,10 @@ void ZetaInit(void)
 	HAL_GPIO_Init(ZETASTATU_IO,&GPIO_Initure);
 	
 	HAL_GPIO_WritePin(ZETAWAKUP_IO,ZETAWAKUP_PIN,GPIO_PIN_SET);	
-	
+					
 	//中断线2-PC2
 	HAL_NVIC_SetPriority(EXTI0_1_IRQn,2,0);       //抢占优先级为2，子优先级为0
-	HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);   	
+	HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);  
 	
 	MX_LPUART1_UART_Init(  ); 
 }

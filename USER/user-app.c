@@ -18,9 +18,6 @@
 
 volatile uint16_t	UpSeqCounter = 1; 
 
-uint32_t SensorTime = 0;
-uint32_t OverTime = 0;
-uint32_t SleepTime = 0;
 
 UserZeta_t UserZetaCheck[] = {
 	{0x10, 1500, Payload}, ///查询mac
@@ -41,10 +38,9 @@ void UserCheckSensors(void)
 {		
 	UserGetAddID(  );
 	
+	LedOn(  );
 	Sensors.QueryPinStaus(  );
-	
-  LedOff(  );
-		
+			
 	if(GPSEXIST == DeviceInfo[1])
 	{
 		Gps.Init(  );
@@ -56,6 +52,8 @@ void UserCheckSensors(void)
 		
 		SetGpsAck.GetPation = PATIONNULL;
 	}
+	
+  LedOff(  );
 }
 
 
@@ -102,9 +100,9 @@ void UserSend(Zeta_t *SendBuf)
 				
 				if(ApplyCounter == 10)  ///1min超时操作进入休眠
 				{
-					SleepTime = User.SleepTime*60;
-					DEBUG(2,"SleepTime = %d",SleepTime);
-					SetRtcAlarm(SleepTime); 
+					uint32_t sleeptime = User.SleepTime*60;
+					DEBUG(2,"SleepTime = %d",sleeptime);
+					SetRtcAlarm(sleeptime); 
 					UserIntoLowPower(  );
 				}
 			}
@@ -126,13 +124,8 @@ void UserSend(Zeta_t *SendBuf)
 */
 void UserSendSensor(void)
 {	
-	SensorTime = HAL_GetTick(  );		
 
 	Sensors.Handle(  );
-	
-	OverTime = HAL_GetTick(  ) - SensorTime;
-		 
-	OverTime /= 1000;
 	
 	ZetaSendBuf.Buf[0] = 0xff;
 	ZetaSendBuf.Buf[1] = 0x00;

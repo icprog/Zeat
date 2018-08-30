@@ -58,9 +58,6 @@ extern volatile uint16_t	UpSeqCounter;
 
 extern User_t User;
 
-extern uint32_t SensorTime;
-extern uint32_t OverTime;
-extern uint32_t SleepTime;
 
 void UserCheckSensors(void);
 

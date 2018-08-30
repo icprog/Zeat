@@ -63,14 +63,20 @@ void EXTI4_15_IRQHandler( void )
   */
 void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
 {
+	
+	DEBUG_APP(2,"PIN = %d",HAL_GPIO_ReadPin(ZETAINT_IO,ZETAINT_PIN));
 	switch(GPIO_Pin)
     {
-			case GPIO_PIN_1:		
-			ZetaHandle.Interrupt(  );	
+			case GPIO_PIN_1:	
 				
-			LedRev( 10 ); ///接收到数据快闪2S
-						
-			UserDownCommand(  );
+			if(HAL_GPIO_ReadPin(ZETAINT_IO,ZETAINT_PIN)) ///防止中断误触发
+			{
+				ZetaHandle.Interrupt(  );	
+					
+				LedRev( 10 ); ///接收到数据快闪2S
+							
+				UserDownCommand(  );
+			}
 						
 			default	:
 				break;

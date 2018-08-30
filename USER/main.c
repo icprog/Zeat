@@ -33,16 +33,18 @@ extern RTC_HandleTypeDef 				RtcHandle;
 
 int main(void)
 {		
+	 uint32_t SensorTime = 0;
+	 uint32_t OverTime = 0;
+	 uint32_t SleepTime = 0;
+	
    BoardInitMcu(  );
-	
-	 LedOn(  );
-	
+		
 	 UserReadFlash(  );
 	
 	 UserCheckSensors(  );
 			
    DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
-			 	 				
+			 	 						
 	 UserCheckCmd(&UserZetaCheck[MAC]);
 
 	 UserCheckCmd(&UserZetaCheck[COUNTER]);
@@ -61,7 +63,13 @@ int main(void)
    while (1)
    {	
 		
+		 SensorTime = HAL_GetTick(  );		
+
 		 UserSendSensor(  );
+		 
+		 OverTime = HAL_GetTick(  ) - SensorTime;
+		 
+		 OverTime /= 1000;
 		 		 
 		 DEBUG_APP(2,"User.SleepTime = %d OverTime = %d\r\n",User.SleepTime,OverTime);
 		 		 
