@@ -9,6 +9,7 @@
 */
 #include <math.h>
 #include "user-app.h"
+#include "debug.h"
 #include "Zeta.h"
 #include "sensor.h"
 #include "gps.h"

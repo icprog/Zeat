@@ -3,14 +3,14 @@
 
 #include "stm32l0xx_hal.h"
 
-#define DEV_ADDR					0x0801ffe0			//数据流存储地址
-#define DEV_ADDR_SIZE			0x12				//数据流占用存储空间
+#define DEV_ADDR					0x0801ffe0			//设备ID存储地址
+#define DEV_ADDR_SIZE			0x12				//设备ID占用存储空间
 
-#define SLEEP_ADDR				0x0801ffc0			//ID存储地址 
-#define SLEEP_ADDR_SIZE		0x04				//ID占用存储空间
+#define SLEEP_ADDR				0x0801ffc0			//休眠时间存储地址 
+#define SLEEP_ADDR_SIZE		0x04				//休眠时间占用存储空间
 
-#define MAXLEN_ADDR				0x0801ffbc			//ID存储地址
-#define MAXLEN_ADDR_SIZE	0x01				//ID占用存储空间
+#define MAXLEN_ADDR				0x0801ffbc			//Zeta数据长度存储地址
+#define MAXLEN_ADDR_SIZE	0x01				//Zeta数据长度占用存储空间
 
 #define FLAG_ADD					0x0801fd10			//备份寄存器的代替位置，用于记录各种标识位
 #define	FLAG_ADD_SIZE			0x10
