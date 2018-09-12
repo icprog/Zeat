@@ -154,13 +154,16 @@ void TIM2_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
 	Timer2_Counter++;
-	
-	if(Timer2_Counter>1000)
+		
+	if(Timer2_Counter>20)  ///50MSÒ»´Î
 	{
-		DEBUG(2,"%s\r\n",__func__);
+		DEBUG(3,"%s\r\n",__func__);
 		Gps.GetPosition( SetGpsAck.PationBuf );
 		Timer2_Counter = 0;
 	}
+	
+	LedDisplay(  );
+	
   /* USER CODE END TIM2_IRQn 1 */
 }
 
@@ -212,7 +215,6 @@ void USART4_5_IRQHandler(void)
   /* USER CODE END USART4_5_IRQn 0 */
 //   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN USART4_5_IRQn 1 */
-		
 		FIFO_UartIRQ(&usart_rs485);
 	
   /* USER CODE END USART4_5_IRQn 1 */

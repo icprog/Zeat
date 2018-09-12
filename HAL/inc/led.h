@@ -26,22 +26,23 @@ typedef enum ledStates
 
 extern LedStates_t LedStates;
 
-extern TimerEvent_t LedTimer;
+extern uint32_t LedTimer;
 
-void OnLedTimerEvent( void );
+void Ledrecv(uint32_t *Counter);
+void Ledsuccess(uint32_t *Counter);
+void Ledfail(uint32_t *Counter);
+void Ledgps(uint32_t *Counter);
+void LedOn(void);
+void LedOff(void );
+void LedInit(void);
 
-void SetLedStates(uint8_t States);
+LedStates_t LedRestStates(void);
 
-uint8_t GetLedStates(void);
+LedStates_t LedGetStates(void);
 
-void PowerEnable_Led(void);
+void LedSetStates(LedStates_t state);
 
-void PowerDisble_Led(void);
-
-void SendDone_Led(void);
-
-void Error_Led(void);
-
+void LedDisplay(void);
 
 #endif /* __LED_H */
 

@@ -12,12 +12,18 @@
 #include "usart.h"
 #include "Debug.h"
 
-Zeta_t 							ZetaRecviceBuf = {0, NULL, 0, Reset};
-Zeta_t 							ZetaSendBuf		 = {0, NULL, 0, Reset};
+
+#define VERSIOS					0x01
+
+Zeta_t 							ZetaRecviceBuf = {0, 0, {0}, {0}, 0, false, Reset};
+Zeta_t 							ZetaSendBuf		 = {0, 0, {0}, {0}, 0, false, Reset};
 ZetaTimer_t					ZetaTimer;
 const ZetaHandle_t 	ZetaHandle = {ZetaInit, ZetaPowerOn, ZetaPowerOff, WakeupZetaEnable, WakeupZetaDisable, \
-																	ZetaInterrupt, ZetaSend, ZetaRecv, CalcCRC8, ZetaStatus};
+																	ZetaInterrupt, ZetaSend, ZetaRecv, CalcCRC8, ZetaStatus, ZetaDownCommand};
 
+uint8_t Ansbuff[10]={0};
+extern uint16_t zetamaxlen;
+extern uint16_t zetauselen;
 /*ZetaInit：初始化Zeta IO
 *参数：			无ZetaHandle.PowerOn
 *返回值：   无
@@ -31,7 +37,7 @@ void ZetaInit(void)
 
 	GPIO_Initure.Pin=ZETAINT_PIN;  
 	GPIO_Initure.Mode=GPIO_MODE_IT_RISING;      			
-	GPIO_Initure.Pull=GPIO_PULLUP;
+	GPIO_Initure.Pull=GPIO_PULLDOWN;
 	HAL_GPIO_Init(ZETAINT_IO,&GPIO_Initure);
 			
 	GPIO_Initure.Pin=ZETAWAKUP_PIN|ZETAPOWER_PIN;  
@@ -127,6 +133,71 @@ void ZetaSend(Zeta_t *ZetaBuf)
 	ZetaRecviceBuf.States = Reset;
 }
 
+/*ZetaDownCommand：Zeta下行命令处理
+*参数：					 	 下行数据
+*返回值：   		 	 无
+*/
+uint8_t ZetaDownCommand(uint8_t *RevBuf)
+{
+	uint8_t state = 0xFE;
+	
+	switch( RevBuf[0] )
+	{
+		case 0xA0: ///修改采样周期
+			if( 0x00 == ZetaHandle.CRC8( RevBuf,4 ) )
+			{
+				uint32_t data = 0;
+				data |= RevBuf[1] << 4;
+				data |= RevBuf[2];
+								
+				////data write in flash			
+				state = FlashWrite32( SLEEP_ADDR, &data, 1 );
+								
+				User.SleepTime =	FlashRead32(SLEEP_ADDR);
+								
+				DEBUG_APP(2,"----data----%d User.SleepTime = %d",data,User.SleepTime);
+
+			}
+			
+		break;
+			
+		case 0xA1: ///重新上报GPS位置信息
+			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
+			{
+				GpsGetPositionAgain(  );
+				state = 0x01;
+			}
+			break;
+		case 0xA2:
+			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
+			{
+			  ZetaSendBuf.MaxLen = RevBuf[1];
+			  FlashWrite16( MAXLEN_ADDR, (uint16_t *)ZetaSendBuf.MaxLen, 1 );
+				
+				ZetaSendBuf.MaxLen -= FIXLEN;
+				
+				state = 0x01;
+			}
+		
+		break;
+			
+		case 0xA3:
+			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
+			{			
+				state = 0x03;
+			}
+			else
+				state = 0xfc;
+		
+		break;
+		
+		default:
+			break;
+	}
+	
+	return state;
+}
+
 /*ZetaRecv：获取Zeta数据
 *参数：			无
 *返回值：   Zeta工作状态
@@ -136,8 +207,7 @@ ZetaState_t ZetaRecv(void)
 	if( HAL_GetTick(  )-ZetaRecviceBuf.Uart_time > 20 && UART_RX_LPUART1.Rx_State) 
 	{
 		UART_RX_LPUART1.Rx_State = false;
-		ZetaRecviceBuf.Buf = (uint8_t*)malloc(sizeof(uint8_t)*UART_RX_LPUART1.USART_RX_Len);///需要分配空间，否则赋值失败
-		memcpy(ZetaRecviceBuf.Buf,UART_RX_LPUART1.USART_RX_BUF,UART_RX_LPUART1.USART_RX_Len);
+		memcpy1(ZetaRecviceBuf.Buf,UART_RX_LPUART1.USART_RX_BUF,UART_RX_LPUART1.USART_RX_Len);
 		ZetaRecviceBuf.Len = UART_RX_LPUART1.USART_RX_Len;
 		
 		memset(UART_RX_LPUART1.USART_RX_BUF, 0, UART_RX_LPUART1.USART_RX_Len);
@@ -173,14 +243,19 @@ ZetaState_t ZetaRecv(void)
 		{
 			ZetaRecviceBuf.States = Payload;
 		}
+		if( ZetaRecviceBuf.Buf[0] == 0xFF && ZetaRecviceBuf.Buf[1] == 0x00 && ( ZetaRecviceBuf.Buf[3] == 0x30 || ZetaRecviceBuf.Buf[3] == 0x10 ) )
+		{
+		  memcpy1(ZetaRecviceBuf.RevBuf, &ZetaRecviceBuf.Buf[4],ZetaRecviceBuf.Len-4);
+			for(uint8_t i = 0; i < ZetaRecviceBuf.Len - 4; i++)
+			printf("%02x ",ZetaRecviceBuf.RevBuf[i]);
+			DEBUG(2,"\r\n");
+		}
 		
 		////下行控制数据处理:FF 00 08 30 23 45 67 89：发送数据周期、唤醒MCU发送等 
 		
 		DEBUG(3,"States: %02x\r\n",ZetaRecviceBuf.States);
 		memset(ZetaRecviceBuf.Buf, 0, ZetaRecviceBuf.Len);
 		ZetaRecviceBuf.Len = 0;
-
-		free(ZetaRecviceBuf.Buf);
 
 	}
 		return ZetaRecviceBuf.States;

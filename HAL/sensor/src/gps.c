@@ -13,7 +13,7 @@
 #define MTK_POS_FIX			"$PMTK220,1000*1F\r\n" //  $PMTK220,3000*1D
 #define MTK_GLL					"$PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0*28\r\n"
 
-SetGpsAck_t SetGpsAck = {false, false, false, false, false, false, 0, 0, 0};
+SetGpsAck_t SetGpsAck = {false, false, false, false, {0}, PATIONNULL, 0, {0}, 0, 0, 0};
 
 const Gps_t Gps = {GpsInit, GpsEnable, GpsDisable, GpsSet, GpsGetPosition};
 
@@ -31,6 +31,8 @@ void GpsInit(void)
 	HAL_GPIO_Init(GPS_IO,&GPIO_Initure);
 	
 	MX_USART2_UART_Init(  ); 
+	
+//	TimerHwInit(  );
 }
 
 void GpsEnable(void)
@@ -59,23 +61,21 @@ void GpsDisable(void)
 */
 uint8_t GpsSet(void)
 {
-	Gps.Enable( );
+	Gps.Enable( );  
 	uint32_t GPS_TIME = 0;
 	
 	do
-	{		
-		HAL_NVIC_DisableIRQ(USART2_IRQn);
+	{				
 		HAL_UART_Transmit(&huart2, (uint8_t *)MTK_COULD, sizeof(MTK_COULD), 0xFFFF);
-		HAL_NVIC_EnableIRQ(USART2_IRQn);		
-		HAL_Delay(1000);
+		HAL_Delay(1000);	
     GPS_TIME ++;
 		DEBUG(2,"line = %d\r\n",__LINE__);
 	}
-	while(!SetGpsAck.Start && ( GPS_TIME <= 3 ));
+	while(!SetGpsAck.Start && ( GPS_TIME <= 10 ));
     
 	SetGpsAck.GetPationTime = HAL_GetTick();
 
-	if(!SetGpsAck.Start && ( GPS_TIME > 3 ))
+	if(!SetGpsAck.Start && ( GPS_TIME > 10 ))
 	{
 		DEBUG_ERROR(2,"Hardware_Exist_GPS ERROR\r\n");
 		return 0;
@@ -115,30 +115,20 @@ uint8_t GpsSet(void)
 void GpsGetPosition(uint8_t *GpsBuf)
 {	
 	uint8_t len = 0;
-	uint32_t temp[4] = {gpsx.latitude,gpsx.nshemi,gpsx.longitude,gpsx.ewhemi};
-
-	if(SetGpsAck.GetPationAgain)  ///到达预计GPS上报时间，重新使能GPS模块
-	{
-		DEBUG(2,"line = %d time = %d\r\n",__LINE__, SetGpsAck.GpsOverTime);
-		SetGpsAck.GpsDone = false;
-		SetGpsAck.Start = false;
-		SetGpsAck.Posfix = false;
-		SetGpsAck.Gpll	= false;      
-		SetGpsAck.GetPationAgain = false;
-		Gps.Init(  );
-		Gps.Set(  );	
-		SetGpsAck.GpsOverTime = HAL_GetTick( );
-	}			
+	
+	GpsBuf[len++] = 0XFD; //GPS	
  
-	if(SetGpsAck.GetPation && SetGpsAck.Posfix) ///判断是否有GPS、获取GPS信息  
+	if(( SetGpsAck.GetPation == PATIONDONE )&& SetGpsAck.Posfix) ///判断是否有GPS、获取GPS信息  
 	{	        		 
-		SetGpsAck.GetPation = false; ///关闭GPS位置信息
 		NMEA_GPGLL_Analysis(&gpsx, (uint8_t *)SetGpsAck.GLL); ///经纬度  "$GPGLL,2233.1773,N,11356.7148,E,094100.210,A,A*5E\r\n"
+
 		DEBUG(3,"11---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude,gpsx.nshemi, (double)gpsx.longitude,gpsx.ewhemi);
 		DEBUG(2,"22---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude/100000,gpsx.nshemi, (double)gpsx.longitude/100000,gpsx.ewhemi);
-		
+		uint32_t temp[4] = {gpsx.latitude,gpsx.nshemi,gpsx.longitude,gpsx.ewhemi};
+
 		uint8_t i = 0;
-		for(len = 1; len < GPSLEN; i++)
+		
+		for(; len < GPSLEN; i++)
 		{
 			if(i%2==1)
 			{
@@ -154,22 +144,51 @@ void GpsGetPosition(uint8_t *GpsBuf)
 		}					
 		SetGpsAck.GpsDone = true; ///GPS发送完成标记	 
 		gpsx.gpssta = 1;
+		SetGpsAck.Len = len;
+
+		LedSetStates(NoneCare);				
 	} 
-	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 10000) && (SetGpsAck.Posfix && !SetGpsAck.GetPation ))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
- {
+	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 30000) && SetGpsAck.Posfix && (SetGpsAck.GetPation == PATIONNULL))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
+ {	 
 		DEBUG(2,"GPS_TIME22 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GpsOverTime);
 		 
+		SetGpsAck.GetPation = PATIONFAIL;
+
 		Gps.Disable(  ); ///关闭GPS
 		 
 		SetGpsAck.Start = false;
 
 		memset(SetGpsAck.GLL, 0, strlen(SetGpsAck.GLL));
+	 
 		SetGpsAck.GpsDone = true; ///GPS发送完成标记	 
 		gpsx.gpssta = 0;	
 		
-		GpsBuf[len++] = 0;
-		
+		GpsBuf[len++] = 0x01;
+	 
+		SetGpsAck.Len = len;
+	 	 
+		LedSetStates(NoneCare);
 	}
+}
+
+/*
+*GpsGetPositionAgain: GPS再次定位
+*返回：					 			成功：1  失败：0
+*/
+void GpsGetPositionAgain(void)
+{
+		SetGpsAck.Start = false;
+		SetGpsAck.Posfix = false;
+		SetGpsAck.Gpll	= false;      
+		SetGpsAck.GetPation = PATIONNULL;
+		Gps.Init(  );
+		Gps.Set(  );	
+		
+		LedSetStates(GpsLocation);
+
+		SetGpsAck.GpsOverTime = HAL_GetTick( );
+	
+		HAL_TIM_Base_Start_IT(&htim2);
 }
 
 const uint32_t BAUD_id[9]={4800,9600,19200,38400,57600,115200,230400,460800,921600};//模块支持波特率数组

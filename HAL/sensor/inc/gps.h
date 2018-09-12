@@ -7,15 +7,19 @@
 #define   GPSWORKTIME			  60e3  ///864e5  == 24H  GPS再次定位时间间隔
 #define 	GPSLEN						11
 
+#define		PATIONDONE				0x01
+#define		PATIONFAIL				0x02
+#define		PATIONNULL				0x03
+
 typedef struct
 {
 	bool 			Start;
 	bool 			Gpll;
 	bool 			Posfix;
-	bool 			GetPation;
 	bool 			GpsDone;
-  bool 			GetPationAgain;
 	char 			GLL[54];
+	uint8_t 	GetPation;
+	uint8_t		Len;
 	uint8_t   PationBuf[11];
 	uint8_t   PosfixCounter;
 	uint32_t 	GetPationTime;
@@ -40,6 +44,8 @@ void GpsEnable(void);
 void GpsDisable(void);
 uint8_t GpsSet(void);
 void GpsGetPosition(uint8_t *GpsBuf);
+
+void GpsGetPositionAgain(void);
 
 
 //GPS NMEA-0183协议重要参数结构体定义 

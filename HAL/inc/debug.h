@@ -38,9 +38,9 @@
 
 #define DEBUG(level, fmt, arg...)  if(level <= DEBUG_LEVEL)  printf(fmt,##arg); 	
 	
-#define DEBUG_APP(level, fmt, arg...)  if(level <= APP)	printf("App:"__FILE__",line : %d,"fmt"\r\n",__LINE__,##arg); 	
-#define DEBUG_WARNING(level, fmt, arg...)  if(level <= WARNING)	printf("Warning:"__FILE__",line : %d,"fmt"\r\n",__LINE__,##arg); 
-#define DEBUG_ERROR(level, fmt, arg...)  if(level <= ERROR)	printf("Error:"__FILE__",line : %d,"fmt"\r\n",__LINE__,##arg); 
+#define DEBUG_APP(level, fmt, arg...)  			if(level <= APP)			printf("App:"__FILE__",line : %d,"fmt"\r\n",__LINE__,##arg); 	
+#define DEBUG_WARNING(level, fmt, arg...)  	if(level <= WARNING)	printf("Warning:"__FILE__",line : %d,"fmt"\r\n",__LINE__,##arg); 
+#define DEBUG_ERROR(level, fmt, arg...)  		if(level <= ERROR)		printf("Error:"__FILE__",line : %d,"fmt"\r\n",__LINE__,##arg); 
 
 #endif //end of DEBUG__							
 

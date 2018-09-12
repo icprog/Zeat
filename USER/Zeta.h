@@ -15,6 +15,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "stm32l0xx_hal.h"
 
 #define  ZETAINT_IO						GPIOB
@@ -30,6 +31,8 @@
 #define  ZETAPOWER_PIN				GPIO_PIN_13
 
 #define  ZETAMAXLEN						38
+
+#define  FIXLEN								11
 
 /*
 *ZetaState_t: Zeta×´Ì¬ÁÐ±í
@@ -78,8 +81,11 @@ typedef enum uZetaState
 typedef struct uZeta
 {
 	uint8_t 		Len;
-	uint8_t			*Buf;
+	uint8_t		  MaxLen;
+	uint8_t			Buf[50];
+	uint8_t			RevBuf[10];
 	uint32_t    Uart_time;
+	bool 				RecvState;
 	ZetaState_t States;
 }Zeta_t;
 
@@ -108,6 +114,7 @@ typedef struct uZetaHandle
 	ZetaState_t		(*Recv)(void);
 	uint8_t 			(*CRC8)(uint8_t *ptr, uint8_t len);
 	GPIO_PinState (*Status)(void);
+	uint8_t	      (*DownCommand)(uint8_t *RevBuf);
 }ZetaHandle_t;
 
 extern Zeta_t 			ZetaRecviceBuf;
@@ -135,6 +142,8 @@ GPIO_PinState ZetaStatus(void);
 void ZetaSend(Zeta_t *ZetaBuf);
 
 ZetaState_t ZetaRecv(void);
+
+uint8_t ZetaDownCommand(uint8_t *RevBuf);
 
 uint8_t CalcCRC8(uint8_t *ptr, uint8_t len);
 

@@ -58,6 +58,8 @@ I2C							|					  		|
 
 
 ff 00 0e 02 68 65 6c 6c 6f 77 6f 72 6c 64
+4.实现下发数据更改上报命令最大长度功能。
+4.实现双色温指示灯功能：发送定位信息时绿灯点亮，数据接收成功黄灯点亮，申请入网及数据发送或接受失败红灯点亮。
 
 
 
@@ -76,48 +78,8 @@ ff 00 0e 02 68 65 6c 6c 6f 77 6f 72 6c 64
 ??? 信息管理系统地址:?http://www.zeta-alliance.com:25450/teamcms/homePage
 
 
-
-unsigned char crc_high_first(unsigned char *ptr, unsigned char len)
-{
-    unsigned char i; 
-    unsigned char crc=0x00； /* 计算的初始crc值 */ 
-
-    while(len--)
-    {
-        crc ^= *ptr++;  /* 每次先与需要计算的数据异或,计算完指向下一数据 */  
-        for (i=8; i>0; --i)   /* 下面这段计算过程与计算一个字节crc一样 */  
-        { 
-            if (crc & 0x80)
-                crc = (crc << 1) ^ 0x31;
-            else
-                crc = (crc << 1);
-        }
-    }
-
-    return (crc); 
-}
-
-
-Program Size: Code=70778 RO-data=3770 RW-data=2640 ZI-data=6984  
-
-Program Size: Code=22556 RO-data=1712 RW-data=1468 ZI-data=6836 
-
-Program Size: Code=25316 RO-data=1408 RW-data=2376 ZI-data=7208  
-
-Program Size: Code=72574 RO-data=2282 RW-data=836 ZI-data=6140  
-
-Program Size: Code=20212 RO-data=340 RW-data=116 ZI-data=3172  
-
-SaveRs485s[index].MainBox.ExpendBox[ExpId].ExpenCheck
-
-	Sensors.MaBoxData 			= SensorMaBoxData;
-	
-0907183000000001 ///0730 0001  30: Zeta  31:Zeta+GPS	
-
-Program Size: Code=31544 RO-data=2412 RW-data=1532 ZI-data=7244  
-
-
-ZetaHandle.Interrupt
-
-		SaveRs485s[id].MainBox.SensorToLen = 0; ///传感器总长度		
+.\Objects\Zetav-plus.axf: Error: L6218E: Undefined symbol SetLedStates (referred from gps.o).
+.\Objects\Zetav-plus.axf: Error: L6218E: Undefined symbol LedSendFail (referred from user-app.o).
+.\Objects\Zetav-plus.axf: Error: L6218E: Undefined symbol LedSendSucess (referred from user-app.o).
+.\Objects\Zetav-plus.axf: Error: L6218E: Undefined symbol SetLedStates (referred from gps.o).
 

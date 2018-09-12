@@ -33,6 +33,8 @@ void BatteryInit(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(OUT_CH_CE_GPIO_Port, &GPIO_InitStruct);
+	
+	BatEnableCharge(  );
 }
 
 /*
@@ -87,14 +89,14 @@ uint8_t ReadBattery(void)
 {
     uint8_t s1, s2, PG;
 	
-		BatDisableCharge(  );
-		HAL_Delay(1000);
+//		BatDisableCharge(  );
+//		HAL_Delay(1000);
 	
 		uint8_t  Battery = CheckBattery(  );
 	
-		BatEnableCharge(  );
-		
-		HAL_Delay(1000);
+//		BatEnableCharge(  );
+//		
+//		HAL_Delay(1000);
 	
 		s1 = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_STAT1_Pin);
     s2 = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_STAT2_Pin);
@@ -103,15 +105,15 @@ uint8_t ReadBattery(void)
 		 switch( (s2<<1) | s1 )
     {
         case 0x01:
-            CheckBatState = 0x01;
+            User.BatState = 0x01;
             DEBUG(2,"11充电完成\r\n");
 				break;
         case 0x02:
-            CheckBatState = 0x02;
+            User.BatState = 0x02;
             DEBUG(2,"11正在充电\r\n");
         break;
         default:
-            CheckBatState = 0x03;
+            User.BatState = 0x03;
             DEBUG(2,"11未充电\r\n");
 				break;
     }

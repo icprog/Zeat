@@ -50,7 +50,8 @@ void BoardInitMcu( void )
 	MX_ADC_Init(  );
 	
 	/*****************电源管理********************/
-//	InitPower(  );
+	BatteryInit(  );
+
 	RTC_Init(  );
 	
 	/*******************开启RTC中断*******************/
@@ -60,13 +61,16 @@ void BoardInitMcu( void )
 //	MX_WWDG_Init(  );
 //	WWDG_NVIC_Init(  );
 			
-//	TimerHwInit(  );
+	LedInit(  );
 	
-	UserInit(  );
+	TimerHwInit(  );
 	
 	SensorsInit(  );
 	
+	ZetaHandle.Init(  );
+	
 	ZetaHandle.PowerOn(  );
+	
 }
 
 /*
@@ -87,14 +91,14 @@ void BoardDeInitMcu( void )
 	__HAL_RCC_GPIOH_CLK_ENABLE();
 	
 	/****************************************/
-    /* Disable the Peripheral */	
+  /* Disable the Peripheral */	
 	HAL_ADC_MspInit(&hadc);  ///OK
 	hadc.State = HAL_ADC_STATE_RESET;
-//	
-//	 /* Disable the selected I2C peripheral */
-//  HAL_I2C_DeInit(&hi2c2);
-//	hi2c2.State = HAL_I2C_STATE_RESET;
-//	
+	
+	/* Disable the selected TIM peripheral */
+  HAL_TIM_Base_Init(&htim2);
+	htim2.State = HAL_TIM_STATE_RESET;
+	
 	HAL_UART_DeInit(&hlpuart1);
 	hlpuart1.gState = HAL_UART_STATE_RESET;
 	

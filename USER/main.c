@@ -50,9 +50,17 @@ extern RTC_HandleTypeDef 				RtcHandle;
 
 int main(void)
 {	
+	 uint32_t SensorTime = 0;
+	 uint32_t OverTime = 0;
+	 uint32_t SleepTime = 0;
+	
    BoardInitMcu(  );	
    DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
-		
+	
+	 UserReadFlash(  );
+	
+	 UserCheckSensors(  );
+	
 	 UserCheckCmd(&UserZetaCheck[MAC]);
 
 	 UserCheckCmd(&UserZetaCheck[COUNTER]);
@@ -60,20 +68,39 @@ int main(void)
 	 UserCheckCmd(&UserZetaCheck[RSSI]);
 
 	 UserSetHeart(0x00);
-//	
-//	 UserSend(  );
-			
-	 Sensors.QueryPinStaus(  );
-	 
+
+	 User.SleepTime =	FlashRead32(SLEEP_ADDR);
+	
    while (1)
    {		
-		 Sensors.Handle(  );
-		 UserSend(  );
-		 SetRtcAlarm(20);///4S误差	  
-		 UserIntoLowPower(  );		
-//			HAL_Delay(20000);
+		 SensorTime = HAL_GetTick(  );		
+
+		 UserSendSensor(  );
+		 
+		 ////上报GPS信息
+		 UserSendGps(  ); 
+		 
+		 OverTime = HAL_GetTick(  ) - SensorTime;
+		 
+		 OverTime /= 1000;
+		 		 
+		 DEBUG_APP(2,"User.SleepTime = %d OverTime = %d\r\n",User.SleepTime,OverTime);
+		 		 
+		 if(OverTime>User.SleepTime * 60)
+		 {
+				SleepTime = 60;
+		 }
+		 else		
+		 {
+				SleepTime = User.SleepTime * 60 - OverTime;
+		 }
+		 		 
+		 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
+		 
+		 while(ZetaRecviceBuf.RecvState);
+		 SetRtcAlarm(SleepTime);///4S误差	  (User.SleepTime*60) 
+		 UserIntoLowPower(  );
 	 }
-	 
 }
 
 

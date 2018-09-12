@@ -172,11 +172,6 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
     HAL_UART_Transmit(&huart4,sendData,len + 2,0xffff);				
     RS485_TO_RX(  );
 	
-		if(sendData[0] == 0xFD)
-		{
-			HAL_Delay(1000);
-		}
-		else
     HAL_Delay(NBI_RS485_REV_TIME_OUT);
     memset(Rs485s.Revbuff, 0, sizeof(Rs485s.Revbuff));
     uint8_t length = Rs485s.GetData(Rs485s.Revbuff,debuglevel);

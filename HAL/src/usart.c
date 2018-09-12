@@ -58,7 +58,6 @@ void InitUartFifo(void)
 
 void MX_USART1_UART_Init(void)
 {
-
   huart1.Instance = USART1;
   huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
@@ -331,9 +330,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{	
 		if(UART_RX_DATA2.aRxBuffer[0] == 0x0d)  ///以'\r''\n'作为结束标记
 		{
-			UART_RX_DATA2.Rx_State = true;
-			
-		}else if(UART_RX_DATA2.aRxBuffer[0] == 0x0a) ///以'\n'作为结束标记
+			UART_RX_DATA2.Rx_State = true;		
+		}
+		else if(UART_RX_DATA2.aRxBuffer[0] == 0x0a) ///以'\n'作为结束标记
 		{
 			if(UART_RX_DATA2.Rx_State)
 			{			
@@ -353,14 +352,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 				if(UART_RX_DATA2.USART_RX_BUF[UART_RX_DATA2.USART_RX_Len-6] == 'A')
 				{
-					DEBUG(2,"GPS_TIME22 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GetPationTime);
+					DEBUG(3,"GPS_TIME11 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GetPationTime);
 					SetGpsAck.PosfixCounter++;
 					
-					if(SetGpsAck.PosfixCounter>=30)
+					if(SetGpsAck.PosfixCounter>=20)
 					{
-							SetGpsAck.GetPation = true;
 							Gps.Disable(  );
 							SetGpsAck.PosfixCounter = 0;
+						  SetGpsAck.GetPation = PATIONDONE;
 					}
 					
 					memcpy(SetGpsAck.GLL, UART_RX_DATA2.USART_RX_BUF, UART_RX_DATA2.USART_RX_Len);
@@ -373,7 +372,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				else if(UART_RX_DATA2.USART_RX_BUF[UART_RX_DATA2.USART_RX_Len-6] == 'V')
 				{
 					DEBUG(3,"get poation false\r\n"); 
-					SetGpsAck.GetPation = false;
 					memcpy(SetGpsAck.GLL, UART_RX_DATA2.USART_RX_BUF, UART_RX_DATA2.USART_RX_Len);
 				}	
 			}		
@@ -391,7 +389,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		
 	 if(UART_RX_DATA2.USART_RX_Len >= 516)
 			UART_RX_DATA2.USART_RX_Len = 0;
-	}	
+	}		
 		
 #endif	
 }

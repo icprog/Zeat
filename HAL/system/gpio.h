@@ -58,7 +58,11 @@
 #define IN_CH_STAT1_Pin							GPIO_PIN_8
 #define IN_CH_STAT2_Pin							GPIO_PIN_9
 #define IN_CH_PG_Pin								GPIO_PIN_7
-
+/***********************MCU LED***************************/
+#define LED_PORT          				 	GPIOA
+#define LED_PIN_RED            			GPIO_PIN_11
+#define LED_PIN_GREEN           		GPIO_PIN_12
+#define LED_PIN_YELLOW           		GPIO_PIN_11|GPIO_PIN_12
 
 /*!
  * \brief GPIO≥ı ºªØ

@@ -9,6 +9,7 @@
 */
 #include "board.h"
 #include "gpio-board.h"
+#include "Zeta.h"
 
 void EXTI0_1_IRQHandler( void )
 {
@@ -63,11 +64,33 @@ void EXTI4_15_IRQHandler( void )
   */
 void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
 {
-	switch(GPIO_Pin)
+//	printf("xiaxing");
+   	switch(GPIO_Pin)
     {
-			case GPIO_PIN_0:				
-			ZetaHandle.Interrupt(  );						
+			case GPIO_PIN_1:		
+      if(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1))
+       {
+	       printf("下行数据：");
+				 
+				 ZetaRecviceBuf.RecvState = true; 
+				 
+				 ZetaHandle.Interrupt(  );	
+				 
+				 LedRestStates(  );  ///可能打断发送数据LED状态,先恢复现场
+				 
+				 LedSetStates(Receive);
+				 
+				 HAL_Delay(2000);
+				 
+				 LedRestStates(  );
+				 
+				 UserDownCommand(  );
+				 
+				 ZetaRecviceBuf.RecvState = false; 
+			 }
 			default	:
 				break;
-    }
+   }
+	
+
 }
