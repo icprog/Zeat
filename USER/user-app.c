@@ -211,6 +211,8 @@ void UserSendGps(void)
 		if(SetGpsAck.GpsDone)
 		{
 			SetGpsAck.GpsDone = false;
+			SetGpsAck.Posfix = false;
+			
 			ZetaSendBuf.Buf[0] = 0xff;
 			ZetaSendBuf.Buf[1] = 0x00;
 			

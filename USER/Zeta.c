@@ -176,6 +176,8 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 				
 				ZetaSendBuf.MaxLen -= FIXLEN;
 				
+				DEBUG_APP(2,"---MaxLen--- %d\r\n",ZetaSendBuf.MaxLen);
+				
 				state = 0x01;
 			}
 		

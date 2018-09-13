@@ -122,8 +122,8 @@ void GpsGetPosition(uint8_t *GpsBuf)
 	{	        		 
 		NMEA_GPGLL_Analysis(&gpsx, (uint8_t *)SetGpsAck.GLL); ///经纬度  "$GPGLL,2233.1773,N,11356.7148,E,094100.210,A,A*5E\r\n"
 
-		DEBUG(3,"11---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude,gpsx.nshemi, (double)gpsx.longitude,gpsx.ewhemi);
-		DEBUG(2,"22---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude/100000,gpsx.nshemi, (double)gpsx.longitude/100000,gpsx.ewhemi);
+		DEBUG_APP(3,"11---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude,gpsx.nshemi, (double)gpsx.longitude,gpsx.ewhemi);
+		DEBUG_APP(2,"22---%.5f %1c, %.5f %1c\r\n", (double)gpsx.latitude/100000,gpsx.nshemi, (double)gpsx.longitude/100000,gpsx.ewhemi);
 		uint32_t temp[4] = {gpsx.latitude,gpsx.nshemi,gpsx.longitude,gpsx.ewhemi};
 
 		uint8_t i = 0;
@@ -148,7 +148,7 @@ void GpsGetPosition(uint8_t *GpsBuf)
 
 		LedSetStates(NoneCare);				
 	} 
-	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 30000) && SetGpsAck.Posfix && (SetGpsAck.GetPation == PATIONNULL))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
+	else if(((HAL_GetTick( ) - SetGpsAck.GpsOverTime) > 300000) && SetGpsAck.Posfix && (SetGpsAck.GetPation == PATIONNULL))  ///GPS 5分钟内定位失败，默认GPS异常不再定位 300000
  {	 
 		DEBUG(2,"GPS_TIME22 : %d\r\n",HAL_GetTick( ) - SetGpsAck.GpsOverTime);
 		 

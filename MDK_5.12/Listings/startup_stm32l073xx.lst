@@ -405,11 +405,11 @@ ARM Macro Assembler    Page 7
               00000000 
               00000000 
 Command Line: --debug --xref --cpu=Cortex-M0+ --apcs=interwork --depend=.\objec
-ts\startup_stm32l073xx.d -o.\objects\startup_stm32l073xx.o -I"E:\NBI项目\NBI_Lo
-Ra\NBI_LoRa代码\ZETA\Zeat-master - V0.5\Zeat-master - V0.5\MDK_5.12\RTE" -ID:\m
-ysaftware\keil_5.12\ARM\CMSIS\Include -IDevice\Include --predefine="__MICROLIB 
-SETA 1" --list=.\listings\startup_stm32l073xx.lst ..\CMSIS\Device\ST\STM32L0xx\
-Source\Templates\arm\startup_stm32l073xx.s
+ts\startup_stm32l073xx.d -o.\objects\startup_stm32l073xx.o -IE:\NBI项目\NBI_LoR
+a\NBI_LoRa代码\ZETA\Zeat-Plus-V0.5\MDK_5.12\RTE -ID:\mysaftware\keil_5.12\ARM\C
+MSIS\Include -IDevice\Include --predefine="__MICROLIB SETA 1" --list=.\listings
+\startup_stm32l073xx.lst ..\CMSIS\Device\ST\STM32L0xx\Source\Templates\arm\star
+tup_stm32l073xx.s
 
 
 
