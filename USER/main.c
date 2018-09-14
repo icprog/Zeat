@@ -67,6 +67,9 @@ int main(void)
 
 		 UserSendSensor(  );
 		 
+		  ////上报GPS信息
+		 UserSendGps(  ); 
+		 
 		 OverTime = HAL_GetTick(  ) - SensorTime;
 		 
 		 OverTime /= 1000;
@@ -81,9 +84,6 @@ int main(void)
 		 {
 				SleepTime = User.SleepTime * 60 - OverTime;
 		 }
-		 
-		 ////上报GPS信息
-		 UserSendGps(  ); 
 
 		 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
 		 SetRtcAlarm(SleepTime);///4S误差	  (User.SleepTime*60) 

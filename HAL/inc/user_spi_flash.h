@@ -40,17 +40,6 @@
 /* 宏定义（拓展常量） -----------------------------------------------------------*/
 #define hspiflash                       hspi1
 
-//#define FLASH_SPIx_RCC_CLK_ENABLE()     __HAL_RCC_SPI1_CLK_ENABLE()
-//#define FLASH_SPIx_RCC_CLK_DISABLE()    __HAL_RCC_SPI1_CLK_DISABLE()
-
-//#define FLASH_SPI_GPIO_ClK_ENABLE()     __HAL_RCC_GPIOA_CLK_ENABLE() 
-//#define FLASH_SPI_GPIO_PORT             GPIOA
-//#define FLASH_SPI_SCK_PIN               GPIO_PIN_5
-//#define FLASH_SPI_MISO_PIN              GPIO_PIN_6
-//#define FLASH_SPI_MOSI_PIN              GPIO_PIN_7
-
-//#define FLASH_SPI_CS_CLK_ENABLE()       __HAL_RCC_GPIOA_CLK_ENABLE()    
-
 #define FLASH_ID                        0xc22013                //使用RDID指令读
 #define ELECTRONIC_ID                   0x12                    //RES指令读
 #define RESID0                          0xc212                  //REMS指令读

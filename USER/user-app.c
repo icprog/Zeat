@@ -197,6 +197,8 @@ void UserSendGps(void)
 		if(SetGpsAck.GpsDone)
 		{
 			SetGpsAck.GpsDone = false;
+			SetGpsAck.Posfix = false;
+			
 			ZetaSendBuf.Buf[0] = 0xff;
 			ZetaSendBuf.Buf[1] = 0x00;
 			
@@ -325,8 +327,9 @@ void UserDownCommand(void)
 			
 	ZetaSendBuf.Buf[4] |= User.BatState;
 	
-	if(0x01 == DoneState)
+	switch(DoneState)
 	{
+		case 0x01:
 		ZetaSendBuf.Buf[10 + len++] = ACKCOM;
 		ZetaSendBuf.Buf[10 + len++] = 0x01;
 		
@@ -341,13 +344,77 @@ void UserDownCommand(void)
 		
 		ZetaSendBuf.Buf[2] = 0x0A+len;
 		UserSend(&ZetaSendBuf);
-		
+				
 		LedSendSucess(8);   ///每包数据间隔4S
 		
 		UpSeqCounter ++;
-	}
-	else if(0xff == DoneState)
-	{
+			
+		break;
+		
+		case 0x03:   ///上报MAC地址
+			
+		UserCheckCmd(&UserZetaCheck[MAC]);
+
+		ZetaSendBuf.Buf[0] = 0xff;
+		ZetaSendBuf.Buf[1] = 0x00;
+		
+		ZetaSendBuf.Buf[3] = 0x02;
+		
+		ZetaSendBuf.Buf[4] = (VERSIOS << 4); ///|充电状态
+
+		/********************设备ID*****************/
+		memcpy1(&ZetaSendBuf.Buf[5], &DeviceInfo[0], 4); 
+		
+		ZetaSendBuf.Buf[9] = 0x11;
+				
+		ZetaSendBuf.Buf[4] |= User.BatState;
+		ZetaSendBuf.Buf[10 + len++] = ACKMAC;
+					
+		memcpy1(&ZetaSendBuf.Buf[10 + len], ZetaRecviceBuf.RevBuf, 4);
+				
+		len += 4;
+		
+		ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff00)<<8; ///Seq
+		ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff);
+
+		ZetaSendBuf.Buf[10 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[10],len); ///CRC
+		
+		len++;	
+		
+		ZetaSendBuf.Len = 0x0A+len;
+		ZetaSendBuf.Buf[2] = 0x0A+len;
+				
+		UserSend(&ZetaSendBuf);
+		
+		LedSendSucess(8);   ///每包数据间隔4S
+				
+		UpSeqCounter ++;
+			
+		break;
+		
+		case 0xFC:
+			
+		ZetaSendBuf.Buf[10 + len++] = ACKMAC;
+		ZetaSendBuf.Buf[10 + len++] = 0x02;
+		
+		ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff00)<<8; ///Seq
+		ZetaSendBuf.Buf[10 + len++] = (UpSeqCounter&0xff);
+
+		ZetaSendBuf.Buf[10 + len] = ZetaHandle.CRC8(&ZetaSendBuf.Buf[10],len); ///CRC
+		
+		len++;	
+		ZetaSendBuf.Len = 0x0A+len;
+		ZetaSendBuf.Buf[2] = 0x0A+len;
+		UserSend(&ZetaSendBuf);
+		
+		LedSendSucess(8);   ///每包数据间隔4S
+				
+		UpSeqCounter ++;
+			
+		break;
+		
+		default:
+			
 		ZetaSendBuf.Buf[10 + len++] = ACKCOM;
 		ZetaSendBuf.Buf[10 + len++] = 0x02;
 		
@@ -358,15 +425,19 @@ void UserDownCommand(void)
 		
 		len++;	
 		ZetaSendBuf.Len = 0x0A+len;
-		
+		ZetaSendBuf.Buf[2] = 0x0A+len;
 		UserSend(&ZetaSendBuf);
 		
 		LedSendSucess(8);   ///每包数据间隔4S
-		
+				
 		UpSeqCounter ++;
+			
+		break;
+		
 	}
+	
 	memset(&ZetaSendBuf.Buf[10], 0, ZetaSendBuf.Len);
-	memset(ZetaRecviceBuf.RevBuf, 0, sizeof(ZetaRecviceBuf.RevBuf)/sizeof(ZetaRecviceBuf.RevBuf[0])); 
+	memset(ZetaRecviceBuf.RevBuf, 0, sizeof(ZetaRecviceBuf.RevBuf)/sizeof(ZetaRecviceBuf.RevBuf[0])); 	
 }
 
 /*UserCheckCmd：用户查询Zeta：服务器查询下发

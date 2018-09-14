@@ -122,7 +122,7 @@ void ZetaInterrupt(void)
 */
 uint8_t ZetaDownCommand(uint8_t *RevBuf)
 {
-	uint8_t state = 0xFF;
+	uint8_t state = 0xFE;
 	
 	switch( RevBuf[0] )
 	{
@@ -150,6 +150,30 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 				GpsGetPositionAgain(  );
 				state = 0x01;
 			}
+			break;
+		case 0xA2:
+			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
+			{
+			  ZetaSendBuf.MaxLen = RevBuf[1];
+			  FlashWrite16( MAXLEN_ADDR, (uint16_t *)ZetaSendBuf.MaxLen, 1 );
+				
+				ZetaSendBuf.MaxLen -= FIXLEN;
+				
+				DEBUG_APP(2,"---MaxLen--- %d\r\n",ZetaSendBuf.MaxLen);
+				
+				state = 0x01;
+			}
+		
+		break;
+			
+		case 0xA3:
+			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
+			{			
+				state = 0x03;
+			}
+			else
+				state = 0xfc;
+		
 		break;
 		
 		default:

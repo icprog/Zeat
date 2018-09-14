@@ -22,6 +22,8 @@
 
 #define ACKCOM						0xFE
 
+#define ACKMAC						0xFC
+
 typedef enum cmd_s
 {
 	MAC = 0,
