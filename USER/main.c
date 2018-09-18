@@ -52,17 +52,10 @@ int main(void)
 	 UserCheckCmd(&UserZetaCheck[RSSI]);
 
 	 UserSetHeart(0x00);
-	 	 
-//	 uint8_t data[3] = {0xa0, 0x00, 0x05};
-//	 uint8_t temp = ZetaHandle.CRC8( data,3 );  // 0x59
-//	 
-//	 DEBUG_APP(2,"temp = %02x",temp);
-	 
-	 User.SleepTime =	FlashRead32(SLEEP_ADDR);
-	 	 
+	 	 	 
    while (1)
    {	
-		
+#if 1	
 		 SensorTime = HAL_GetTick(  );		
 
 		 UserSendSensor(  );
@@ -88,8 +81,10 @@ int main(void)
 		 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
 		 SetRtcAlarm(SleepTime);///4SÎó²î	  (User.SleepTime*60) 
 		 UserIntoLowPower(  );
-
-	 }
+#endif		
+		 
+//		UserSendTest(  );		 
+	 } 
 }
 
 

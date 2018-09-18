@@ -101,9 +101,10 @@ void UserSend(Zeta_t *SendBuf)
 				
 				if(ApplyCounter == 10)  ///1min超时操作进入休眠
 				{
-					uint32_t sleeptime = User.SleepTime*60;
-					DEBUG(2,"SleepTime = %d",sleeptime);
-					SetRtcAlarm(sleeptime); 
+					ApplyCounter = 0;
+					
+					ZetaHandle.PowerOff(  );
+					SetRtcAlarm(60); 
 					UserIntoLowPower(  );
 				}
 			}
@@ -163,7 +164,7 @@ void UserSendSensor(void)
 		
 		UserSend(&ZetaSendBuf);
 		
-		HAL_Delay(500);
+		HAL_Delay(1000);
 						
 		/********************缓存清除*******************/
 		memset(&ZetaSendBuf.Buf[9], 0, ZetaSendBuf.Len);
@@ -482,7 +483,10 @@ void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 				
 				if(ApplyCounter == 10)  ///1min超时操作
 				{
-					SetRtcAlarm(User.SleepTime*60); 
+					ApplyCounter = 0;
+					
+					ZetaHandle.PowerOff(  );
+					SetRtcAlarm(60); 
 					UserIntoLowPower(  );
 				}
 			}
@@ -678,12 +682,7 @@ void String_Conversion(char *str, uint8_t *src, uint8_t len)
 
 
 void UserReadFlash(void)
-{
-	
-	uint32_t data = FlashRead32(SLEEP_ADDR);
-		 
-	DEBUG_APP(2,"User.SleepTime = %d \r\n",data);
-
+{	
 	 if(FlashRead32(SLEEP_ADDR)==0||FlashRead32(SLEEP_ADDR)==0xffffffff)
 	{
 			uint32_t time = 2;//默认5min
@@ -708,4 +707,9 @@ void UserReadFlash(void)
 		 
 			DEBUG_APP(2,"ZetaSendBuf.MaxLen = %d",ZetaSendBuf.MaxLen);
 	 }
+	 
+	User.SleepTime =	FlashRead32(SLEEP_ADDR);
+		 
+	DEBUG_APP(2,"User.SleepTime = %d \r\n",User.SleepTime);
+
 }

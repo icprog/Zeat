@@ -63,6 +63,8 @@ void BoardInitMcu( void )
 	
 	LedInit(  );
 	
+	SpiFlashInit(  );
+	
 //	MX_WWDG_Init(  );
 //	WWDG_NVIC_Init(  );
 					
@@ -114,7 +116,10 @@ void BoardDeInitMcu( void )
 	
 	HAL_TIM_Base_MspInit(&htim2);
 	htim2.State = HAL_TIM_STATE_RESET;
-
+	
+	///πÿ±’SPI ±÷”£∫
+	HAL_SPI_DeInit(&hspi1);
+	hspi1.State = HAL_SPI_STATE_RESET;
 	
 	/*******************πÿ±’SPI*********************/
 		

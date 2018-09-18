@@ -67,7 +67,19 @@
   */
 void SpiFlashInit(void)
 {
-//HAL自动生成
+	GPIO_InitTypeDef GPIO_InitStruct;
+	
+	__HAL_RCC_GPIOA_CLK_ENABLE(  );
+	
+	GPIO_InitStruct.Pin = FLASH_SPI_CS_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(FLASH_SPI_CS_PORT, &GPIO_InitStruct);
+
+	SPI1_Init(  );
+	
+	SpiFlashPowerDown(  );
 }
 /**
   * 函数功能: 擦除扇区
