@@ -68,8 +68,6 @@ int main(void)
 	 UserCheckCmd(&UserZetaCheck[RSSI]);
 
 	 UserSetHeart(0x00);
-
-	 User.SleepTime =	FlashRead32(SLEEP_ADDR);
 	
    while (1)
    {		
@@ -96,9 +94,10 @@ int main(void)
 		 }
 		 		 
 		 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
-		 
+		 UserSendTest(  );
 		 while(ZetaRecviceBuf.RecvState);
-		 SetRtcAlarm(SleepTime);///4SÎó²î	  (User.SleepTime*60) 
+		 		 		 
+		 SetRtcAlarm(SleepTime);///4SÎó²î	 
 		 UserIntoLowPower(  );
 	 }
 }

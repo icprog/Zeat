@@ -46,15 +46,14 @@ I2C							|					  		|
 							|					  		|
 							|_ _ _ _ _ _ _ _ _ _ _ _ _ _|	
 
-
+1：功耗说明：
+关闭ZETA电源(U103模块，功耗20ua, zeta:5ua，理想状态:25ua),开启ZETA电源(U103模块：35-40ua损耗，一共65ua)
 
 1：实现下发更改参数功能：具备唤醒MCU
 
 2：周期上报数据
 
 3：第一次上电获取是否注册：0xff 0x00 0x04 0x43：没注册
-
-.\Objects\watcherPRO_V2.2: Error: L6200E: Symbol UserZetaData multiply defined (by power.o and usart.o).
 
 
 ff 00 0e 02 68 65 6c 6c 6f 77 6f 72 6c 64
@@ -76,10 +75,3 @@ ff 00 0e 02 68 65 6c 6c 6f 77 6f 72 6c 64
 ??? 为了您更好的使用体验，我们推荐您使用Google Chrome浏览器
 
 ??? 信息管理系统地址:?http://www.zeta-alliance.com:25450/teamcms/homePage
-
-
-.\Objects\Zetav-plus.axf: Error: L6218E: Undefined symbol SetLedStates (referred from gps.o).
-.\Objects\Zetav-plus.axf: Error: L6218E: Undefined symbol LedSendFail (referred from user-app.o).
-.\Objects\Zetav-plus.axf: Error: L6218E: Undefined symbol LedSendSucess (referred from user-app.o).
-.\Objects\Zetav-plus.axf: Error: L6218E: Undefined symbol SetLedStates (referred from gps.o).
-

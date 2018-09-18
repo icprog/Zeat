@@ -94,8 +94,8 @@ void UserSend(Zeta_t *SendBuf)
 		{			
 			if(Unregistered == Status)
 			{
+				DEBUG_APP(2,"---Writing registered: %d---",ApplyCounter);
 				ApplyCounter ++;
-				DEBUG(2,"---Writing registered---\r\n");
 				i = 1;
 				
 				LedSetStates(SendFail);
@@ -104,8 +104,9 @@ void UserSend(Zeta_t *SendBuf)
 				
 				if(ApplyCounter == 10)  ///1min超时操作进入休眠
 				{
+					ApplyCounter = 0;
 					uint32_t sleeptime = User.SleepTime*60;
-					DEBUG(2,"SleepTime = %d",sleeptime);
+					DEBUG_APP(2,"SleepTime = %d",sleeptime);
 					SetRtcAlarm(sleeptime); 
 					UserIntoLowPower(  );
 				}
@@ -495,9 +496,9 @@ void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 		{			
 			if(Unregistered == Status)
 			{
+				DEBUG_APP(2,"---Writing registered: %d---",ApplyCounter);
 				ApplyCounter ++;
-				DEBUG(2,"---Writing registered---\r\n");
-				
+
 				LedSetStates(SendFail);
 				HAL_Delay(6000);
 				LedRestStates(  );
@@ -505,7 +506,10 @@ void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 				
 				if(ApplyCounter == 10)  ///1min超时操作
 				{
-					SetRtcAlarm(User.SleepTime*60); 
+					ApplyCounter = 0;
+					uint32_t sleeptime = User.SleepTime*60;
+					DEBUG_APP(2,"SleepTime = %d, User.SleepTime = %d",sleeptime,User.SleepTime);
+					SetRtcAlarm(sleeptime); 
 					UserIntoLowPower(  );
 				}
 			}
@@ -701,13 +705,9 @@ void String_Conversion(char *str, uint8_t *src, uint8_t len)
 
 void UserReadFlash(void)
 {
-	uint32_t data = FlashRead32(SLEEP_ADDR);
-		 
-	DEBUG_APP(2,"User.SleepTime = %d \r\n",data);
-
 	 if(FlashRead32(SLEEP_ADDR)==0||FlashRead32(SLEEP_ADDR)==0xffffffff)
 	{
-			uint32_t time = 5;//默认5min
+			uint32_t time = 1;//默认5min
 			FlashWrite32(SLEEP_ADDR,&time,1);			
 	 }
 	
@@ -729,4 +729,9 @@ void UserReadFlash(void)
 		 
 			DEBUG_APP(2,"ZetaSendBuf.MaxLen = %d",ZetaSendBuf.MaxLen);
 	 }
+	 
+	 User.SleepTime = FlashRead32(SLEEP_ADDR);
+		 
+	 DEBUG_APP(2,"User.SleepTime = %d \r\n", User.SleepTime);
+
 }

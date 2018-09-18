@@ -31,6 +31,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "adc.h"
 #include "dma.h"
 #include "user_bq24195.h"
+#include "user_spi_flash.h"
 #include "bq24195.h"
 #include "usart.h"
 #include "sensor.h"

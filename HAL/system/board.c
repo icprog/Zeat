@@ -29,6 +29,12 @@ void BoardInitMcu( void )
 		__HAL_RCC_GPIOH_CLK_ENABLE();
 		__HAL_RCC_GPIOB_CLK_ENABLE();
 		__HAL_RCC_GPIOA_CLK_ENABLE(); ///开启时钟
+		
+		RTC_Init(  );
+	
+		/*******************开启RTC中断*******************/
+		HAL_NVIC_SetPriority(RTC_IRQn, 3, 0);
+		HAL_NVIC_EnableIRQ(RTC_IRQn);
 										
 		McuInitialized = true;
 	} 
@@ -51,12 +57,6 @@ void BoardInitMcu( void )
 	
 	/*****************电源管理********************/
 	BatteryInit(  );
-
-	RTC_Init(  );
-	
-	/*******************开启RTC中断*******************/
-	HAL_NVIC_SetPriority(RTC_IRQn, 3, 0);
-	HAL_NVIC_EnableIRQ(RTC_IRQn);
 	
 //	MX_WWDG_Init(  );
 //	WWDG_NVIC_Init(  );
@@ -70,6 +70,8 @@ void BoardInitMcu( void )
 	ZetaHandle.Init(  );
 	
 	ZetaHandle.PowerOn(  );
+	
+	SpiFlashInit(  );
 	
 }
 
@@ -88,6 +90,7 @@ void BoardDeInitMcu( void )
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_GPIOH_CLK_ENABLE();
 	
 	/****************************************/
@@ -114,6 +117,10 @@ void BoardDeInitMcu( void )
 	HAL_UART_DeInit(&huart4);
 	huart4.gState = HAL_UART_STATE_RESET;
 	
+	///关闭SPI时钟：
+	HAL_SPI_DeInit(&hspi1);
+	hspi1.State = HAL_SPI_STATE_RESET;
+	
 	/*******************关闭SPI*********************/
 		
 	GPIO_InitStructure.Pin = GPIO_PIN_All;   ///GPIO_PIN_All
@@ -122,10 +129,17 @@ void BoardDeInitMcu( void )
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
 
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure); 
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
+	HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
 	HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
+	
+	GPIO_InitStructure.Pin = 0xFFBF;   ///PC6: CH_CE
+	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG; ///low_power,其它较高
+	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
+
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 					
-  GPIO_InitStructure.Pin = 0xC1FF;  /// PB9：CH_CE(ok)/PB5：485_DE/PB0: RESET/PB1: DIO0 保留充电IO配置
+	GPIO_InitStructure.Pin = 0xDFFF;  /// PB13:zeta电源模块保留
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	
