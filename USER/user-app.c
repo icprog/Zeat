@@ -105,9 +105,9 @@ void UserSend(Zeta_t *SendBuf)
 				if(ApplyCounter == 10)  ///1min超时操作进入休眠
 				{
 					ApplyCounter = 0;
-					uint32_t sleeptime = User.SleepTime*60;
-					DEBUG_APP(2,"SleepTime = %d",sleeptime);
-					SetRtcAlarm(sleeptime); 
+					
+					ZetaHandle.PowerOff(  );
+					SetRtcAlarm(60); 
 					UserIntoLowPower(  );
 				}
 			}
@@ -168,7 +168,7 @@ void UserSendSensor(void)
 		
 		UserSend(&ZetaSendBuf);
 		
-		HAL_Delay(500);
+		HAL_Delay(1000);
 		
 		/****************还原LED状态*************/
 		LedRestStates(  );
@@ -202,7 +202,7 @@ void UserSendGps(void)
 	{			
 		DEBUG_APP(2,"11SetGpsAck.GetPation = %d",SetGpsAck.GetPation);
 
-		while( SetGpsAck.GetPation == PATIONNULL );
+		while( SetGpsAck.GetPation == PATIONNULL && SetGpsAck.Posfix );
 		
 		DEBUG_APP(2,"SetGpsAck.GetPation = %d",SetGpsAck.GetPation);
 		
@@ -507,9 +507,9 @@ void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 				if(ApplyCounter == 10)  ///1min超时操作
 				{
 					ApplyCounter = 0;
-					uint32_t sleeptime = User.SleepTime*60;
-					DEBUG_APP(2,"SleepTime = %d, User.SleepTime = %d",sleeptime,User.SleepTime);
-					SetRtcAlarm(sleeptime); 
+					
+					ZetaHandle.PowerOff(  );
+					SetRtcAlarm(60); 
 					UserIntoLowPower(  );
 				}
 			}

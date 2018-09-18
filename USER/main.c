@@ -92,9 +92,9 @@ int main(void)
 		 {
 				SleepTime = User.SleepTime * 60 - OverTime;
 		 }
-		 		 
+		 
+		 DEBUG_APP(2,"SleepTime = %d",SleepTime);
 		 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
-		 UserSendTest(  );
 		 while(ZetaRecviceBuf.RecvState);
 		 		 		 
 		 SetRtcAlarm(SleepTime);///4SÎó²î	 
