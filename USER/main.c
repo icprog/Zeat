@@ -18,6 +18,8 @@
 #include "board.h"
 #include "user-app.h"
 
+#define 	RTCTIKE	 
+
 extern UART_HandleTypeDef 			UartHandle;
 extern RTC_HandleTypeDef 				RtcHandle;
 
@@ -63,6 +65,9 @@ int main(void)
 		  ////上报GPS信息
 		 UserSendGps(  ); 
 		 
+		 ///休眠前校准RTC时钟
+		 RtcvRtcCalibrate(  );
+		 
 		 OverTime = HAL_GetTick(  ) - SensorTime;
 		 
 		 OverTime /= 1000;
@@ -82,8 +87,6 @@ int main(void)
 		 SetRtcAlarm(SleepTime);///4S误差	  (User.SleepTime*60) 
 		 UserIntoLowPower(  );
 #endif		
-		 
-//		UserSendTest(  );		 
 	 } 
 }
 

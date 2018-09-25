@@ -29,7 +29,9 @@ void BoardInitMcu( void )
 		__HAL_RCC_GPIOH_CLK_ENABLE();
 		__HAL_RCC_GPIOB_CLK_ENABLE();
 		__HAL_RCC_GPIOA_CLK_ENABLE(); ///开启时钟
-										
+		
+		RTC_Init(  );
+												
 		McuInitialized = true;
 		
 	} 
@@ -54,9 +56,7 @@ void BoardInitMcu( void )
 	
 	/*****************电源管理********************/
 	BatteryInit(  );
-	
-	RTC_Init(  );
-	
+		
 	/*******************开启RTC中断*******************/
 	HAL_NVIC_SetPriority(RTC_IRQn, 3, 0);
 	HAL_NVIC_EnableIRQ(RTC_IRQn);
@@ -96,7 +96,7 @@ void BoardDeInitMcu( void )
 	
 	/****************************************/
     /* Disable the Peripheral */	
-	HAL_ADC_MspInit(&hadc);  ///OK
+	HAL_ADC_MspDeInit(&hadc);  ///OK
 	hadc.State = HAL_ADC_STATE_RESET;
 
 	HAL_UART_DeInit(&hlpuart1);
@@ -114,7 +114,7 @@ void BoardDeInitMcu( void )
 	HAL_UART_DeInit(&huart5);
 	huart5.gState = HAL_UART_STATE_RESET;
 	
-	HAL_TIM_Base_MspInit(&htim2);
+	HAL_TIM_Base_MspDeInit(&htim2);
 	htim2.State = HAL_TIM_STATE_RESET;
 	
 	///关闭SPI时钟：
@@ -123,7 +123,7 @@ void BoardDeInitMcu( void )
 	
 	/*******************关闭SPI*********************/
 		
-	GPIO_InitStructure.Pin = 0xF7FF;   ///GPIO_PIN_ll
+	GPIO_InitStructure.Pin = GPIO_PIN_All;   ///GPIO_PIN_ll 0xF7FF
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG; ///low_power,其它较高
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
@@ -138,7 +138,7 @@ void BoardDeInitMcu( void )
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 	HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
 					
-  GPIO_InitStructure.Pin = 0xCFFF;  /// PB9：CH_CE(ok)/PB5：485_DE/PB0: RESET/PB1: DIO0 保留充电IO配置
+  GPIO_InitStructure.Pin = GPIO_PIN_All;  /// PB9：CH_CE(ok) 0xDFFF
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	
@@ -213,9 +213,9 @@ void SystemClockConfig( void )
 
 	/**Initializes the CPU, AHB and APB busses clocks 
 	*/
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+  RCC_OscInitStruct.LSEState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLLMUL_4;
@@ -244,7 +244,7 @@ void SystemClockConfig( void )
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
 	PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
 	PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
-  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();

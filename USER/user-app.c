@@ -188,7 +188,7 @@ void UserSendGps(void)
 	{			
 		DEBUG_APP(2,"11SetGpsAck.GetPation = %d",SetGpsAck.GetPation);
 
-		while( SetGpsAck.GetPation == PATIONNULL );
+		while( SetGpsAck.GetPation == PATIONNULL && SetGpsAck.Posfix);
 		
 		DEBUG_APP(2,"SetGpsAck.GetPation = %d",SetGpsAck.GetPation);
 		
@@ -548,7 +548,6 @@ void UserSetHeart(uint8_t mode)
 void UserSetTimer(ZetaTimer_t Timer)
 {
 	uint8_t temp[4] = {0xff, 0x00, 0x0f, 0x20};
-	
 	
 	memcpy(ZetaSendBuf.Buf,temp,4);
 	
