@@ -46,15 +46,15 @@ void RTC_Init(void)
 {	
   RTC_TimeTypeDef sTime;
   RTC_DateTypeDef sDate;
-
+		
 	if(HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR0) != 0x32F2)
 	{
     /**Initialize RTC Only 
     */
 		RtcHandle.Instance = RTC;
 		RtcHandle.Init.HourFormat = RTC_HOURFORMAT_24;
-		RtcHandle.Init.AsynchPrediv = 127;
-		RtcHandle.Init.SynchPrediv = 255;
+		RtcHandle.Init.AsynchPrediv = 36;
+		RtcHandle.Init.SynchPrediv = 999;
 		RtcHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
 		RtcHandle.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
 		RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
@@ -63,12 +63,12 @@ void RTC_Init(void)
 		{
 			Error_Handler( );
 		}
-
 			/**Initialize RTC and set the Time and Date 
 			*/
 		sTime.Hours = 0;
 		sTime.Minutes = 0;
 		sTime.Seconds = 0;
+		sTime.SubSeconds = 0;
 		sTime.TimeFormat = RTC_HOURFORMAT12_AM;    
 		sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
 		sTime.StoreOperation = RTC_STOREOPERATION_RESET;
@@ -86,7 +86,7 @@ void RTC_Init(void)
 		{
 			Error_Handler( );
 		}
-
+		
 		HAL_RTCEx_BKUPWrite(&RtcHandle,RTC_BKP_DR0,0x32F2);
 	}
 }
@@ -128,6 +128,59 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+
+/*
+*RtcvRtcCalibrate: RTC内部时钟检验函数
+*参数：						 无
+*返回值：					 无
+*/
+void RtcvRtcCalibrate(void)
+{
+	uint32_t TickDelay = 0;
+	uint32_t RtcSSR = 0;
+	
+	uint32_t CalibrateSynchPrediv = 0;
+	
+	/***************计算RTC定时1S，实际使用时间****************/
+	TickDelay = HAL_GetTick();
+  RtcSSR = RtcHandle.Instance->SSR;
+	HAL_Delay(2);
+	
+	while(RtcSSR!=RtcHandle.Instance->SSR && HAL_GetTick()-TickDelay < 3000);
+	if( HAL_GetTick()-TickDelay >= 3000 )
+	{
+			DEBUG_APP(3,"RTC校准失败2\r\n");
+			return ;
+	}
+	TickDelay = HAL_GetTick()-TickDelay;
+	DEBUG_APP(3,"ulActualDelay:%u\r\n",TickDelay);
+	
+	//if(ulActualDelay>=999 && ulActualDelay<=1001)
+	if(TickDelay == 1000 )
+	{
+			DEBUG_APP(3,"无须校准\r\n");
+			return ;
+	}
+	
+	/* 根据实际延时计算新的分频值,四舍五入 */
+	CalibrateSynchPrediv = (RtcHandle.Init.SynchPrediv+1) * 1000/TickDelay -0.5;
+	DEBUG_APP(3, "CalibrateSynchPrediv:%u\r\n",CalibrateSynchPrediv);
+	if( CalibrateSynchPrediv > INT_LEAST16_MAX )
+	{
+			DEBUG_APP(3,"RTC校准失败3\r\n");
+			return ;
+	}
+	
+	RtcHandle.Init.AsynchPrediv = 36;
+  RtcHandle.Init.SynchPrediv = CalibrateSynchPrediv;
+	
+	if (HAL_RTC_Init(&RtcHandle) != HAL_OK)
+	{
+			DEBUG_APP(3,"RTC校准失败4\r\n");
+	}
+	DEBUG_APP(3, "RTC频率:%uHz\r\n",(RtcHandle.Init.AsynchPrediv+1)*(RtcHandle.Init.SynchPrediv+1));
+	HAL_RTCEx_BKUPWrite(&RtcHandle,RTC_BKP_DR1,CalibrateSynchPrediv);
+}
 
 /*******************************以上为RTC底层代码部分****************************************/
 
