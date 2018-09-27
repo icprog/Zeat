@@ -134,7 +134,7 @@ uint8_t Rs485GetData(uint8_t *data, uint8_t debuglevel)
 	uint8_t ch = 0;
 	uint8_t length = 0;
 	    
-	DEBUG(debuglevel,"----get data----");
+	DEBUG(debuglevel,"__FILE__,----get data----");
 
 	while(FIFO_UartReadByte(&usart_rs485,&ch) == HAL_OK)	
 	{			
@@ -162,7 +162,6 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
     Rs485s.Crc16(sendData,len);
 		
   	HAL_Delay(time_out);
-//		DEBUG_APP(3,"time_out %d",time_out);
 //    DEBUG(2,"---send : ");
 //    for(int i = 0; i < len+2; i++)
 //    DEBUG(2,"%02X ",sendData[i]);

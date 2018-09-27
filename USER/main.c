@@ -43,6 +43,8 @@ int main(void)
 		
 	 UserReadFlash(  );
 	
+	///获取传感器数据同时记录时间，确保发送时间间隔一致
+	 SensorTime = HAL_GetTick(  );
 	 UserCheckSensors(  );
 			
    DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
@@ -58,6 +60,9 @@ int main(void)
    while (1)
    {	
 #if 1	
+		 
+		 ///休眠唤醒获取传感器数据同时记录时间，确保发送时间间隔一致
+		 if(User.Sleep)
 		 SensorTime = HAL_GetTick(  );		
 
 		 UserSendSensor(  );
@@ -83,6 +88,7 @@ int main(void)
 				SleepTime = User.SleepTime * 60 - OverTime;
 		 }
 
+		 User.Sleep = true;
 		 DEBUG_APP(2,"GetPation = %d\r\n",SetGpsAck.GetPation);
 		 SetRtcAlarm(SleepTime);///4S误差	  (User.SleepTime*60) 
 		 UserIntoLowPower(  );

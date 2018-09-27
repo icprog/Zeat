@@ -151,6 +151,7 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 				state = 0x01;
 			}
 			break;
+			
 		case 0xA2:
 			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
 			{

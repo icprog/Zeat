@@ -50,6 +50,7 @@ typedef struct f_User
 	uint8_t 	BatState;
 	uint32_t 	SleepTime;
 	bool 			Ack;
+	bool 			Sleep;
 }User_t;
 
 extern UserZeta_t UserZetaCheck[];

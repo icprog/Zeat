@@ -27,7 +27,7 @@ UserZeta_t UserZetaCheck[] = {
 	{0x13, 1000, Payload}, ///查询网络质量
 };
 
-User_t User = {0, 0, false};
+User_t User = {0, 0, false, false};
 
 static uint8_t DeviceInfo[4] = {0};
 
@@ -126,7 +126,9 @@ void UserSend(Zeta_t *SendBuf)
 */
 void UserSendSensor(void)
 {	
-
+	if(!User.Sleep) ///上电第一次查询操作
+	Sensors.CheckHandle(  );
+	else   ///休眠后操作
 	Sensors.Handle(  );
 	
 	ZetaSendBuf.Buf[0] = 0xff;
@@ -684,7 +686,7 @@ void UserReadFlash(void)
 {	
 	 if(FlashRead32(SLEEP_ADDR)==0||FlashRead32(SLEEP_ADDR)==0xffffffff)
 	{
-			uint32_t time = 2;//默认5min
+			uint32_t time = 5;//默认5min
 			FlashWrite32(SLEEP_ADDR,&time,1);			
 	 }
 	

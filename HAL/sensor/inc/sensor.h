@@ -242,6 +242,8 @@ typedef struct u_Sensor
 		
 	void 							(*Handle)(void);
 	
+	void              (*CheckHandle)(void);
+	
 	void 							(*DataProces)(void);
 
 	void 							(*ExpendBoxLive)(int expend_sensor,int index);
@@ -255,6 +257,8 @@ typedef struct u_Sensor
 	HAL_StatusTypeDef (*GetData)(int id);
 
 	HAL_StatusTypeDef (*ExpBoxAddr)(int index);
+	
+	HAL_StatusTypeDef  (*ExpenSigle)(uint8_t index, uint8_t Exid);
 
 	HAL_StatusTypeDef (*MaBoxData)(uint8_t id);
 
@@ -272,29 +276,33 @@ extern volatile 	uint8_t SendBufsCounter;
 
 void SensorsInit(void);
 
-void SensorHandle(void);
+static void SensorHandle(void);
 
-void SensorDataProces(void);
+static void SensorCheckHandle(void);
 
-HAL_StatusTypeDef SensorQueryPinStaus(void);
+static void SensorDataProces(void);
 
-Rstype_t GetRs485Type(int index);
+static HAL_StatusTypeDef SensorQueryPinStaus(void);
 
-Rstype_t SensorQueryType(int PortId);
+static Rstype_t GetRs485Type(int index);
 
-HAL_StatusTypeDef SensorGetData(int id);
+static Rstype_t SensorQueryType(int PortId);
 
-void SensorExpendBoxLive(int expend_sensor,int index);
+static HAL_StatusTypeDef SensorGetData(int id);
 
-HAL_StatusTypeDef SensorExpBoxAddr(int index);
+static void SensorExpendBoxLive(int expend_sensor,int index);
 
-HAL_StatusTypeDef SensorMaBoxData(uint8_t id);
+static HAL_StatusTypeDef SensorExpBoxAddr(int index);
 
-HAL_StatusTypeDef SensorExpenData(uint8_t index);
+static HAL_StatusTypeDef SensorExpenSigle(uint8_t index, uint8_t Exid);
 
-uint8_t OpenExpenBox(uint8_t ExpId);
+static HAL_StatusTypeDef SensorMaBoxData(uint8_t id);
 
-void RS485CmdPackage(char mode);
+static HAL_StatusTypeDef SensorExpenData(uint8_t index);
+
+static uint8_t OpenExpenBox(uint8_t ExpId);
+
+static void RS485CmdPackage(char mode);
 
 #ifdef __cplusplus
 }
