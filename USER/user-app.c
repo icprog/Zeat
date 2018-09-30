@@ -61,7 +61,7 @@ void UserCheckSensors(void)
 	if(Sensors.WaterSensor)
 	{
 		DEBUG_APP(2, "Sensors.WaterSensor Sleep time: 30min");
-		User.SleepTime = 30;
+//		User.SleepTime = 30;
 	}
 		
   LedOff(  );

@@ -22,7 +22,7 @@ CheckRs485_t CheckRs485s[] = {
 	{0x00, 0x00,				0x0000,     0x0000,         7,          9,    RS485_IDE_LEN+4,    200*1, "EXPEND",  	"",    		"EXPEND"},	///扩展盒
 	{0x02, 0x02,				0x0000, 		0x0002,  				6,					9, 		RS485_IDE_LEN+4,		200*1,		"" ,			"" ,		"SWR-100W"},  ///土壤温湿度
 	{0x05, 0x05,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,	  "" ,			"" ,			 "ST_PH"},  ///土壤、水PH  1000*30
-	{0x06, 0x06,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		500*1,		"" ,			"" ,		   "ST_GH"},	///光合有效
+	{0x06, 0x06,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		   "ST_GH"},	///光合有效
 	{0x0C, 0x03,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		200*1,		"" ,			"" ,		   "ST-TW"},  ///土壤温度
 	{0x0D, 0x0D,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		   "ST-EC"},  ///EC
 	{0x0E, 0x0E,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*10,	"" ,			"" ,		  "ST_CO2"},	///CO2		
@@ -550,7 +550,7 @@ static Rstype_t SensorQueryType(int PortId)
 					for(int bufid = 0, j = 3 ; j < len-2 ; ++j, ++bufid)
 					{
 						SaveRs485s[PortId].MainBox.SensorBuff[bufid] = SaveRs485s[PortId].MainBox.DataBuff[j];						
-						DEBUG_APP(2,"get data[%d] = 0x%02x data0x%02x\r\n",j,SaveRs485s[PortId].MainBox.SensorBuff[bufid],SaveRs485s[PortId].MainBox.DataBuff[j]);						
+						DEBUG_APP(3,"get data[%d] = 0x%02x data0x%02x\r\n",j,SaveRs485s[PortId].MainBox.SensorBuff[bufid],SaveRs485s[PortId].MainBox.DataBuff[j]);						
 					}
 				}
 				else
@@ -724,11 +724,13 @@ static HAL_StatusTypeDef SensorExpBoxAddr(int index)
 						///查询数据保存处理
 						SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorToLen = CheckRs485s[i].SensorToLen; ///传感器总长度		
 						Sensors.Counter ++;
-						memset(SaveRs485s[index].MainBox.DataBuff,0,len);
-						memcpy1(SaveRs485s[index].MainBox.DataBuff,Rs485s.Revbuff,len);
+						
+						memset(SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff,0,len);
+						
+						memcpy1(SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff,Rs485s.Revbuff,len);
 						
 						DEBUG_APP(2,"rs485 ExpendBox get data = ");		
-						Rs485s.Print(SaveRs485s[index].MainBox.DataBuff,len, APP);
+						Rs485s.Print(SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff,len, APP); 
 						
 						/*********************************当前接入水产传感器，自动更新休眠时间标识生效**************************************/
 						if(SaveRs485s[index].MainBox.ExpendBox[ExpId].Identifier == 0x05 || SaveRs485s[index].MainBox.ExpendBox[ExpId].Identifier == 0x11)
@@ -736,12 +738,14 @@ static HAL_StatusTypeDef SensorExpBoxAddr(int index)
 							Sensors.WaterSensor = true;
 						}
 
+						DEBUG_APP(2,"Identifier = 0x%02x SensorToLen = 0x%02x",SaveRs485s[index].MainBox.ExpendBox[ExpId].Identifier,SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorToLen);		
 						//get data
 						if(SaveRs485s[index].MainBox.ExpendBox[ExpId].Identifier != 0x11)
 						{
 							for(int i = 0, j = 3 ; j < len-2 ; j ++)
 							{
-								SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorBuff[i] = SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff[j];						
+								SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorBuff[i] = SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff[j];		
+								DEBUG_APP(2,"get data[%d] = 0x%02x data0x%02x\r\n",j,SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorBuff[i],SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff[j]);
 								i++;
 							}
 						}
@@ -769,7 +773,7 @@ static HAL_StatusTypeDef SensorExpBoxAddr(int index)
 							}
 							
 							databuf[1] *= 10;
-							
+							DEBUG_APP(2,"databuf[0] = 0x%04x databuf[1] = 0x%04x\r\n",databuf[0],databuf[1]);
 							for( uint8_t  bufid = 0, dataid = 0; bufid < 4; )
 							{
 								SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorBuff[bufid++] = (databuf[dataid]>>8)&0xff;
