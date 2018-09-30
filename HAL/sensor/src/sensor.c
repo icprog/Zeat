@@ -704,6 +704,8 @@ static HAL_StatusTypeDef SensorExpBoxAddr(int index)
 				//广播信息没有返回，认为这个传感器不接受FE查询
         //遍历
         DEBUG_WARNING(2,"port=%d sensor don`t return FE statr foreach",ExpIndex);			
+				
+				DEBUG_APP(2,"main_port = %02x, exbox_port=%d sensor",MainIndex,ExpIndex);		
 				uint32_t startTime = HAL_GetTick();
 				int i;
 				  
@@ -738,14 +740,13 @@ static HAL_StatusTypeDef SensorExpBoxAddr(int index)
 							Sensors.WaterSensor = true;
 						}
 
-						DEBUG_APP(2,"Identifier = 0x%02x SensorToLen = 0x%02x",SaveRs485s[index].MainBox.ExpendBox[ExpId].Identifier,SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorToLen);		
 						//get data
 						if(SaveRs485s[index].MainBox.ExpendBox[ExpId].Identifier != 0x11)
 						{
 							for(int i = 0, j = 3 ; j < len-2 ; j ++)
 							{
 								SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorBuff[i] = SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff[j];		
-								DEBUG_APP(2,"get data[%d] = 0x%02x data0x%02x\r\n",j,SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorBuff[i],SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff[j]);
+								DEBUG_APP(3,"get data[%d] = 0x%02x data0x%02x\r\n",j,SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorBuff[i],SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff[j]);
 								i++;
 							}
 						}
@@ -773,7 +774,7 @@ static HAL_StatusTypeDef SensorExpBoxAddr(int index)
 							}
 							
 							databuf[1] *= 10;
-							DEBUG_APP(2,"databuf[0] = 0x%04x databuf[1] = 0x%04x\r\n",databuf[0],databuf[1]);
+							DEBUG_APP(3,"databuf[0] = 0x%04x databuf[1] = 0x%04x\r\n",databuf[0],databuf[1]);
 							for( uint8_t  bufid = 0, dataid = 0; bufid < 4; )
 							{
 								SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorBuff[bufid++] = (databuf[dataid]>>8)&0xff;
