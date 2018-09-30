@@ -40,15 +40,15 @@ int main(void)
 	 uint32_t SleepTime = 0;
 	
    BoardInitMcu(  );
+	
+	 DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
 		
 	 UserReadFlash(  );
 	
 	///获取传感器数据同时记录时间，确保发送时间间隔一致
 	 SensorTime = HAL_GetTick(  );
 	 UserCheckSensors(  );
-			
-   DEBUG(2,"TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
-			 	 						
+						 	 						
 	 UserCheckCmd(&UserZetaCheck[MAC]);
 
 	 UserCheckCmd(&UserZetaCheck[COUNTER]);
@@ -56,8 +56,8 @@ int main(void)
 	 UserCheckCmd(&UserZetaCheck[RSSI]);
 
 	 UserSetHeart(0x00);
-	 	 	 
-   while (1)
+
+		while (1)
    {	
 #if 1	
 		 

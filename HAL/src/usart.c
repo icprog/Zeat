@@ -42,6 +42,7 @@ UART_HandleTypeDef hlpuart1;
 
 UART_FIFO_Typedef_t usart_rs485;
 
+UART_RX UART_RX_DATA1 = {0, {0}, 0, {0}, false, false};
 UART_RX UART_RX_DATA2 = {0, {0}, 0, {0}, false, false};
 UART_RX UART_RX_LPUART1 = {0, {0}, 0, {0}, false, false};
 
@@ -73,6 +74,10 @@ void MX_USART1_UART_Init(void)
   {
     Error_Handler();
   }
+	
+	HAL_NVIC_SetPriority(USART1_IRQn, 6, 0);
+  HAL_NVIC_EnableIRQ(USART1_IRQn);
+	HAL_UART_Receive_IT(&huart1,UART_RX_DATA1.aRxBuffer, RXBUFFERSIZE);
 }
 
 /* LPUART1 init function */
@@ -327,6 +332,53 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	 if(UART_RX_LPUART1.USART_RX_Len >= 516)
 			UART_RX_LPUART1.USART_RX_Len = 0;
 	}	
+	
+	else if(huart->Instance==USART1) ///UART1
+	{
+		if(UART_RX_DATA1.aRxBuffer[0] == 0x0d)  ///以'\r''\n'作为结束标记
+		{
+			UART_RX_DATA1.Rx_State = true;		
+		}
+		else if(UART_RX_DATA1.aRxBuffer[0] == 0x0a) ///以'\n'作为结束标记
+		{
+			if(UART_RX_DATA1.Rx_State)
+			{			
+				UART_RX_DATA1.Rx_State = false;
+				DEBUG_APP(2,"%s",UART_RX_DATA1.USART_RX_BUF);	
+				if( 0 == strcmp((char *)UART_RX_DATA1.USART_RX_BUF, "AT+EXITGPS"))
+				{					
+					SetGpsAck.GetPation = PATIONFAIL;
+					
+					Gps.Disable(  ); ///关闭GPS
+					LedOn(  );
+					DEBUG_WARNING(2,"*** Now It Will EXit GPS Mode ***");
+				}
+				else if( 0 == strcmp((char *)UART_RX_DATA1.USART_RX_BUF, "AT+ZETATEST"))
+				{
+					////待定
+					User.TestMode = true;
+				}
+				else if( 0 == strcmp((char *)UART_RX_DATA1.USART_RX_BUF, "AT+SLEEP"))
+				{
+					User.SleepTime = 1;
+					DEBUG_WARNING(2,"*** Now The Sleep Time = 1 Min ***");
+				}
+				
+				memset(UART_RX_DATA1.USART_RX_BUF, 0, UART_RX_DATA1.USART_RX_Len);			
+			  UART_RX_DATA1.USART_RX_Len = 0;
+			}
+		}
+		else
+		{
+			UART_RX_DATA1.USART_RX_BUF[UART_RX_DATA1.USART_RX_Len]=UART_RX_DATA1.aRxBuffer[0];	
+			
+			UART_RX_DATA1.USART_RX_Len++;
+		}	
+		
+	 if(UART_RX_DATA1.USART_RX_Len >= 516)
+			UART_RX_DATA1.USART_RX_Len = 0;
+	}
+	
 	else if(huart->Instance==USART2) ///Gps
 	{	
 		if(UART_RX_DATA2.aRxBuffer[0] == 0x0d)  ///以'\r''\n'作为结束标记

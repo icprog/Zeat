@@ -60,13 +60,13 @@ void Rs485PinInit(void)
 
 	GPIO_InitStruct.Pin = Out_12V_ON_Pin_Pin|RS485PIN_0|RS485PIN_1|RS485PIN_2;                     
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = Out_485_DE_Pin_Pin|POWER_485IC_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(Out_485_DE_Pin_GPIO_Port, &GPIO_InitStruct);
 }
@@ -118,7 +118,7 @@ void _12VPowerOn(void)
  *	∑µªÿ÷µ£∫				Œﬁ	
  */
 void _12VPowerOff(void)
-{
+{	
 	HAL_GPIO_WritePin(Out_12V_ON_Pin_GPIO_Port,Out_12V_ON_Pin_Pin,GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(POWER_485IC_Port,POWER_485IC_Pin,GPIO_PIN_RESET);
 }
@@ -134,7 +134,7 @@ uint8_t Rs485GetData(uint8_t *data, uint8_t debuglevel)
 	uint8_t ch = 0;
 	uint8_t length = 0;
 	    
-	DEBUG(debuglevel,"__FILE__,----get data----");
+	DEBUG(debuglevel,"%s,----get data----",__FILE__);
 
 	while(FIFO_UartReadByte(&usart_rs485,&ch) == HAL_OK)	
 	{			
@@ -201,7 +201,7 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
  */
 void Rs485Print(uint8_t *buff,int len, uint8_t DebugLive)
 {
-	DEBUG(DebugLive,"----get data----");
+	DEBUG(DebugLive,"%s,%d:RS485 Revdata: ",__FILE__, __LINE__);
 
 	for(int i = 0 ; i < len ; i++)
 	{

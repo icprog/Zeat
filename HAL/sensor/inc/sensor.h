@@ -239,6 +239,9 @@ typedef struct u_SendBuf
 typedef struct u_Sensor
 {
 	uint8_t						Counter;
+	
+	/**************水产传感器标识，作为自动更改发送时间间隔*****************/
+	bool 							WaterSensor;    
 		
 	void 							(*Handle)(void);
 	

@@ -84,6 +84,7 @@ typedef struct{
 	
 }UART_RX;
 
+extern UART_RX UART_RX_DATA1;
 extern UART_RX UART_RX_DATA2;
 extern UART_RX UART_RX_LPUART1;
 	 

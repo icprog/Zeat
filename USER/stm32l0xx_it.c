@@ -230,6 +230,33 @@ void USART4_5_IRQHandler(void)
 
 
 /**
+* @brief This function handles USART2 global interrupt / USART1 wake-up interrupt through EXTI line 26.
+*/
+void USART1_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+
+  /* USER CODE END USART2_IRQn 0 */
+   HAL_UART_IRQHandler(&huart1);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+	uint32_t timeout = 0;
+
+	timeout = HAL_GetTick( );
+	while (HAL_UART_GetState(&huart1)!=HAL_UART_STATE_READY)//等待就绪
+	{
+    if(HAL_GetTick( ) - timeout> 20) break;		///20ms超时处理
+	}
+     
+	timeout = HAL_GetTick( );
+	while(HAL_UART_Receive_IT(&huart1, UART_RX_DATA1.aRxBuffer, RXBUFFERSIZE)!=HAL_OK)//一次处理完成之后，重新开启中断并设置RxXferCount为1
+	{
+    if(HAL_GetTick( ) - timeout> 20) break;	 	///20ms超时处理	
+	}
+
+  /* USER CODE END USART2_IRQn 1 */
+}
+
+/**
 * @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXTI line 26.
 */
 void USART2_IRQHandler(void)
@@ -237,7 +264,7 @@ void USART2_IRQHandler(void)
   /* USER CODE BEGIN USART2_IRQn 0 */
 
   /* USER CODE END USART2_IRQn 0 */
-    HAL_UART_IRQHandler(&huart2);
+   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
 	uint32_t timeout = 0;
 

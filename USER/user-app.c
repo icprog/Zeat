@@ -27,7 +27,7 @@ UserZeta_t UserZetaCheck[] = {
 	{0x13, 1000, Payload}, ///查询网络质量
 };
 
-User_t User = {0, 0, false, false};
+User_t User = {0, 0, false, false, false};
 
 static uint8_t DeviceInfo[4] = {0};
 
@@ -40,13 +40,12 @@ void UserCheckSensors(void)
 	UserGetAddID(  );
 	
 	LedOn(  );
-	Sensors.QueryPinStaus(  );
 			
 	if(GPSEXIST == DeviceInfo[1])
 	{
 		Gps.Init(  );
 		
-		DEBUG(2,"111TIME : %s  DATE : %s\r\n",__TIME__, __DATE__); 
+		DEBUG_APP(2,"*** Now Start positioning ***"); 
 		Gps.Set(  );
 		
 		SetLedStates(GpsLocation);
@@ -54,6 +53,17 @@ void UserCheckSensors(void)
 		SetGpsAck.GetPation = PATIONNULL;
 	}
 	
+	Sensors.WaterSensor = false;
+	
+	/****************获取传感器数据时间可能较长，先开启GPS定位节省时间*****************/
+	Sensors.QueryPinStaus(  );
+	
+	if(Sensors.WaterSensor)
+	{
+		DEBUG_APP(2, "Sensors.WaterSensor Sleep time: 30min");
+		User.SleepTime = 30;
+	}
+		
   LedOff(  );
 }
 
@@ -680,7 +690,6 @@ void String_Conversion(char *str, uint8_t *src, uint8_t len)
 	src[i]=(uint8_t)v;
  }
 }
-
 
 void UserReadFlash(void)
 {	

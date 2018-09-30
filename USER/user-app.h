@@ -51,6 +51,7 @@ typedef struct f_User
 	uint32_t 	SleepTime;
 	bool 			Ack;
 	bool 			Sleep;
+	bool 			TestMode;
 }User_t;
 
 extern UserZeta_t UserZetaCheck[];

@@ -123,13 +123,13 @@ void BoardDeInitMcu( void )
 	
 	/*******************关闭SPI*********************/
 		
-	GPIO_InitStructure.Pin = GPIO_PIN_All;   ///GPIO_PIN_ll 0xF7FF
+	GPIO_InitStructure.Pin = 0xF7FF;   ///GPIO_PIN_ll 0xF7FF  
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG; ///low_power,其它较高
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
 
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure); 
-	
+		
 	GPIO_InitStructure.Pin = GPIO_PIN_All;   ///GPIO_PIN_All
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG; ///low_power,其它较高
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
@@ -138,7 +138,7 @@ void BoardDeInitMcu( void )
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 	HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
 					
-  GPIO_InitStructure.Pin = GPIO_PIN_All;  /// PB9：CH_CE(ok) 0xDFFF
+  GPIO_InitStructure.Pin = 0xDFFF;  /// PB9：CH_CE(ok) 0xDFFF
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	

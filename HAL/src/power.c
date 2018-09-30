@@ -86,30 +86,40 @@ uint8_t ReadBattery(void)
 	uint8_t s1, s2, PG;
 	
 	uint8_t  Battery = CheckBattery(  );
-
-	BatEnableCharge(  );
 	
-	HAL_Delay(1000);
-
 	s1 = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_STAT1_Pin);
 	s2 = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_STAT2_Pin);
 	PG = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_PG_Pin);
 	
-	 switch( (s2<<1) | s1 )
+	if(PG == RESET) ///接入充电器
 	{
-		case 0x01:
-				User.BatState = 0x01;
-				DEBUG(2,"11充电完成\r\n");
-		break;
-		case 0x02:
-				User.BatState = 0x02;
-				DEBUG(2,"11正在充电\r\n");
-		break;
-		default:
-				User.BatState = 0x03;
-				DEBUG(2,"11未充电\r\n");
-		break;
+		switch( (s2<<1) | s1 )
+		{
+			case 0x01:
+					User.BatState = 0x01;
+					DEBUG(2,"11充电完成\r\n");
+			break;
+			case 0x02:
+					User.BatState = 0x02;
+					DEBUG(2,"11正在充电\r\n");
+			break;
+			default:
+					User.BatState = 0x03;
+					DEBUG(2,"11未充电\r\n");
+			break;
+		}
 	}
-		return Battery;
+	else
+		User.BatState = 0x04; ///未接入适配器
+	
+	/*************电量<80%手动开启充电**************/
+	if(Battery <= 85 && User.BatState == 0x03)
+	{
+		BatDisableCharge(  );
+		HAL_Delay(1000);
+		BatEnableCharge(  );
+	}
+
+	return Battery;
 }
 
