@@ -368,8 +368,7 @@ void UserDownCommand(void)
 		
 		if(0XA4 == ZetaRecviceBuf.RevBuf[0])
 		{
-			
-		
+			HAL_NVIC_SystemReset(  ); 		
 		}	
 		
 		break;
@@ -709,6 +708,12 @@ void UserReadFlash(void)
 			FlashWrite32(SLEEP_ADDR,&time,1);			
 	 }
 	
+	 if(FlashRead32(AQUATIC_MODE_ADDR)==0||FlashRead32(AQUATIC_MODE_ADDR)==0xffffffff)
+	{
+			uint32_t data = 1;//Ä¬ÈÏÅ©³¡
+			FlashWrite32(AQUATIC_MODE_ADDR,&data,1);			
+	 }
+	
 	 if(FlashRead32(MAXLEN_ADDR)==0||FlashRead32(MAXLEN_ADDR)==0xffffffff)
 	 {
 			ZetaSendBuf.MaxLen = 38;
@@ -728,8 +733,10 @@ void UserReadFlash(void)
 			DEBUG_APP(2,"ZetaSendBuf.MaxLen = %d",ZetaSendBuf.MaxLen);
 	 }
 	 
-	User.SleepTime =	FlashRead32(SLEEP_ADDR);
+	User.SleepTime = FlashRead32(SLEEP_ADDR);
+	
+	Sensors.SceneSelection = FlashRead32(AQUATIC_MODE_ADDR);
 		 
-	DEBUG_APP(2,"User.SleepTime = %d \r\n",User.SleepTime);
+	DEBUG_APP(2,"User.SleepTime = %d SceneSelection = %d\r\n",User.SleepTime,Sensors.SceneSelection);
 
 }

@@ -98,7 +98,7 @@ void BoardDeInitMcu( void )
     /* Disable the Peripheral */	
 	HAL_ADC_MspDeInit(&hadc);  ///OK
 	hadc.State = HAL_ADC_STATE_RESET;
-
+	
 	HAL_UART_DeInit(&hlpuart1);
 	hlpuart1.gState = HAL_UART_STATE_RESET;
 	

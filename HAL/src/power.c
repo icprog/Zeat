@@ -69,7 +69,7 @@ int8_t CheckBattery(void)
 	
 	float temp = adc[1] * VFULL;
 	
-	DEBUG(2, "BAT = %d adc17 = %d , adc0 = %d, VBAT = %.2fmV \r\n", *VREFINT_CAL_ADDR,  adc[1], adc[0], (VBAT/temp)*2000);  ///100:510
+	DEBUG_APP(2, "BAT = %d adc17 = %d , adc0 = %d, VBAT = %.2fmV", *VREFINT_CAL_ADDR,  adc[1], adc[0], (VBAT/temp)*2000);  ///100:510
 		
 	Battery = (((VBAT/temp)*2000 - 3600)/6);
 	
@@ -80,41 +80,65 @@ int8_t CheckBattery(void)
 	return Battery;
 }
 
+/*
+*CheckRecharge：判断是否接入适配器/太阳能板
+*返回值：			  充电状态
+*/
+uint16_t CheckRecharge(void)
+{
+	uint16_t adc[3] = {0};
+	uint16_t Battery = 1000;
+	uint8_t  State = 0;
+	
+	adc[0] = AdcReadParameter(ADC_CHANNEL_0, 10);
+	float Rechargeing = VREFINT_CAL_VREF*(*VREFINT_CAL_ADDR)*adc[0]; 
+	
+	adc[1] = AdcReadParameter(ADC_CHANNEL_VREFINT, 10);
+	
+	float temp = adc[1] * VFULL;
+	
+	DEBUG_APP(2, "BAT = %d adc17 = %d , adc0 = %d %.2f\r\n", *VREFINT_CAL_ADDR,  adc[1], adc[0],temp);  ///100:510
+		
+	Battery *= (float)((Rechargeing/temp)*222/22);
+	
+	DEBUG_APP(2,"VBAT = %.2fmV",(float)Battery);
+		
+	return Battery;
+}
 
 int8_t ReadBattery(void)
 {
 	uint8_t s1, s2, PG;
+	uint16_t RechargeData = 0;
 	
 	int8_t  Battery = CheckBattery(  );
 	
 	s1 = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_STAT1_Pin);
 	s2 = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_STAT2_Pin);
-	PG = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_PG_Pin);
-	
-	if(PG == RESET) ///接入充电器
+	PG = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_PG_Pin);	
+
+	switch( (s2<<1) | s1 )
 	{
-		switch( (s2<<1) | s1 )
-		{
-			case 0x01:
-					User.BatState = 0x01;
-					DEBUG(2,"11充电完成\r\n");
-			break;
-			case 0x02:
-					User.BatState = 0x02;
-					DEBUG(2,"11正在充电\r\n");
-			break;
-			default:
-					User.BatState = 0x03;
-					DEBUG(2,"11未充电\r\n");
-			break;
-		}
+		case 0x01:
+				User.BatState = 0x01;
+				DEBUG_APP(2,"11充电完成\r\n");
+		break;
+		case 0x02:
+				User.BatState = 0x02;
+				DEBUG_APP(2,"11正在充电\r\n");
+		break;
+		default:
+				User.BatState = 0x03;
+				DEBUG_APP(2,"11未充电\r\n");
+					
+		break;
 	}
-	else
+	
+	RechargeData = CheckRecharge(  );
+	if(RechargeData >= 4000)
 	{
-		User.BatState = 0x04; ///未接入适配器
-		BatDisableCharge(  );
-		HAL_Delay(1000);
-		BatEnableCharge(  );
+		User.BatState = 0x04;
+		DEBUG_APP(2,"有效充电电压\r\n");
 	}
 	
 	/*************电量<80%手动开启充电**************/

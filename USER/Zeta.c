@@ -179,10 +179,9 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 		case 0xA4:  ///进入水产模式
 			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
 			{			
-				state = 0x01;
+				uint32_t data = RevBuf[1];
+				state = FlashWrite32( AQUATIC_MODE_ADDR, &data, AQUATIC_MODE_SIZE );
 			}
-			else
-				state = 0xfe;
 		
 		break;
 		

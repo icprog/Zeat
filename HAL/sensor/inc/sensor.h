@@ -19,6 +19,8 @@
 #endif	 
 		
 #define RS485_IDE_LEN       		2     ///485接口ID+传感器标识占用长度
+
+#define WATERSENSORNUMBER				3
 		
 #define GET_CRC(__X__,DATA)    	((__X__)[1] = ((DATA & 0xff00) >> 8), (__X__)[0] = (DATA & 0x00ff))
 #define ARRAY(__X__)   					(sizeof(__X__)/sizeof(__X__[0]))
@@ -238,8 +240,12 @@ typedef struct u_SendBuf
 */
 typedef struct u_Sensor
 {
+	/**************接入传感器总数量*****************/
 	uint8_t						Counter;
 	
+	/**************设备工作场景选择：1：农场，2：水产*****************/
+	uint8_t				    SceneSelection;
+
 	/**************水产传感器标识，作为自动更改发送时间间隔*****************/
 	bool 							WaterSensor;    
 		

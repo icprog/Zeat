@@ -129,3 +129,5 @@ E：接收数据成功：200ms(亮)----200ms(灭)
 RS485_IDE_LEN+4
 SaveRs485s[index].MainBox.ExpendBox[ExpId].SensorToLen -= 4; ///过滤掉4字节，数据类型表示
 
+A4014D
+A4021E

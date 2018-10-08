@@ -12,7 +12,7 @@
 #define MAXLEN_ADDR				0x0801ffbc			//Zeta数据长度存储地址
 #define MAXLEN_ADDR_SIZE	0x01				//Zeta数据长度占用存储空间
 
-#define AQUATIC_MODE_ADDR 0x0801ffbb   //水产工作模式选择
+#define AQUATIC_MODE_ADDR 0x0801ffb8   //水产工作模式选择
 #define AQUATIC_MODE_SIZE	0x01				
 
 #define FLAG_ADD					0x0801fd10			//备份寄存器的代替位置，用于记录各种标识位

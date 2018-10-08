@@ -121,7 +121,7 @@ void MX_USART2_UART_Init(void)
     Error_Handler();
   }
 	
-	HAL_NVIC_SetPriority(USART2_IRQn, 4, 0);
+	HAL_NVIC_SetPriority(USART2_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(USART2_IRQn);
 	HAL_UART_Receive_IT(&huart2,UART_RX_DATA2.aRxBuffer, RXBUFFERSIZE);
 }
@@ -143,7 +143,7 @@ void MX_USART5_UART_Init(void)
   {
     Error_Handler();
   }
-	HAL_NVIC_SetPriority(USART4_5_IRQn, 6, 0);
+	HAL_NVIC_SetPriority(USART4_5_IRQn, 4, 0);
   HAL_NVIC_EnableIRQ(USART4_5_IRQn);
 }
 
