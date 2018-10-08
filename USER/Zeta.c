@@ -139,7 +139,6 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 				User.SleepTime =	FlashRead32(SLEEP_ADDR);
 								
 				DEBUG_APP(2,"----data----%d User.SleepTime = %d",data,User.SleepTime);
-
 			}
 			
 		break;
@@ -167,13 +166,23 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 		
 		break;
 			
-		case 0xA3:
+		case 0xA3:  ///获取MAC地址
 			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
 			{			
 				state = 0x03;
 			}
 			else
 				state = 0xfc;
+		
+		break;
+			
+		case 0xA4:  ///进入水产模式
+			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
+			{			
+				state = 0x01;
+			}
+			else
+				state = 0xfe;
 		
 		break;
 		

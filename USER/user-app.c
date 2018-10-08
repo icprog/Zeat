@@ -61,7 +61,7 @@ void UserCheckSensors(void)
 	if(Sensors.WaterSensor)
 	{
 		DEBUG_APP(2, "Sensors.WaterSensor Sleep time: 30min");
-		User.SleepTime = 1;
+		User.SleepTime = 30;
 	}
 		
   LedOff(  );
@@ -139,7 +139,11 @@ void UserSendSensor(void)
 	if(!User.Sleep) ///上电第一次查询操作
 	Sensors.CheckHandle(  );
 	else   ///休眠后操作
-	Sensors.Handle(  );
+	{
+		LedOn(  );
+		Sensors.Handle(  );
+		LedOff(  );
+	}
 	
 	ZetaSendBuf.Buf[0] = 0xff;
 	ZetaSendBuf.Buf[1] = 0x00;
@@ -361,7 +365,13 @@ void UserDownCommand(void)
 		LedSendSucess(8);   ///每包数据间隔4S
 		
 		UpSeqCounter ++;
+		
+		if(0XA4 == ZetaRecviceBuf.RevBuf[0])
+		{
 			
+		
+		}	
+		
 		break;
 		
 		case 0x03:   ///上报MAC地址
@@ -405,7 +415,7 @@ void UserDownCommand(void)
 			
 		break;
 		
-		case 0xFC:
+		case 0xFC:  ///获取MAC校验错误
 			
 		ZetaSendBuf.Buf[10 + len++] = ACKMAC;
 		ZetaSendBuf.Buf[10 + len++] = 0x02;

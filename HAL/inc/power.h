@@ -16,9 +16,9 @@
 
 void BatteryInit(void);
 
-uint8_t CheckBattery(void);
+int8_t CheckBattery(void);
 
-uint8_t ReadBattery(void);
+int8_t ReadBattery(void);
 
 void BatEnableCharge(void);
 

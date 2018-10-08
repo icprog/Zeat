@@ -703,21 +703,17 @@ static HAL_StatusTypeDef SensorExpBoxAddr(int index)
 			{
 				//广播信息没有返回，认为这个传感器不接受FE查询
         //遍历
-        DEBUG_WARNING(2,"port=%d sensor don`t return FE statr foreach",ExpIndex);			
+        DEBUG_WARNING(2,"port=%d sensor don`t return FE statr foreach CheckRs485s = %d",ExpIndex,ARRAY(CheckRs485s));			
 				
-				DEBUG_APP(2,"main_port = %02x, exbox_port=%d sensor",MainIndex,ExpIndex);		
 				uint32_t startTime = HAL_GetTick();
 				int i;
 				  
-				for(int i = 12 ; i < ARRAY(CheckRs485s) ; i ++) ///只查询叶面传感器  4   7
+				for(int i = 12; i < ARRAY(CheckRs485s); i ++) ///只查询叶面传感器  4   7
 				{
 					len = Rs485s.Cmd(CheckRs485s[i].SendBuff,CheckRs485s[i].SendDataLen, NODEBUG, CheckRs485s[i].TimeOut);
 				
 					if(len == CheckRs485s[i].RevDataLen)
-					{
-						//找到了
-						DEBUG_APP(2,"device had find:%02x",CheckRs485s[i].Addr);
-						
+					{						
 						SaveRs485s[index].MainBox.ExpendBox[ExpId].ExpenCheck = true;
 						SaveRs485s[index].MainBox.ExpendBox[ExpId].Index = (MainIndex<<4)|ExpId;   
 						SaveRs485s[index].MainBox.ExpendBox[ExpId].CheckIndex = i; ///记录查询下标
@@ -731,6 +727,7 @@ static HAL_StatusTypeDef SensorExpBoxAddr(int index)
 						
 						memcpy1(SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff,Rs485s.Revbuff,len);
 						
+						DEBUG_APP(2,"main_port = %02x, exbox_port=%d sensor Rs485 revData : ",MainIndex,ExpIndex);		
 						DEBUG_APP(2,"rs485 ExpendBox get data = ");		
 						Rs485s.Print(SaveRs485s[index].MainBox.ExpendBox[ExpId].DataBuff,len, APP); 
 						

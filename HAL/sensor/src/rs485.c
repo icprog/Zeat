@@ -178,7 +178,7 @@ uint8_t Rs485Cmd(uint8_t *sendData, uint8_t len, uint8_t debuglevel, uint32_t ti
 		}
 		else
     HAL_Delay(NBI_RS485_REV_TIME_OUT);
-						
+								
     uint8_t length = Rs485s.GetData(temp,debuglevel);
 		
 		memcpy1(Rs485s.Revbuff,temp,length);

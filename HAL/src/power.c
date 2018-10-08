@@ -57,10 +57,10 @@ void BatDisableCharge(void)
 *CheckBattery：读取电池电量
 *返回值：			 电量百分比
 */
-uint8_t CheckBattery(void)
+int8_t CheckBattery(void)
 {
 	uint16_t adc[3] = {0};
-	uint8_t  Battery = 0;
+	int8_t  Battery = 0;
 	
 	adc[0] = AdcReadParameter(ADC_CHANNEL_1, 10);
 	float VBAT = VREFINT_CAL_VREF*(*VREFINT_CAL_ADDR)*adc[0]; 
@@ -81,11 +81,11 @@ uint8_t CheckBattery(void)
 }
 
 
-uint8_t ReadBattery(void)
+int8_t ReadBattery(void)
 {
 	uint8_t s1, s2, PG;
 	
-	uint8_t  Battery = CheckBattery(  );
+	int8_t  Battery = CheckBattery(  );
 	
 	s1 = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_STAT1_Pin);
 	s2 = (uint8_t)HAL_GPIO_ReadPin(OUT_CH_CE_GPIO_Port,IN_CH_STAT2_Pin);
@@ -110,10 +110,15 @@ uint8_t ReadBattery(void)
 		}
 	}
 	else
+	{
 		User.BatState = 0x04; ///未接入适配器
+		BatDisableCharge(  );
+		HAL_Delay(1000);
+		BatEnableCharge(  );
+	}
 	
 	/*************电量<80%手动开启充电**************/
-	if(Battery <= 85 && User.BatState == 0x03)
+	if(Battery <= 85 || User.BatState == 0x03)
 	{
 		BatDisableCharge(  );
 		HAL_Delay(1000);

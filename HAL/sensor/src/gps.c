@@ -118,7 +118,7 @@ void GpsGetPosition(uint8_t *GpsBuf)
 	
 	GpsBuf[len++] = 0XFD; //GPS	
  
-	if(( SetGpsAck.GetPation == PATIONDONE )&& SetGpsAck.Posfix) ///判断是否有GPS、获取GPS信息  
+	if(( SetGpsAck.GetPation == PATIONDONE ) && SetGpsAck.Posfix) ///判断是否有GPS、获取GPS信息  
 	{	        		 
 		NMEA_GPGLL_Analysis(&gpsx, (uint8_t *)SetGpsAck.GLL); ///经纬度  "$GPGLL,2233.1773,N,11356.7148,E,094100.210,A,A*5E\r\n"
 

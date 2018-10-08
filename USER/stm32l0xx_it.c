@@ -160,10 +160,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	Timer2_Counter++;
 	
-	if(Timer2_Counter>20 && SetGpsAck.GetPation == PATIONNULL)
+	if(Timer2_Counter>20)
 	{
 		DEBUG(3,"%s\r\n",__func__);
-		Gps.GetPosition( SetGpsAck.PationBuf );
+		
+		if( SetGpsAck.GetPation != PATIONFAIL )
+		{
+			Gps.GetPosition( SetGpsAck.PationBuf );
+		}
 		
 		LedDisplay(  );
 		Timer2_Counter = 0;
