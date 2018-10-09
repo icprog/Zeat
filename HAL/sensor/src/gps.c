@@ -13,9 +13,9 @@
 #define MTK_POS_FIX			"$PMTK220,1000*1F\r\n" //  $PMTK220,3000*1D
 #define MTK_GLL					"$PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0*28\r\n"
 
-SetGpsAck_t SetGpsAck = {false, false, false, false, {0}, PATIONNULL, 0, {0}, 0, 0, 0};
+SetGpsAck_t SetGpsAck = {false, false, false, false, false, {0}, PATIONNULL, 0, {0}, 0, 0, 0};
 
-const Gps_t Gps = {GpsInit, GpsEnable, GpsDisable, GpsSet, GpsGetPosition};
+const Gps_t Gps = {GpsInit, GpsEnable, GpsDisable, GpsSet, GpsGetPosition, GpsGetPositionAgain};
 
 nmea_msg gpsx; 											//GPS信息
 
@@ -65,8 +65,10 @@ uint8_t GpsSet(void)
 	uint32_t GPS_TIME = 0;
 	
 	do
-	{				
-		HAL_UART_Transmit(&huart2, (uint8_t *)MTK_COULD, sizeof(MTK_COULD), 0xFFFF);
+	{	
+		HAL_NVIC_DisableIRQ(USART2_IRQn);
+		HAL_UART_Transmit(&huart2, (uint8_t *)MTK_COULD, sizeof(MTK_COULD), 0xFFFFFFFF);
+		HAL_NVIC_EnableIRQ(USART2_IRQn);
 		HAL_Delay(1000);	
     GPS_TIME ++;
 		DEBUG(2,"line = %d\r\n",__LINE__);
@@ -85,7 +87,7 @@ uint8_t GpsSet(void)
 		do
 		{
 			HAL_NVIC_DisableIRQ(USART2_IRQn);
-			HAL_UART_Transmit(&huart2, (uint8_t *)MTK_GLL, sizeof(MTK_GLL), 0xFFFF);
+			HAL_UART_Transmit(&huart2, (uint8_t *)MTK_GLL, sizeof(MTK_GLL), 0xFFFFFFFF);
 			HAL_NVIC_EnableIRQ(USART2_IRQn);		
 			HAL_Delay(200);	
 			DEBUG(3,"line = %d\r\n",__LINE__);
@@ -96,7 +98,7 @@ uint8_t GpsSet(void)
 			SetGpsAck.Start = false;
 			SetGpsAck.Gpll = false;
 			HAL_NVIC_DisableIRQ(USART2_IRQn);
-			HAL_UART_Transmit(&huart2, (uint8_t *)MTK_POS_FIX, sizeof(MTK_POS_FIX), 0xFFFF);
+			HAL_UART_Transmit(&huart2, (uint8_t *)MTK_POS_FIX, sizeof(MTK_POS_FIX), 0xFFFFFFFF);
 			HAL_NVIC_EnableIRQ(USART2_IRQn);	
 			HAL_Delay(200);	
 			DEBUG(3,"line = %d\r\n",__LINE__);
@@ -181,18 +183,21 @@ void GpsGetPosition(uint8_t *GpsBuf)
 */
 void GpsGetPositionAgain(void)
 {
+		DEBUG_APP(2,"%s",__func__);
+	
 		SetGpsAck.Start = false;
 		SetGpsAck.Posfix = false;
 		SetGpsAck.Gpll	= false;      
-		SetGpsAck.GetPation = PATIONNULL;
+	
 		Gps.Init(  );
+		
+		HAL_TIM_Base_Start_IT(&htim2);
+
 		Gps.Set(  );	
 		
 		SetLedStates(GpsLocation);
 
 		SetGpsAck.GpsOverTime = HAL_GetTick( );
-	
-		HAL_TIM_Base_Start_IT(&htim2);
 }
 
 const uint32_t BAUD_id[9]={4800,9600,19200,38400,57600,115200,230400,460800,921600};//模块支持波特率数组

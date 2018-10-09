@@ -7,13 +7,14 @@
 #define   GPSWORKTIME			  60e3  ///864e5  == 24H  GPS再次定位时间间隔
 #define 	GPSLEN						11
 
-#define		PATIONDONE				0x01
-#define		PATIONFAIL				0x02
-#define		PATIONNULL				0x03
+#define		PATIONDONE				0x01   ///GPS定位成功
+#define		PATIONFAIL				0x02   ///GPS定位失败
+#define		PATIONNULL				0x03  ///GPS默认状态
 
 typedef struct
 {
 	bool 			Start;
+	bool 			ReStart;
 	bool 			Gpll;
 	bool 			Posfix;
 	bool 			GpsDone;
@@ -33,6 +34,7 @@ typedef struct u_gps
 	void 			(*Disable)(void);
 	uint8_t		(*Set)(void);
 	void 			(*GetPosition)(uint8_t *GpsBuf);
+	void      (*GetPositionAgain)(void);
 }Gps_t;
 
 extern SetGpsAck_t SetGpsAck;

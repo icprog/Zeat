@@ -26,6 +26,7 @@
 
 
 #define NBI_RS485_SEARCH_CODE       0x03
+#define NBI_RS485_MOISTURE_LEAF     0x04
 #define NBI_RS485_SET_CODE          0x05
 		
  

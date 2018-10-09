@@ -20,10 +20,10 @@
 CheckRs485_t CheckRs485s[] = {
 ///Addr  Identifier	RegAddress  RegDatalen  SendDataLen	RevDataLen	SensorToLen  		   TimeOut  SendBuff		revBuff			name
 	{0x00, 0x00,				0x0000,     0x0000,         7,          9,    RS485_IDE_LEN+4,    200*1, "EXPEND",  	"",    		"EXPEND"},	///扩展盒
-	{0x02, 0x02,				0x0000, 		0x0002,  				6,					9, 		RS485_IDE_LEN+4,		200*1,		"" ,			"" ,		"SWR-100W"},  ///土壤温湿度
+	{0x02, 0x02,				0x0000, 		0x0002,  				6,					9, 		RS485_IDE_LEN+4,		500*1,		"" ,			"" ,		"SWR-100W"},  ///土壤温湿度
 	{0x05, 0x05,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,	  "" ,			"" ,			 "ST_PH"},  ///土壤、水PH  1000*30
 	{0x06, 0x06,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		   "ST_GH"},	///光合有效
-	{0x0C, 0x03,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		200*1,		"" ,			"" ,		   "ST-TW"},  ///土壤温度
+	{0x0C, 0x03,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		500*1,		"" ,			"" ,		   "ST-TW"},  ///土壤温度
 	{0x0D, 0x0D,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		   "ST-EC"},  ///EC
 	{0x0E, 0x0E,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*10,	"" ,			"" ,		  "ST_CO2"},	///CO2		
 //	{0x0F, 0x24,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		"ST_AP"		},///气象站：大气压				
@@ -35,9 +35,12 @@ CheckRs485_t CheckRs485s[] = {
 
 	/****************************   以下传感器不支持广播命令   ***************************/
 	{0x07, 0x07,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		 "ST_Y/MW"},  ///叶面温度
+		    
+			/**************************   叶面湿度特殊功能码：0x04   *****************/
 	{0x08, 0x08,				0x0001, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*1,		"" ,			"" ,		  "ST_YMS"},  ///叶面湿度
 	{0x17, 0x17,				0x0015, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*4,		"" ,		  "" ,		   "WH_EC"},  ///威海土壤EC	
-       /**************************   以下传感器：水产   *****************/
+       
+			/**************************   以下传感器：水产   *****************/
 	{0x05, 0x05,				0x0000, 		0x0001,  				6,					7, 		RS485_IDE_LEN+2,		1000*60,	"" ,			"" ,			 "WT_PH"},  ///水PH  1000*30
 	{0x11, 0x11,				0x0000, 		0x0002,  				6,					9, 		RS485_IDE_LEN+4,		1000*120,	"" ,			"" ,		     "OXY"},  ///水溶氧 1000*120
 	{0x18, 0x11,				0x0000, 		0x0004,  				6,					13, 	RS485_IDE_LEN+8,		1000*180,	"" ,		  "" ,		     "RDO"},  ///荧光DO
@@ -1064,11 +1067,10 @@ static HAL_StatusTypeDef SensorExpenData(uint8_t index)
 
 	for(Exid = 0; Exid < 5; Exid++)
 	{
-		
+		ex_box ++;
 		/***********************判断对应485接口是否接入传感器***********************************/
 		if( SaveRs485s[index].MainBox.ExpendBox[Exid].ExpenCheck ) 
-		{					
-			ex_box ++;
+		{								
 			/***********************打开扩展盒接口状态***********************************/
 			if(CheckRs485s[EXPENDBOX].RevDataLen != OpenExpenBox(Exid))
 			{
@@ -1213,7 +1215,15 @@ static void RS485CmdPackage(char mode)
 		DEBUG_APP(3,"index = %d,addr = %02X\r\n",index,CheckRs485s[index].Addr);
 		memset(CheckRs485s[index].SendBuff,0,sizeof(CheckRs485s[index].SendBuff));
 		CheckRs485s[index].SendBuff[0] = CheckRs485s[index].Addr;
-		CheckRs485s[index].SendBuff[1] = mode;
+		
+		if(13 == index)
+		{
+			CheckRs485s[index].SendBuff[1] = NBI_RS485_MOISTURE_LEAF;
+		}
+		else
+		{
+			CheckRs485s[index].SendBuff[1] = mode;
+		}
 		CheckRs485s[index].SendBuff[2] = (CheckRs485s[index].RegAddress & 0xFF00)  >> 8;		
 		CheckRs485s[index].SendBuff[3] = (CheckRs485s[index].RegAddress & 0x00FF);
 		CheckRs485s[index].SendBuff[4] = (CheckRs485s[index].RegDatalen & 0xFF00)  >> 8;				

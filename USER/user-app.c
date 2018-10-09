@@ -78,8 +78,7 @@ void UserSend(Zeta_t *SendBuf)
 	uint8_t ApplyCounter = 0;
 	
 	for(uint8_t i = 0; i < 3; i++)
-	{
-		
+	{	
 		DEBUG(2,"start send data\r\n");
 		
 		for(uint8_t j = 0; j<SendBuf->Len; j++)
@@ -114,6 +113,12 @@ void UserSend(Zeta_t *SendBuf)
 					ApplyCounter = 0;
 					
 					ZetaHandle.PowerOff(  );
+					
+					if(GPSEXIST == DeviceInfo[1])
+					{
+						SetGpsAck.ReStart = true;
+					}
+					
 					SetRtcAlarm(60); 
 					UserIntoLowPower(  );
 				}
@@ -201,15 +206,31 @@ void UserSendGps(void)
 	uint32_t overtime  = 0;
 		
 	if(GPSEXIST == DeviceInfo[1])
-	{			
+	{						 
+		/***************再次定位 Satrt**************/
+		
+		if(SetGpsAck.ReStart)
+		{
+			/*****************接收到再次定位或者上电入网失败休眠后再次定位********************/
+			if( SetGpsAck.GetPation == PATIONNULL )
+			Gps.GetPositionAgain(  );
+			
+			SetGpsAck.ReStart = false;
+		}
+
+		/***************再次定位 End**************/
+		
 		DEBUG_APP(2,"11SetGpsAck.GetPation = %d",SetGpsAck.GetPation);
 
 		while( SetGpsAck.GetPation == PATIONNULL && SetGpsAck.Posfix);
 		
 		DEBUG_APP(2,"SetGpsAck.GetPation = %d",SetGpsAck.GetPation);
-		
-		overtime = HAL_GetTick();
-		while(!SetGpsAck.GpsDone && (HAL_GetTick( ) - overtime <3000));
+
+		/************************等待GPS位置信息解析完成**********************/
+		if(SetGpsAck.GetPation == PATIONDONE)
+		{
+			HAL_Delay(2000);
+		}
 		
 		if(SetGpsAck.GpsDone)
 		{
@@ -507,6 +528,12 @@ void UserCheckCmd(UserZeta_t *UserZetaCheckCmd)
 					ApplyCounter = 0;
 					
 					ZetaHandle.PowerOff(  );
+					
+					if(GPSEXIST == DeviceInfo[1])
+					{
+						SetGpsAck.ReStart = true;
+					}
+					
 					SetRtcAlarm(60); 
 					UserIntoLowPower(  );
 				}

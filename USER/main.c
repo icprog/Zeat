@@ -66,7 +66,7 @@ int main(void)
 		 SensorTime = HAL_GetTick(  );		
 
 		 UserSendSensor(  );
-		 
+
 		  ////上报GPS信息
 		 UserSendGps(  ); 
 		 

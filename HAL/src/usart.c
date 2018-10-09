@@ -59,7 +59,6 @@ void InitUartFifo(void)
 
 void MX_USART1_UART_Init(void)
 {
-
   huart1.Instance = USART1;
   huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
@@ -75,7 +74,7 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
 	
-	HAL_NVIC_SetPriority(USART1_IRQn, 6, 0);
+	HAL_NVIC_SetPriority(USART1_IRQn, 7, 0);
   HAL_NVIC_EnableIRQ(USART1_IRQn);
 	HAL_UART_Receive_IT(&huart1,UART_RX_DATA1.aRxBuffer, RXBUFFERSIZE);
 }
@@ -418,9 +417,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 					memcpy(SetGpsAck.GLL, UART_RX_DATA2.USART_RX_BUF, UART_RX_DATA2.USART_RX_Len);
 					SetGpsAck.GLL[UART_RX_DATA2.USART_RX_Len++]='\r';
           SetGpsAck.GLL[UART_RX_DATA2.USART_RX_Len++]='\n';
-
-					DEBUG(2,"Counter:%d,GLL--%s",SetGpsAck.PosfixCounter,SetGpsAck.GLL);
-
 				}
 				else if(UART_RX_DATA2.USART_RX_BUF[UART_RX_DATA2.USART_RX_Len-6] == 'V')
 				{

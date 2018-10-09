@@ -146,9 +146,12 @@ uint8_t ZetaDownCommand(uint8_t *RevBuf)
 		case 0xA1: ///重新上报GPS位置信息
 			if( 0x00 == ZetaHandle.CRC8( RevBuf,3 ) )
 			{
-				GpsGetPositionAgain(  );
+				SetGpsAck.ReStart = true;
+				SetGpsAck.GetPation = PATIONNULL;
 				state = 0x01;
 			}
+			else
+				state = 0xFE;
 			break;
 			
 		case 0xA2:

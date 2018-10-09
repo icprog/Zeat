@@ -172,7 +172,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		LedDisplay(  );
 		Timer2_Counter = 0;
 	}
+	
+	/***************再次定位 Satrt**************/
+//		if(SetGpsAck.ReStart)
+//		{
+//			Gps.Disable( );  
+//			SetGpsAck.ReStart = false;
+//			Gps.Set(  );	
+//			
+//			SetLedStates(GpsLocation);
 
+//			SetGpsAck.GpsOverTime = HAL_GetTick( );
+//		}
+		/***************再次定位 End**************/
 }
 
 
@@ -208,9 +220,6 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 	{
 		BoardInitMcu( );
 		DEBUG(2,"wkup low-power now\r\n");
-		
-		if(CheckBattery(  ) == 3)
-		UserIntoLowPower(  );
 	}
     /** enable irq */
 	__enable_irq( );
